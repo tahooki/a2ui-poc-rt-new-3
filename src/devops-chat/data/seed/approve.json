@@ -1,0 +1,136 @@
+{
+  "key": "approve",
+  "navLabel": "승인",
+  "pageTitle": "Approvals",
+  "pageDescription": "운영 배포 승인 요청을 검토하고 승인 또는 보류를 처리합니다.",
+  "pageScope": "production / shared approval queue",
+  "lastUpdated": "Seed snapshot · 2026-03-24 10:15 KST",
+  "filters": [
+    "Environment: Production",
+    "Risk: Warning+",
+    "Team: Payments",
+    "Status: Pending"
+  ],
+  "primaryActionLabel": "검토 시작",
+  "tableTitle": "Approval requests",
+  "assistantTitle": "AI Approval Assistant",
+  "assistantDescription": "승인 판단에 필요한 정보만 다시 압축해서 보여주는 사이드 워크스페이스입니다.",
+  "composerPlaceholder": "예: 현재 선택한 승인 요청의 핵심 리스크만 정리해줘",
+  "selectedId": "apr-312",
+  "intents": [
+    {
+      "id": "approval-summary",
+      "label": "승인 대기 요약",
+      "prompt": "현재 선택한 승인 요청의 핵심 판단 포인트를 요약해줘"
+    },
+    {
+      "id": "approval-risk",
+      "label": "핵심 리스크 보기",
+      "prompt": "현재 선택한 요청의 리스크와 영향 범위만 압축해줘"
+    },
+    {
+      "id": "approval-hold",
+      "label": "보류 사유 정리",
+      "prompt": "현재 선택한 요청을 보류한다면 어떤 사유가 적절한지 정리해줘"
+    }
+  ],
+  "items": [
+    {
+      "id": "apr-312",
+      "service": "payments-api",
+      "environment": "production",
+      "requestedBy": "mina.cho",
+      "team": "Payments",
+      "requestedAt": "10:08 KST",
+      "requestWindow": "today · 10:30-11:00 KST",
+      "riskSummary": "1 warn / 0 fail",
+      "riskTone": "warning",
+      "verificationSummary": "Canary dry-run passed",
+      "verificationChecks": [
+        "staging smoke passed",
+        "10% canary verification passed",
+        "DB schema change 없음"
+      ],
+      "impactScope": "payments-api only",
+      "changeSummary": [
+        "application release only",
+        "payment auth timeout handling 개선",
+        "consumer-facing config change 없음"
+      ],
+      "rollbackAvailability": "immediate rollback available",
+      "notes": [
+        "latency watch needed for 10% canary",
+        "support team notified in advance"
+      ],
+      "status": "pending",
+      "assistantMessages": [
+        "승인 판단에 필요한 핵심 정보만 정리했습니다.",
+        "DB 스키마 변경은 포함되지 않았습니다.",
+        "이 요청은 즉시 롤백 가능한 배포입니다."
+      ]
+    },
+    {
+      "id": "apr-311",
+      "service": "checkout",
+      "environment": "production",
+      "requestedBy": "d.son",
+      "team": "Commerce",
+      "requestedAt": "09:42 KST",
+      "requestWindow": "today · 09:50-10:20 KST",
+      "riskSummary": "0 warn / 0 fail",
+      "riskTone": "success",
+      "verificationSummary": "Ready",
+      "verificationChecks": [
+        "synthetic checkout passed",
+        "API error budget healthy",
+        "rollback image pinned"
+      ],
+      "impactScope": "checkout + cart",
+      "changeSummary": [
+        "application release only",
+        "feature flag disabled by default"
+      ],
+      "rollbackAvailability": "rollback available in under 5 minutes",
+      "notes": [
+        "pre-production verification already signed off"
+      ],
+      "status": "approved",
+      "assistantMessages": [
+        "이 요청은 이미 승인 처리되었습니다.",
+        "필요하면 승인 근거를 다시 요약할 수 있습니다."
+      ]
+    },
+    {
+      "id": "apr-309",
+      "service": "inventory-sync",
+      "environment": "staging",
+      "requestedBy": "sre-bot",
+      "team": "Platform",
+      "requestedAt": "08:58 KST",
+      "requestWindow": "today · 09:10-09:40 KST",
+      "riskSummary": "2 warn / 0 fail",
+      "riskTone": "danger",
+      "verificationSummary": "Manual review",
+      "verificationChecks": [
+        "queue lag warning remains open",
+        "schema diff 없음",
+        "manual sign-off required"
+      ],
+      "impactScope": "inventory projection pipeline",
+      "changeSummary": [
+        "worker concurrency increase",
+        "manual validation required before release"
+      ],
+      "rollbackAvailability": "staging rollback available",
+      "notes": [
+        "queue lag warning unresolved",
+        "hold until manual review complete"
+      ],
+      "status": "held",
+      "assistantMessages": [
+        "이 요청은 현재 보류 상태입니다.",
+        "보류를 해제하려면 미해결 경고부터 정리해야 합니다."
+      ]
+    }
+  ]
+}

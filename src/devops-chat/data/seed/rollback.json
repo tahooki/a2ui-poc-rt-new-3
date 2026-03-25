@@ -1,0 +1,148 @@
+{
+  "key": "rollback",
+  "navLabel": "롤백",
+  "pageTitle": "Rollback",
+  "pageDescription": "문제 배포를 탐지하고 안전한 복귀 버전을 기준으로 롤백을 준비합니다.",
+  "pageScope": "production / incident-linked changes",
+  "lastUpdated": "Seed snapshot · 2026-03-24 10:15 KST",
+  "filters": [
+    "Service: payments-api",
+    "Severity: High+",
+    "Environment: Production",
+    "Incident: Open"
+  ],
+  "primaryActionLabel": "Rollback 준비",
+  "tableTitle": "Rollback candidates",
+  "assistantTitle": "AI Rollback Assistant",
+  "assistantDescription": "문제 배포와 마지막 안정 버전을 비교해 안전한 복귀 플로우만 남깁니다.",
+  "composerPlaceholder": "예: 현재 선택한 서비스의 안전한 롤백 버전을 찾아줘",
+  "selectedId": "rb-108",
+  "intents": [
+    {
+      "id": "rollback-summary",
+      "label": "안전한 롤백 버전 찾기",
+      "prompt": "현재 선택한 인시던트 기준으로 가장 안전한 롤백 버전을 정리해줘"
+    },
+    {
+      "id": "rollback-impact",
+      "label": "영향 범위 점검",
+      "prompt": "현재 선택한 롤백의 영향 범위와 dry run 체크 항목만 정리해줘"
+    },
+    {
+      "id": "rollback-confirm",
+      "label": "최종 확인 카드 열기",
+      "prompt": "현재 선택한 롤백의 최종 확인 카드를 열어줘"
+    }
+  ],
+  "items": [
+    {
+      "id": "rb-108",
+      "service": "payments-api",
+      "environment": "production",
+      "incident": "INC-842 card timeout",
+      "severity": "high",
+      "currentVersion": "v2.3.18",
+      "lastStableVersion": "v2.3.16",
+      "updatedAt": "5m ago",
+      "status": "dry_run_ready",
+      "evidence": [
+        "24h error rate below 0.3% on v2.3.16",
+        "timeout spike started immediately after v2.3.18 rollout",
+        "blast radius limited to payments-api"
+      ],
+      "blastRadius": "payments-api only",
+      "recoveryWindow": "10 minute canary verification",
+      "recentDeployHistory": [
+        "v2.3.18 deployed 09:58 KST",
+        "error spike detected 10:03 KST",
+        "baseline v2.3.16 healthy for previous 24h"
+      ],
+      "dryRunChecks": [
+        "artifact pinning to v2.3.16 확인",
+        "drain policy enabled for 10% canary",
+        "customer support hot path notice sent"
+      ],
+      "confirmChecklist": [
+        "incident commander notified",
+        "rollback window reserved",
+        "payment reconciliation watch enabled"
+      ],
+      "notes": [
+        "p95 latency spike after recent deploy",
+        "rollback before traffic grows further"
+      ],
+      "assistantMessages": [
+        "최근 장애 이전의 마지막 안정 버전을 기준으로 롤백을 준비했습니다.",
+        "영향 범위 점검을 먼저 수행한 뒤 확정할 수 있습니다.",
+        "최종 롤백 전 확인이 필요한 항목만 남겼습니다."
+      ]
+    },
+    {
+      "id": "rb-104",
+      "service": "checkout",
+      "environment": "production",
+      "incident": "INC-835 auth retries",
+      "severity": "critical",
+      "currentVersion": "v1.8.42",
+      "lastStableVersion": "v1.8.39",
+      "updatedAt": "19m ago",
+      "status": "confirm_ready",
+      "evidence": [
+        "last stable version ran 48h without auth retry spike",
+        "critical incident linked to latest auth provider change"
+      ],
+      "blastRadius": "checkout + login edge",
+      "recoveryWindow": "immediate rollback after command approval",
+      "recentDeployHistory": [
+        "v1.8.42 deployed 09:32 KST",
+        "critical auth retry incident started 09:40 KST"
+      ],
+      "dryRunChecks": [
+        "target image available",
+        "edge cache purge command prepared"
+      ],
+      "confirmChecklist": [
+        "incident channel active",
+        "rollback comms drafted"
+      ],
+      "notes": [
+        "awaiting operator final confirmation"
+      ],
+      "assistantMessages": [
+        "이 후보는 dry run 검증이 끝나서 최종 확정 단계에 있습니다."
+      ]
+    },
+    {
+      "id": "rb-099",
+      "service": "catalog-api",
+      "environment": "staging",
+      "incident": "INC-821 stale cache",
+      "severity": "medium",
+      "currentVersion": "v4.2.1",
+      "lastStableVersion": "v4.2.0",
+      "updatedAt": "41m ago",
+      "status": "executed",
+      "evidence": [
+        "rollback executed successfully",
+        "cache hit ratio returned to baseline"
+      ],
+      "blastRadius": "catalog-api only",
+      "recoveryWindow": "completed",
+      "recentDeployHistory": [
+        "rollback executed 09:20 KST"
+      ],
+      "dryRunChecks": [
+        "completed"
+      ],
+      "confirmChecklist": [
+        "completed"
+      ],
+      "notes": [
+        "service stabilized after rollback"
+      ],
+      "assistantMessages": [
+        "이 롤백은 이미 실행 완료 상태입니다."
+      ]
+    }
+  ]
+}

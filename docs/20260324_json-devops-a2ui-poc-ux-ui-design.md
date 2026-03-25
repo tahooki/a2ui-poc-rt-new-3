@@ -649,9 +649,296 @@ drawer 안에서 지양할 요소:
 
 ---
 
-# 3. UI Design Principles
+# 3. 디자인 시스템 / 컴포넌트 시스템 추천
 
-## 3.1 Admin First
+## 3.1 검토 기준
+
+이 프로젝트의 UI 시스템은 일반 consumer SaaS가 아니라 아래 성격에 맞아야 한다.
+
+- enterprise admin
+- internal tool
+- ops console
+- data table 중심 화면
+- detail panel / drawer 중심 상호작용
+- 보수적인 visual tone
+- React 기반 구현 적합성
+
+평가 기준:
+
+- table, filter bar, detail panel, drawer 조합이 자연스러운가
+- admin shell과 dense information layout에 어울리는가
+- AI assistant를 messenger가 아니라 side workspace처럼 만들기 쉬운가
+- 기본 스타일이 enterprise tone에 가까운가
+- 그대로 쓰기 좋은 영역과 반드시 덮어써야 하는 영역이 명확한가
+
+## 3.2 후보 비교
+
+이 섹션의 목적은 새 라이브러리 결정을 다시 여는 것이 아니라, 왜 현재 repo가 PatternFly 방향으로 수렴했는지 판단 근거를 남기는 것이다.
+
+### 후보 A. PatternFly
+
+공식 문서 기준 근거:
+
+- PatternFly는 table, drawer, data list, popover를 활용한 in-context detail 패턴을 권장한다.
+- Drawer는 overlay와 inline 모두 지원하며, primary-detail view에 자주 사용된다고 설명한다.
+- Usage and behavior 문서는 object list와 detail을 같은 화면에서 다루는 패턴을 명시한다.
+
+이 제품에 맞는 이유:
+
+- 전형적인 enterprise admin / infrastructure console 문법과 가장 가깝다.
+- dense table, status, toolbar, side panel 계열 구성이 자연스럽다.
+- `현재 목록 + 오른쪽 drawer/detail` 조합이 문서 수준에서도 잘 정리돼 있다.
+- AI assistant를 단순 chat이 아니라 `ops side workspace`로 다듬기 쉽다.
+
+이 제품에 덜 맞는 부분:
+
+- 기본 톤이 다소 인프라/플랫폼 제품 쪽으로 강하게 기울어 있어, 화면이 너무 "Red Hat 계열 제품"처럼 보일 수 있다.
+- 기본 컴포넌트 외형을 거의 그대로 쓰면 POC의 시각적 독자성이 약해질 수 있다.
+
+그대로 써도 되는 영역:
+
+- app shell 구조
+- toolbar / filter bar 패턴
+- table + drawer / split detail 패턴
+- status, label, empty state 구조
+
+반드시 커스터마이즈해야 하는 영역:
+
+- color palette
+- typography
+- drawer 내부 assistant card composition
+- AI 관련 microcopy 톤
+
+가져오면 안 되는 스타일/패턴:
+
+- vendor identity가 강하게 느껴지는 default look의 무비판적 사용
+- infra console 느낌을 과도하게 강화하는 icon 과다 사용
+- assistant를 단순 notification drawer처럼 처리하는 방식
+
+판단:
+
+- 구조적 적합성은 가장 높다.
+- visual identity는 반드시 재정의해야 한다.
+
+### 후보 B. Cloudscape Design System
+
+공식 문서 기준 근거:
+
+- App layout은 side navigation, drawers, split panel, tools panel을 포함한 생산성 레이아웃을 제공한다.
+- Patterns 문서는 `table/cards + split panel` 기반 split view를 명시한다.
+- Components 문서는 table, status indicator, app layout, drawer 등 admin console 핵심 요소를 제공한다.
+
+이 제품에 맞는 이유:
+
+- cloud/ops console에 매우 적합한 정보 구조를 이미 갖고 있다.
+- main admin + split panel + tools/drawer 패턴이 이 프로젝트 요구와 매우 유사하다.
+- assistant를 메인 작업을 방해하지 않는 보조 workspace로 붙이기 쉽다.
+
+이 제품에 덜 맞는 부분:
+
+- AWS 콘솔 계열 인상이 강해질 수 있다.
+- 기본 density와 layout 규칙이 다소 강해서, 원하는 화면 분위기에 맞추려면 일부 재조정이 필요하다.
+- 일부 컴포넌트 경험은 "운영 콘솔"에는 좋지만 POC 수준 커스텀 템플릿 card와 섞을 때 이질감이 날 수 있다.
+
+그대로 써도 되는 영역:
+
+- app layout
+- table / collection view
+- split panel / drawer 구조
+- status indicator / flashbar 계열 상태 패턴
+
+반드시 커스터마이즈해야 하는 영역:
+
+- assistant drawer의 내부 정보 위계
+- custom template card shell
+- spacing token의 세부 값
+- 브랜딩 없는 neutral visual tone
+
+가져오면 안 되는 스타일/패턴:
+
+- AWS 콘솔을 연상시키는 기본 톤을 그대로 복제하는 것
+- page tools panel을 AI chat처럼 오해하게 만드는 구성
+- assistant에 generative AI visual language를 과하게 적용하는 것
+
+판단:
+
+- ops console 구조 적합성은 매우 높다.
+- 기본 디자인 언어의 출처가 강하게 보이지 않도록 커스터마이즈가 필요하다.
+
+### 후보 C. MUI + MUI X
+
+공식 문서 기준 근거:
+
+- MUI X Data Grid는 complex, data-intensive applications를 위한 고기능 grid를 제공한다고 설명한다.
+- Data Grid는 standalone customization이 가능하다고 명시한다.
+- Material UI는 Drawer, Table, App Bar, form controls 등 범용 React UI 기반을 제공한다.
+
+이 제품에 맞는 이유:
+
+- React 프로젝트에서 적용 장벽이 낮다.
+- Data Grid와 Drawer 조합으로 admin shell을 빠르게 만들 수 있다.
+- theme override와 slot customization이 쉬워 enterprise tone으로 재가공하기 좋다.
+- AI assistant용 custom card, command composer, structured drawer를 설계하기 편하다.
+
+이 제품에 덜 맞는 부분:
+
+- 기본 Material look을 그대로 쓰면 consumer SaaS나 일반 dashboard처럼 보일 가능성이 있다.
+- admin console 특유의 `ops density`는 기본값보다 더 촘촘하게 다듬어야 한다.
+- Data Grid와 일반 surface 컴포넌트 사이의 시각 밀도를 따로 맞춰야 한다.
+
+그대로 써도 되는 영역:
+
+- form controls
+- drawer primitive
+- menu, popover, dialog
+- data grid 기반 interaction
+
+반드시 커스터마이즈해야 하는 영역:
+
+- typography scale
+- radius
+- elevation / shadow
+- table row density
+- header, panel, drawer의 enterprise visual tone
+
+가져오면 안 되는 스타일/패턴:
+
+- Material 기본 elevation을 강하게 쓰는 카드 레이아웃
+- 밝고 부드러운 consumer dashboard 스타일
+- FAB, oversized tabs, oversized cards 같은 mobile-first visual pattern
+
+판단:
+
+- 구현 유연성은 높다.
+- 기본 look을 그대로 쓰면 이번 프로젝트 방향과 어긋날 가능성이 크다.
+
+### 후보 D. Ant Design
+
+공식 문서 기준 근거:
+
+- Table은 정렬, 검색, 필터, pagination 등 구조화 데이터 관리에 적합하다고 설명한다.
+- Drawer는 same context 안에서 subtask를 수행할 때 유용하다고 설명한다.
+
+이 제품에 맞는 이유:
+
+- internal tool, admin, back-office UI에서 검증된 패턴이 많다.
+- table, form, drawer, filter 조합을 빠르게 만들기 쉽다.
+- 비즈니스 업무용 화면을 빠른 속도로 구현하기 좋다.
+
+이 제품에 덜 맞는 부분:
+
+- 기본 스타일을 그대로 쓰면 범용 백오피스 혹은 중국계 enterprise console 느낌이 강할 수 있다.
+- dense하고 차분한 ops console보다 약간 더 범용 admin에 가깝다.
+- assistant drawer를 별도 작업 공간으로 보이게 하려면 상당한 스타일 재정의가 필요하다.
+
+그대로 써도 되는 영역:
+
+- table 기능성
+- form / filter controls
+- drawer primitive
+- dropdown / menu / pagination
+
+반드시 커스터마이즈해야 하는 영역:
+
+- color token
+- table row 상태 표현
+- panel shell
+- drawer header/composer/card 구조
+
+가져오면 안 되는 스타일/패턴:
+
+- 기본 안트 톤의 glossy함이나 밝은 백오피스 인상
+- 과한 badge/tag 사용
+- assistant 영역을 generic support panel처럼 보이게 만드는 것
+
+판단:
+
+- 빠른 개발에는 유리하다.
+- ops console 특유의 질감은 직접 만들어야 한다.
+
+## 3.3 최종 추천안
+
+이 repo의 현재 선택은 아래 한 줄로 고정한다.
+
+`PatternFly를 구조/interaction primitive의 기준 시스템으로 채택하고, 시각 톤은 repo 전용 dark neutral token으로 재정의한다.`
+
+선정 이유:
+
+- 현재 구현이 이미 `@patternfly/react-core`, `@patternfly/react-table` 기반 shell로 시작되었다.
+- 이 POC의 핵심 조합인 `summary strip + toolbar + dense table + detail panel + right assistant drawer`를 가장 자연스럽게 제공한다.
+- `/deploy`, `/approve`, `/rollback`의 세 화면을 하나의 공통 admin shell로 묶기 쉽다.
+- assistant를 chat product가 아니라 side workspace로 다루기에 적합하다.
+
+채택 방식:
+
+- 그대로 채택: Drawer, Table, Button, Card, Label, 기본 a11y/focus 동작
+- repo가 소유: background, surface, border, text, table tone, nav chip, assistant drawer 내부 위계, template card shell
+- 현재 비채택: MUI + MUI X를 primary implementation path로 다시 열지 않는다
+
+실행 기준:
+
+- PatternFly는 `구조적 기준 + primitive`로 사용한다.
+- 제품의 최종 시각 언어는 `src/app/globals.css`의 repo 토큰과 override가 소유한다.
+- 새 컴포넌트는 가능하면 PatternFly primitive 위에 repo wrapper를 씌우는 방식으로 확장한다.
+
+## 3.4 구현자용 선택 기준
+
+이 프로젝트에서 라이브러리 선택은 사실상 끝났다. 구현자는 아래 기준으로 판단하면 된다.
+
+PatternFly primitive를 그대로 써도 되는 경우:
+
+- table, drawer, button, label, card처럼 enterprise admin 문법이 이미 맞는 영역
+- 접근성, focus, inline/side panel behavior를 직접 다시 만들 필요가 없는 영역
+
+repo wrapper나 custom shell을 우선 만들어야 하는 경우:
+
+- header/nav chip, summary strip, filter toolbar 조합처럼 제품 고유 리듬이 필요한 영역
+- assistant drawer 내부의 context, messages, template card, composer처럼 PF 기본 예시보다 제품 판단 기준이 더 중요한 영역
+- status tone, table density, panel hierarchy처럼 repo 토큰을 강하게 반영해야 하는 영역
+
+다른 디자인 시스템을 새로 도입해야 하는 경우는 이번 POC 범위에서 없다.
+
+## 3.5 이 프로젝트에 대한 권장 적용 범위
+
+현재 repo 기준 권장 적용 범위는 아래와 같다.
+
+이미 구현된 범위:
+
+- PatternFly base CSS를 `src/app/layout.tsx`에서 로드
+- repo 전용 dark neutral token과 PF override를 `src/app/globals.css`에서 적용
+- `/deploy`, `/approve`, `/rollback` 공통 shell을 `src/devops-chat/console-page.tsx`에서 렌더
+- summary strip, filter toolbar, PF table, detail panel, assistant drawer 스캐폴드 구성
+
+다음 단계에서 확장할 범위:
+
+- row selection state와 drawer context 실제 연동
+- seed JSON + in-memory store 연결
+- template card를 typed component로 분리
+- `dry_run_stepper`, `confirm_action` 후속 카드 추가
+
+가져오면 안 되는 스타일/패턴:
+
+- chat app bubble UI
+- support chatbot avatar-first layout
+- consumer SaaS hero / gradient cover
+- soft card-only dashboard
+- oversized empty whitespace
+- decorative AI glow, sparkles, chatbot mascot
+
+## 3.6 공식 문서 / 출처
+
+- PatternFly Drawer: [https://www.patternfly.org/components/drawer/design-guidelines/](https://www.patternfly.org/components/drawer/design-guidelines/)
+- PatternFly Usage and behavior: [https://www.patternfly.org/design-foundations/usage-and-behavior/](https://www.patternfly.org/design-foundations/usage-and-behavior/)
+- PatternFly Table: [https://www.patternfly.org/components/table/](https://www.patternfly.org/components/table/)
+- PatternFly Toolbar: [https://www.patternfly.org/components/toolbar/](https://www.patternfly.org/components/toolbar/)
+- Cloudscape Components: [https://cloudscape.design/components/](https://cloudscape.design/components/)
+- Cloudscape Patterns: [https://cloudscape.design/patterns/](https://cloudscape.design/patterns/)
+
+---
+
+# 4. UI Design Principles
+
+## 4.1 Admin First
 
 메인 화면은 언제나 admin이 중심이다. assistant는 support layer다.
 
@@ -665,7 +952,7 @@ Don't:
 - 메인 화면을 assistant 데모용 배경처럼 취급
 - AI panel이 본체보다 더 시각적으로 크거나 화려하게 보이게 구성
 
-## 3.2 Complexity Comes From Workflow, Not Decoration
+## 4.2 Complexity Comes From Workflow, Not Decoration
 
 복잡함은 실제 업무 판단 구조에서 나온다.
 
@@ -679,7 +966,7 @@ Don't:
 - 일부러 어려워 보이게 필드를 과장
 - 기술 용어를 불필요하게 남발
 
-## 3.3 Assistant Is Operational, Not Conversational
+## 4.3 Assistant Is Operational, Not Conversational
 
 assistant는 메신저가 아니라 작업 보조 도구다.
 
@@ -695,7 +982,7 @@ Don't:
 - 이모지, 친근한 small talk, reaction UI
 - "무엇을 도와드릴까요?" 중심의 generic chat pattern
 
-## 3.4 Conservative Enterprise Styling
+## 4.4 Conservative Enterprise Styling
 
 스타일은 보수적이어야 한다.
 
@@ -712,7 +999,7 @@ Don't:
 - decorative glassmorphism
 - oversized cards and empty whitespace
 
-## 3.5 One Primary Action Per Context
+## 4.5 One Primary Action Per Context
 
 각 panel과 card는 하나의 주 액션만 강조한다.
 
@@ -727,7 +1014,7 @@ Don't:
 - 같은 깊이에서 2개 이상의 primary CTA 사용
 - destructive action을 primary와 같은 톤으로 병렬 배치
 
-## 3.6 Stable Layout Under State Change
+## 4.6 Stable Layout Under State Change
 
 상태가 바뀌어도 레이아웃이 크게 흔들리면 안 된다.
 
@@ -741,7 +1028,7 @@ Don't:
 - 상태 변경마다 panel 높이와 위치가 크게 이동
 - action 후 전체 페이지가 재배열되는 경험
 
-## 3.7 Explicit Anti-Patterns
+## 4.7 Explicit Anti-Patterns
 
 피해야 할 anti-pattern:
 
@@ -755,48 +1042,66 @@ Don't:
 
 ---
 
-# 4. Frontend Design Spec
+# 5. Frontend Design Spec
 
-## 4.1 라우트 구조
+## 5.1 라우트 구조
 
-권장 라우트:
+현재 구현 라우트:
 
 - `/deploy`
 - `/approve`
 - `/rollback`
+- `/` -> `/deploy` redirect
 
-공통 layout:
+현재 구현 파일:
 
 - `src/app/layout.tsx`
-- `src/app/(admin)/layout.tsx`
-- `src/app/(admin)/deploy/page.tsx`
-- `src/app/(admin)/approve/page.tsx`
-- `src/app/(admin)/rollback/page.tsx`
+- `src/app/page.tsx`
+- `src/app/deploy/page.tsx`
+- `src/app/approve/page.tsx`
+- `src/app/rollback/page.tsx`
 
-실제 폴더명은 구현 상황에 맞게 조정 가능하지만, 공통 admin shell과 페이지별 content 분리는 유지한다.
+구현 원칙:
 
-## 4.2 컴포넌트 구조
+- route page는 page별 content만 바인딩한다.
+- 공통 admin shell은 별도 컴포넌트에서 유지한다.
+- route group 재구성은 가능하지만, 다음 단계에서도 `공통 shell + route별 content` 분리는 유지한다.
 
-공통 layout 계층:
+## 5.2 컴포넌트 구조
 
-- `AdminShell`
-- `AdminHeader`
-- `PageHeader`
-- `ResetNoticeStrip`
-- `SummaryBar`
-- `FilterBar`
-- `DataTablePanel`
-- `DetailPanel`
-- `AssistantDrawer`
+현재 스캐폴드:
 
-assistant 계층:
+- `DevopsConsolePage`
+- `consoleContentByPage`
+- `console-page.module.css`
+
+현재 `DevopsConsolePage`가 실제로 포함하는 구조:
+
+- global header + route nav
+- reset notice strip
+- page intro
+- summary strip
+- filter/action toolbar
+- PF table panel
+- detail panel
+- right assistant drawer
+
+다음 분해 권장 계층:
+
+- `AppShell`
+- `SummaryStrip`
+- `AdminTablePanel`
+- `DetailPanelCard`
+- `AssistantDrawerShell`
+- `TemplateRenderer`
+
+assistant 하위 계층:
 
 - `AssistantHeader`
 - `ContextSummary`
 - `SuggestedIntents`
 - `ConversationLog`
 - `AssistantComposer`
-- `TemplateRenderer`
 
 template 계층:
 
@@ -806,9 +1111,9 @@ template 계층:
 - `DryRunStepperCard`
 - `ConfirmActionCard`
 
-## 4.3 상태 모델
+## 5.3 상태 모델
 
-store는 메모리 기반으로 운영한다.
+목표 상태 모델은 메모리 기반 store다. 다만 현재 구현은 아직 store를 붙이지 않았고, `src/devops-chat/content.ts`의 정적 content object로 화면 스캐폴드만 렌더한다.
 
 권장 store slice:
 
@@ -833,7 +1138,13 @@ store는 메모리 기반으로 운영한다.
 - active template envelope
 - pending action state
 
-## 4.4 Context Binding 규칙
+현재 구현 상태:
+
+- route별 context, messages, template summary는 정적 seed-like content로만 존재
+- row selection, filter change, action state transition은 아직 미연결
+- template card는 typed renderer가 아니라 공통 skeleton card 한 장으로 표시
+
+## 5.4 Context Binding 규칙
 
 assistant는 항상 메인 화면의 선택 상태를 문맥으로 받아야 한다.
 
@@ -847,7 +1158,7 @@ assistant는 항상 메인 화면의 선택 상태를 문맥으로 받아야 한
 
 - drawer는 generic chat이 아니라 `먼저 대상 항목을 선택하세요` 상태를 보여준다.
 
-## 4.5 템플릿 렌더링 계약
+## 5.5 템플릿 렌더링 계약
 
 권장 envelope:
 
@@ -866,9 +1177,11 @@ type TemplateEnvelope =
 - payload는 page context와 seed data 기반으로 생성
 - renderer는 `switch(templateId)` 수준의 단순 구조 유지
 
-## 4.6 페이지별 화면 스펙
+## 5.6 페이지별 화면 스펙
 
-## 4.6.1 Deploy Page
+이 절의 "기본 state"는 목표 동작과 현재 스캐폴드를 함께 적는다. 현재는 실제 상태 저장 없이 seed snapshot을 렌더하므로, 인터랙션은 시각적 scaffold 수준이다.
+
+## 5.6.1 Deploy Page
 
 레이아웃:
 
@@ -880,9 +1193,10 @@ type TemplateEnvelope =
 
 기본 state:
 
-- table 첫 row 선택 상태 권장
-- detail panel 기본 표시
-- drawer는 닫힘 상태
+- 현재 스캐폴드에서는 첫 번째 seed row가 선택된 것처럼 detail과 drawer context를 고정 표시
+- detail panel은 기본 표시
+- assistant drawer는 현재 항상 열림
+- 다음 단계에서는 row 선택 시 detail + drawer context가 동기화되어야 함
 
 주요 action:
 
@@ -897,7 +1211,7 @@ type TemplateEnvelope =
 - status는 `Draft`, `Ready`, `Deploying`, `Succeeded`, `Failed`
 - strategy는 badge 또는 plain text
 
-## 4.6.2 Approve Page
+## 5.6.2 Approve Page
 
 레이아웃:
 
@@ -909,7 +1223,9 @@ type TemplateEnvelope =
 
 기본 state:
 
-- `Pending` 요청 중 하나 선택
+- 현재 스캐폴드에서는 `apr-312`가 선택된 것처럼 고정 표시
+- assistant drawer는 현재 항상 열림
+- 다음 단계에서는 pending row 선택과 risk/status filter state를 실제 연결
 
 주요 action:
 
@@ -923,7 +1239,7 @@ type TemplateEnvelope =
 - risk는 `Low`, `Medium`, `High`
 - verification은 compact checklist badge로 표현
 
-## 4.6.3 Rollback Page
+## 5.6.3 Rollback Page
 
 레이아웃:
 
@@ -935,7 +1251,9 @@ type TemplateEnvelope =
 
 기본 state:
 
-- rollback 후보 1개 선택
+- 현재 스캐폴드에서는 `rb-108`이 선택된 것처럼 고정 표시
+- assistant drawer는 현재 항상 열림
+- 다음 단계에서는 rollback 후보 선택에 따라 dry run / confirm 흐름이 바뀌어야 함
 
 주요 action:
 
@@ -949,31 +1267,35 @@ type TemplateEnvelope =
 - severity는 red/amber neutral hierarchy 유지
 - rollback 가능 여부는 명확한 label 사용
 
-## 4.7 Drawer 상태 스펙
+## 5.7 Drawer 상태 스펙
 
 open 상태:
 
 - body scroll 유지 가능
 - 메인 content를 가리지 않도록 z-index 정리
 - backdrop는 아주 약하게 또는 생략 가능
+- 현재 스캐폴드는 inline drawer + expanded 상태 고정
 
 empty 상태:
 
 - context 없음
 - 안내 문구
 - 비활성 composer 또는 제한적 입력 허용
+- 현재는 empty state 없음. 다음 단계에서 row 미선택 상태를 별도 정의해야 함.
 
 loading 상태:
 
 - full-screen loader 금지
 - drawer 내부 skeleton 또는 inline progress 사용
+- 현재는 loading state 없음
 
 success 상태:
 
 - 실행 결과 banner
 - 관련 main page status 반영
+- 현재는 success state 없음
 
-## 4.8 입력 컴포넌트 스펙
+## 5.8 입력 컴포넌트 스펙
 
 input:
 
@@ -995,7 +1317,7 @@ textarea/composer:
 - single-line 또는 compact multi-line
 - max height 제한
 
-## 4.9 접근성 및 사용성
+## 5.9 접근성 및 사용성
 
 - 표 헤더와 정렬 기준 명확히 제공
 - row selection은 keyboard focus 가능
@@ -1003,7 +1325,7 @@ textarea/composer:
 - 상태는 색상만으로 전달하지 않음
 - destructive action은 confirm 단계 분리
 
-## 4.10 반응형 규칙
+## 5.10 반응형 규칙
 
 데스크톱:
 
@@ -1020,21 +1342,24 @@ textarea/composer:
 - 필요 시 list -> detail drill-in 패턴 적용
 - drawer는 full-screen sheet로 대체 가능
 
-## 4.11 구현 우선순위
+## 5.11 구현 우선순위
 
 Phase 1:
 
-- admin shell
+- PatternFly base + repo dark token foundation
+- 공통 admin shell
 - 각 페이지의 summary/filter/table/detail 구조
 
 Phase 2:
 
 - assistant drawer shell
-- context binding
-- suggested intents
+- row selection + context binding
+- suggested intents의 정적 -> 상태 연동 전환
 
 Phase 3:
 
+- seed JSON 추가
+- in-memory store 추가
 - template renderer
 - 3개 핵심 template card 구현
 
@@ -1050,13 +1375,14 @@ Phase 5:
 - responsive refinement
 - microcopy tuning
 
-## 4.12 최종 확인 체크리스트
+## 5.12 최종 확인 체크리스트
 
 - 메인 화면만 봐도 실제 DevOps admin처럼 보이는가
 - drawer가 메신저가 아니라 assistant workspace처럼 보이는가
 - 배포/승인/롤백이 각각 실제 admin page 패턴을 따르는가
 - table, panel, drawer 규칙이 일관되는가
+- PatternFly primitive 사용과 repo 전용 visual override의 경계가 명확한가
+- 현재 스캐폴드와 아직 미구현된 상태 로직이 문서에서 구분되어 있는가
 - radius, border, shadow가 enterprise 톤에 맞는가
 - do / don't / anti-pattern이 구현 판단 기준으로 충분한가
 - assistant가 현재 페이지 문맥 없이 독립적으로 동작하지 않게 설계되었는가
-

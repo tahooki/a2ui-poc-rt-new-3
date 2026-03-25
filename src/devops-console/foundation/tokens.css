@@ -1,0 +1,30 @@
+:root {
+  --console-bg: #0f1722;
+  --console-bg-elevated: #132030;
+  --console-surface: #16202d;
+  --console-surface-alt: #1b2736;
+  --console-surface-strong: #111a26;
+  --console-surface-selected: #1b2f47;
+  --console-border: #253244;
+  --console-border-strong: #32465e;
+  --console-border-accent: #4c8dff;
+  --console-text: #e8eef7;
+  --console-text-secondary: #a7b4c5;
+  --console-text-muted: #7d8b9f;
+  --console-info: #4c8dff;
+  --console-success: #34c38f;
+  --console-warning: #f0b35a;
+  --console-danger: #e46a6a;
+  --console-shadow: 0 18px 48px rgba(3, 8, 16, 0.34);
+  --console-radius: 4px;
+  --console-page-padding: 24px;
+  --console-pane-padding: 16px;
+  --console-gap: 16px;
+  --console-gap-tight: 10px;
+  --console-gap-loose: 24px;
+  --console-header-height: 56px;
+  --console-sidebar-width: 232px;
+  --console-assistant-width: 360px;
+  --console-font-ui: var(--font-inter), system-ui, sans-serif;
+  --console-font-mono: var(--font-jetbrains-mono), "IBM Plex Mono", monospace;
+}
