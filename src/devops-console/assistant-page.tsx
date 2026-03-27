@@ -1,59 +1,30 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
+import { ChatAssistantPanel } from "@/devops-console/assistant/chat-assistant-panel";
 import styles from "@/devops-console/console-page.module.css";
-import { AssistantActivityLog } from "@/devops-console/assistant/activity-log";
-import { CommandComposer } from "@/devops-console/assistant/command-composer";
-import { ContextSummary } from "@/devops-console/assistant/context-summary";
-import { TemplateSurface } from "@/devops-console/assistant/template-surface";
-import { SummaryBand } from "@/devops-console/sections/summary-band";
 import { AppFrame } from "@/devops-console/shell/app-frame";
 import { useDevopsConsoleStore } from "@/devops-chat/store/app-store";
-import type { PageKey } from "@/devops-chat/types/domain";
+import type { ApprovalItem, DeployItem, PageKey, RollbackItem } from "@/devops-chat/types/domain";
 import { buildConsoleViewModel } from "@/devops-chat/view-models/build-console-view-model";
 
-const assistantTabs: Array<{
-  pageKey: PageKey;
-  label: string;
-  title: string;
-  description: string;
-  href: string;
-}> = [
-  {
-    pageKey: "deploy",
-    label: "Deploy",
-    title: "Deploy template set",
-    description: "image -> request -> run 흐름을 압축하는 deploy a2ui 템플릿을 관리합니다.",
-    href: "/deploy/request",
-  },
-  {
-    pageKey: "approve",
-    label: "Approvals",
-    title: "Approval template set",
-    description: "Temporary Access, Config Change, Data Operation 승인 패킷 템플릿을 관리합니다.",
-    href: "/approve",
-  },
-  {
-    pageKey: "rollback",
-    label: "Rollback",
-    title: "Rollback template set",
-    description: "summary, dry run, confirm 단계로 구성된 rollback a2ui 템플릿을 관리합니다.",
-    href: "/rollback",
-  },
-];
+function findSelectedItem(pageKey: PageKey, pages: ReturnType<typeof useDevopsConsoleStore.getState>["pages"]) {
+  switch (pageKey) {
+    case "deploy":
+      return (pages.deploy.items.find((item) => item.id === pages.deploy.selectedId) ?? null) as DeployItem | null;
+    case "approve":
+      return (pages.approve.items.find((item) => item.id === pages.approve.selectedId) ?? null) as ApprovalItem | null;
+    case "rollback":
+      return (pages.rollback.items.find((item) => item.id === pages.rollback.selectedId) ?? null) as RollbackItem | null;
+  }
+}
 
 export function AssistantPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<PageKey>("deploy");
   const pages = useDevopsConsoleStore((state) => state.pages);
-  const setComposerText = useDevopsConsoleStore((state) => state.setComposerText);
-  const activateIntent = useDevopsConsoleStore((state) => state.activateIntent);
-  const submitPrompt = useDevopsConsoleStore((state) => state.submitPrompt);
-  const runPrimaryTemplateAction = useDevopsConsoleStore((state) => state.runPrimaryTemplateAction);
-  const runSecondaryTemplateAction = useDevopsConsoleStore((state) => state.runSecondaryTemplateAction);
   const viewModel = buildConsoleViewModel(activeTab, pages);
-  const activeMeta = assistantTabs.find((tab) => tab.pageKey === activeTab) ?? assistantTabs[0];
+  const selectedItem = findSelectedItem(activeTab, pages);
 
   return (
     <AppFrame
@@ -68,80 +39,25 @@ export function AssistantPage() {
       sidebarOpen={sidebarOpen}
     >
       <div className={styles.noticeStrip}>
-        <span>이 페이지는 chatbot 질문을 a2ui 템플릿으로 연결하는 assistant 전용 관리 화면입니다.</span>
-        <span className={styles.headerMetaBadge}>template manager</span>
+        <span>페이지 문맥 카드 없이 대화만 표시하는 전용 chat 화면입니다.</span>
+        <span className={styles.headerMetaBadge}>{viewModel.pageTitle}</span>
       </div>
 
-      <section className={styles.pageIntro}>
-        <div className={styles.pageTitleRow}>
-          <div>
-            <div className={styles.sectionEyebrow}>Assistant</div>
-            <h1 className={styles.pageTitle}>A2UI template manager</h1>
-          </div>
-        </div>
-        <p className={styles.pageDescription}>
-          운영자는 각 admin page에서 실제 작업을 수행하고, 이 페이지에서는 Deploy, Approvals, Rollback에 대응하는 a2ui 템플릿과 chatbot 응답 흐름을 관리합니다.
-        </p>
-      </section>
-
       <nav className={styles.workflowNav}>
-        {assistantTabs.map((tab) => (
+        {(["deploy", "approve", "rollback"] as PageKey[]).map((tab) => (
           <button
-            className={`${styles.workflowNavItem} ${tab.pageKey === activeTab ? styles.workflowNavItemActive : ""}`}
-            key={tab.pageKey}
-            onClick={() => setActiveTab(tab.pageKey)}
+            className={`${styles.workflowNavItem} ${tab === activeTab ? styles.workflowNavItemActive : ""}`}
+            key={tab}
+            onClick={() => setActiveTab(tab)}
             type="button"
           >
-            {tab.label}
+            {tab}
           </button>
         ))}
       </nav>
 
-      <SummaryBand metrics={viewModel.summaryMetrics} />
-
-      <section className={styles.panel}>
-        <div className={styles.panelHeader}>
-          <div>
-            <h2 className={styles.panelTitle}>{activeMeta.title}</h2>
-            <p className={styles.panelDescription}>{activeMeta.description}</p>
-          </div>
-        </div>
-        <div className={styles.heroSplit}>
-          <div className={styles.templateMetaCard}>
-            <div className={styles.metaLabel}>Source workspace</div>
-            <div className={styles.detailPrimaryValue}>{viewModel.pageTitle}</div>
-            <div className={styles.propertyValue}>{viewModel.pageDescription}</div>
-          </div>
-          <Link className={styles.templateMetaCard} href={activeMeta.href}>
-            <div className={styles.metaLabel}>Open admin page</div>
-            <div className={styles.detailPrimaryValue}>{activeMeta.label}</div>
-            <div className={styles.propertyValue}>실제 운영 액션은 해당 admin page에서 수행합니다.</div>
-          </Link>
-        </div>
-      </section>
-
-      <div className={styles.workspaceGrid}>
-        <div className={styles.mainColumn}>
-          <ContextSummary context={viewModel.assistantContext} />
-          <AssistantActivityLog messages={viewModel.messages} />
-          <TemplateSurface
-            onPrimaryAction={() => runPrimaryTemplateAction(activeTab)}
-            onSecondaryAction={() => runSecondaryTemplateAction(activeTab)}
-            template={viewModel.template}
-          />
-        </div>
-        <div className={styles.detailColumn}>
-          <CommandComposer
-            composerPlaceholder={viewModel.composerPlaceholder}
-            composerText={viewModel.composerText}
-            error={viewModel.error}
-            intents={viewModel.intents}
-            isSubmitting={viewModel.isSubmitting}
-            onComposerChange={(value) => setComposerText(activeTab, value)}
-            onIntent={(intentId) => activateIntent(activeTab, intentId)}
-            onSubmit={() => void submitPrompt(activeTab)}
-          />
-        </div>
+      <div className={styles.chatAssistantStandalone}>
+        <ChatAssistantPanel onClose={() => {}} pageKey={activeTab} selectedItem={selectedItem} />
       </div>
     </AppFrame>
   );

@@ -12,7 +12,7 @@ export function WorkspaceLayout({
   return (
     <div className={`${styles.workspace} ${assistantOpen ? styles.workspaceAssistantOpen : ""}`}>
       <div className={styles.mainArea}>{children}</div>
-      {assistant ? (
+      {assistant && assistantOpen ? (
         <aside
           className={`${styles.assistantArea} ${assistantOpen ? styles.assistantAreaOpen : ""}`}
         >

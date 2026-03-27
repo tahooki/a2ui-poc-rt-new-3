@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { ChatAssistantPanel } from "@/devops-console/assistant/chat-assistant-panel";
 import styles from "@/devops-console/console-page.module.css";
-import { AssistantWorkspace } from "@/devops-console/shell/assistant-workspace";
 import { AppFrame } from "@/devops-console/shell/app-frame";
 import { ApproveWorkspace } from "@/devops-console/pages/approve-workspace";
 import { DeployWorkspace } from "@/devops-console/pages/deploy-workspace";
@@ -32,42 +32,11 @@ export function DevopsConsolePage({ pageKey }: { pageKey: PageKey }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pages = useDevopsConsoleStore((state) => state.pages);
   const selectRow = useDevopsConsoleStore((state) => state.selectRow);
-  const setComposerText = useDevopsConsoleStore((state) => state.setComposerText);
-  const activateIntent = useDevopsConsoleStore((state) => state.activateIntent);
-  const submitPrompt = useDevopsConsoleStore((state) => state.submitPrompt);
-  const runPrimaryPageAction = useDevopsConsoleStore((state) => state.runPrimaryPageAction);
-  const runPrimaryTemplateAction = useDevopsConsoleStore((state) => state.runPrimaryTemplateAction);
-  const runSecondaryTemplateAction = useDevopsConsoleStore((state) => state.runSecondaryTemplateAction);
   const viewModel = buildConsoleViewModel(pageKey, pages);
   const selectedItem = findSelectedItem(pageKey, pages);
   const assistantEnabled = pageKey === "deploy";
 
-  const assistant = (
-    <AssistantWorkspace
-      composerPlaceholder={viewModel.composerPlaceholder}
-      composerText={viewModel.composerText}
-      context={viewModel.assistantContext}
-      description={viewModel.assistantDescription}
-      error={viewModel.error}
-      intents={viewModel.intents}
-      isSubmitting={viewModel.isSubmitting}
-      messages={viewModel.messages}
-      onClose={() => setAssistantOpen(false)}
-      onComposerChange={(value) => setComposerText(pageKey, value)}
-      onIntent={(intentId) => {
-        setAssistantOpen(true);
-        activateIntent(pageKey, intentId);
-      }}
-      onPrimaryAction={() => runPrimaryTemplateAction(pageKey)}
-      onSecondaryAction={() => runSecondaryTemplateAction(pageKey)}
-      onSubmit={() => {
-        setAssistantOpen(true);
-        void submitPrompt(pageKey);
-      }}
-      template={viewModel.template}
-      title={viewModel.assistantTitle}
-    />
-  );
+  const assistant = <ChatAssistantPanel onClose={() => setAssistantOpen(false)} pageKey={pageKey} selectedItem={selectedItem} />;
 
   return (
     <AppFrame
@@ -110,7 +79,6 @@ export function DevopsConsolePage({ pageKey }: { pageKey: PageKey }) {
           assistantEnabled
             ? () => {
                 setAssistantOpen(true);
-                runPrimaryPageAction(pageKey);
               }
             : undefined
         }

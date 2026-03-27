@@ -710,6 +710,14 @@
     linear-gradient(180deg, rgba(17, 26, 38, 0.98), rgba(15, 23, 34, 0.98));
 }
 
+.chatAssistantStandalone {
+  min-height: calc(100vh - var(--console-header-height) - (var(--console-page-padding) * 2));
+  border: 1px solid var(--console-border);
+  border-radius: var(--console-radius);
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(17, 26, 38, 0.96), rgba(15, 23, 34, 0.96));
+}
+
 .chatAssistantHeader {
   display: flex;
   align-items: center;
