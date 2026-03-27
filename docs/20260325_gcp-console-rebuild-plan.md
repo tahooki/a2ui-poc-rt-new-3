@@ -11,6 +11,7 @@ Rebuild the frontend presentation layer of the DevOps Chat POC into a GCP-style 
 - Engine/UI boundary: locked
 - Frontend redesign: implemented
 - Old shell retirement: implemented
+- Deploy IA note: deploy now follows `docs/20260325_deploy-workflow-restructure-plan.md` with `/deploy/image`, `/deploy/request`, `/deploy/run`, and `/assistant`
 - Verification: blocked in current workspace because `node` / `npm` are not installed on `PATH`
 
 ## Implementation Note

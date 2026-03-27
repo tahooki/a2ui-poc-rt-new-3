@@ -1,13 +1,14 @@
 import styles from "@/devops-console/console-page.module.css";
-import { SidebarNav } from "@/devops-console/shell/sidebar-nav";
+import { SidebarNav, type NavKey } from "@/devops-console/shell/sidebar-nav";
 import { TopHeader } from "@/devops-console/shell/top-header";
 import { WorkspaceLayout } from "@/devops-console/shell/workspace-layout";
-import type { PageKey } from "@/devops-chat/types/domain";
 
 type AppFrameProps = {
-  activePage: PageKey;
-  assistant: React.ReactNode;
+  activePage: NavKey;
+  assistant?: React.ReactNode;
   assistantOpen: boolean;
+  assistantHref?: string;
+  hideAssistantTrigger?: boolean;
   children: React.ReactNode;
   lastUpdated: string;
   pageScope: string;
@@ -21,6 +22,8 @@ export function AppFrame({
   activePage,
   assistant,
   assistantOpen,
+  assistantHref,
+  hideAssistantTrigger,
   children,
   lastUpdated,
   pageScope,
@@ -35,6 +38,8 @@ export function AppFrame({
       <div className={styles.contentShell}>
         <TopHeader
           assistantOpen={assistantOpen}
+          assistantHref={assistantHref}
+          hideAssistantTrigger={hideAssistantTrigger}
           lastUpdated={lastUpdated}
           onToggleAssistant={onToggleAssistant}
           onToggleSidebar={onToggleSidebar}

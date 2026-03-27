@@ -50,6 +50,12 @@ export function routeDeployPrompt(prompt: string, item: DeployItem): PromptRoute
 
 export function routeApprovalPrompt(prompt: string, item: ApprovalItem): PromptRouteResult {
   const normalized = normalizePrompt(prompt);
+  const subject =
+    item.type === "temporary_access"
+      ? item.detail.principal
+      : item.type === "config_change"
+        ? item.detail.service
+        : item.detail.operationType;
 
   if (normalized.includes("보류")) {
     return {
@@ -65,7 +71,7 @@ export function routeApprovalPrompt(prompt: string, item: ApprovalItem): PromptR
     return {
       nextTemplateId: "deployment_approval_inbox",
       messages: [
-        `${item.service} 승인 요청의 핵심 리스크는 ${item.riskSummary} 입니다.`,
+        `${subject} 승인 요청의 핵심 리스크는 ${item.riskSummary} 입니다.`,
         `영향 범위는 ${item.impactScope} 로 제한됩니다.`,
       ],
     };
@@ -82,9 +88,21 @@ export function routeApprovalPrompt(prompt: string, item: ApprovalItem): PromptR
 
 export function routeRollbackPrompt(prompt: string, item: RollbackItem): PromptRouteResult {
   const normalized = normalizePrompt(prompt);
+  const target =
+    item.deploymentHistory.find((deployment) => deployment.id === item.recommendedRollbackDeploymentId) ??
+    item.deploymentHistory[0];
+
+  if (!target) {
+    return {
+      nextTemplateId: "rollback_summary",
+      messages: [
+        "현재 선택한 서비스에 연결된 rollback target이 없습니다.",
+      ],
+    };
+  }
 
   if (normalized.includes("최종") || normalized.includes("확인")) {
-    if (item.status === "dry_run_completed" || item.status === "confirm_ready" || item.status === "executed") {
+    if (target.status === "dry_run_completed" || target.status === "confirm_ready" || target.status === "executed") {
       return {
         nextTemplateId: "confirm_action",
         messages: [
@@ -106,7 +124,7 @@ export function routeRollbackPrompt(prompt: string, item: RollbackItem): PromptR
   if (normalized.includes("영향") || normalized.includes("dry")) {
     return {
       nextTemplateId:
-        item.status === "dry_run_running" || item.status === "dry_run_completed"
+        target.status === "dry_run_running" || target.status === "dry_run_completed"
           ? "dry_run_stepper"
           : "rollback_summary",
       messages: [
@@ -120,7 +138,7 @@ export function routeRollbackPrompt(prompt: string, item: RollbackItem): PromptR
     nextTemplateId: "rollback_summary",
     messages: [
       "최근 장애 이전의 마지막 안정 버전을 기준으로 롤백을 준비했습니다.",
-      `추천 복귀 버전은 ${item.lastStableVersion} 입니다.`,
+      `추천 복귀 버전은 ${target.version} 입니다.`,
     ],
   };
 }

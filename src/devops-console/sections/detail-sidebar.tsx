@@ -7,6 +7,7 @@ type DetailSidebarProps = {
   description: string;
   emptyDescription: string;
   emptyTitle: string;
+  footer?: React.ReactNode;
   sections: DetailSection[];
   title: string;
 };
@@ -15,6 +16,7 @@ export function DetailSidebar({
   description,
   emptyDescription,
   emptyTitle,
+  footer,
   sections,
   title,
 }: DetailSidebarProps) {
@@ -39,6 +41,8 @@ export function DetailSidebar({
       ) : (
         <EmptyState description={emptyDescription} title={emptyTitle} />
       )}
+
+      {footer ? footer : null}
     </section>
   );
 }

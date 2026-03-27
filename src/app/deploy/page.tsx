@@ -1,5 +1,5 @@
-import { DevopsConsolePage } from "@/devops-console/console-page";
+import { redirect } from "next/navigation";
 
 export default function DeployPage() {
-  return <DevopsConsolePage pageKey="deploy" />;
+  redirect("/deploy/image");
 }

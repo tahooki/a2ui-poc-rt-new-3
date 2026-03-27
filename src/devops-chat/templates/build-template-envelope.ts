@@ -2,7 +2,7 @@ import {
   deployStatusMeta,
   rollbackStatusMeta,
 } from "@/devops-chat/lib/status";
-import type { ApprovalItem, DeployItem, RollbackItem } from "@/devops-chat/types/domain";
+import type { ApprovalItem, DeployItem, RollbackDeployment, RollbackItem } from "@/devops-chat/types/domain";
 import type { TemplateEnvelope } from "@/devops-chat/types/templates";
 
 export function getDefaultTemplateIdForDeploy() {
@@ -13,12 +13,21 @@ export function getDefaultTemplateIdForApproval() {
   return "deployment_approval_inbox" as const;
 }
 
-export function getDefaultTemplateIdForRollback(item: RollbackItem) {
-  if (item.status === "dry_run_running" || item.status === "dry_run_completed") {
+export function getDefaultTemplateIdForRollback(item: RollbackItem, deployment?: RollbackDeployment | null) {
+  const activeDeployment =
+    deployment ??
+    item.deploymentHistory.find((candidate) => candidate.id === item.recommendedRollbackDeploymentId) ??
+    item.deploymentHistory[0];
+
+  if (!activeDeployment) {
+    return "rollback_summary" as const;
+  }
+
+  if (activeDeployment.status === "dry_run_running" || activeDeployment.status === "dry_run_completed") {
     return "dry_run_stepper" as const;
   }
 
-  if (item.status === "confirm_ready" || item.status === "executed") {
+  if (activeDeployment.status === "confirm_ready" || activeDeployment.status === "executed") {
     return "confirm_action" as const;
   }
 
@@ -52,42 +61,114 @@ export function buildDeployTemplate(item: DeployItem): TemplateEnvelope {
 
 export function buildApprovalTemplate(item: ApprovalItem): TemplateEnvelope {
   const state = item.status === "held" ? "hold" : item.status;
+  const requestTypeLabel =
+    item.type === "temporary_access"
+      ? "Temporary Access"
+      : item.type === "config_change"
+        ? "Config Change"
+        : "Data Operation";
+  const title =
+    item.type === "temporary_access"
+      ? item.detail.principal
+      : item.type === "config_change"
+        ? item.detail.service
+        : item.detail.operationType;
+  const keyFacts =
+    item.type === "temporary_access"
+      ? [
+          { label: "Principal", value: item.detail.principal, mono: true },
+          { label: "Resource", value: item.detail.resource, mono: true },
+          { label: "Scope", value: item.detail.scope, mono: true },
+          { label: "Duration", value: item.detail.duration, mono: true },
+        ]
+      : item.type === "config_change"
+        ? [
+            { label: "Service", value: item.detail.service, mono: true },
+            { label: "Target config", value: item.detail.targetConfig, mono: true },
+            { label: "Current", value: item.detail.currentValue, mono: true },
+            { label: "Proposed", value: item.detail.proposedValue, mono: true },
+          ]
+        : [
+            { label: "Operation", value: item.detail.operationType, mono: true },
+            { label: "Target", value: item.detail.target, mono: true },
+            { label: "Window", value: item.detail.executionWindow, mono: true },
+            { label: "Records", value: item.detail.recordCount, mono: true },
+          ];
+  const decisionGuidance =
+    item.type === "temporary_access"
+      ? `expires ${item.detail.expiresAt}`
+      : item.type === "config_change"
+        ? item.detail.rollbackMethod
+        : item.detail.recoveryMethod;
 
   return {
     templateId: "deployment_approval_inbox",
     state,
     requestId: item.id,
-    service: item.service,
+    requestTypeLabel,
+    title,
     environment: item.environment,
     riskSummary: item.riskSummary,
     verificationSummary: item.verificationSummary,
     impactScope: item.impactScope,
-    rollbackAvailability: item.rollbackAvailability,
+    decisionGuidance,
     checks: item.verificationChecks,
+    keyFacts,
     primaryActionLabel: item.status === "approved" ? "승인됨" : "승인",
     secondaryActionLabel: item.status === "held" ? "보류됨" : "보류",
   };
 }
 
-export function buildRollbackTemplate(item: RollbackItem, templateId?: TemplateEnvelope["templateId"]): TemplateEnvelope {
-  const activeTemplateId = templateId ?? getDefaultTemplateIdForRollback(item);
+export function buildRollbackTemplate(
+  item: RollbackItem,
+  deployment?: RollbackDeployment | null,
+  templateId?: TemplateEnvelope["templateId"],
+): TemplateEnvelope {
+  const activeDeployment =
+    deployment ??
+    item.deploymentHistory.find((candidate) => candidate.id === item.recommendedRollbackDeploymentId) ??
+    item.deploymentHistory[0];
+
+  if (!activeDeployment) {
+    return {
+      templateId: "rollback_summary",
+      state: "identified",
+      service: item.service,
+      environment: item.environment,
+      incident: item.incidentSummary,
+      currentVersion: item.currentVersion,
+      recommendedVersion: item.recommendedRollbackVersion,
+      evidence: [],
+      blastRadius: item.blastRadius,
+      primaryActionLabel: "Dry run 시작",
+      secondaryActionLabel: "영향 범위 보기",
+    };
+  }
+
+  const activeTemplateId = templateId ?? getDefaultTemplateIdForRollback(item, activeDeployment);
 
   if (activeTemplateId === "dry_run_stepper") {
     return {
       templateId: "dry_run_stepper",
       state:
-        item.status === "dry_run_running"
+        activeDeployment.status === "dry_run_running"
           ? "running"
-          : item.status === "dry_run_completed" || item.status === "confirm_ready" || item.status === "executed"
+          : activeDeployment.status === "dry_run_completed" ||
+              activeDeployment.status === "confirm_ready" ||
+              activeDeployment.status === "executed"
             ? "completed"
             : "not_started",
       service: item.service,
       environment: item.environment,
-      targetVersion: item.lastStableVersion,
-      steps: item.dryRunChecks,
-      helperText: rollbackStatusMeta[item.status].label,
+      targetVersion: activeDeployment.version,
+      steps: activeDeployment.dryRunChecks,
+      helperText: rollbackStatusMeta[activeDeployment.status].label,
       primaryActionLabel:
-        item.status === "dry_run_running" ? "Dry run 완료" : item.status === "dry_run_completed" ? "최종 확인 열기" : "Dry run 시작",
+        activeDeployment.status === "dry_run_running"
+          ? "Dry run 완료"
+          : activeDeployment.status === "dry_run_completed"
+            ? "최종 확인 열기"
+            : "Dry run 시작",
       secondaryActionLabel: "요약 보기",
     };
   }
@@ -95,28 +176,31 @@ export function buildRollbackTemplate(item: RollbackItem, templateId?: TemplateE
   if (activeTemplateId === "confirm_action") {
     return {
       templateId: "confirm_action",
-      state: item.status === "executed" ? "executed" : "confirm_ready",
+      state: activeDeployment.status === "executed" ? "executed" : "confirm_ready",
       service: item.service,
       environment: item.environment,
-      targetVersion: item.lastStableVersion,
+      targetVersion: activeDeployment.version,
       warning: `${item.severity} severity incident · ${item.blastRadius}`,
-      checklist: item.confirmChecklist,
-      primaryActionLabel: item.status === "executed" ? "실행 완료" : "Rollback 확정",
+      checklist: activeDeployment.confirmChecklist,
+      primaryActionLabel: activeDeployment.status === "executed" ? "실행 완료" : "Rollback 확정",
       secondaryActionLabel: "요약 보기",
     };
   }
 
   return {
     templateId: "rollback_summary",
-    state: item.status === "identified" ? "identified" : "dry_run_ready",
+    state: activeDeployment.status === "identified" ? "identified" : "dry_run_ready",
     service: item.service,
     environment: item.environment,
-    incident: item.incident,
+    incident: item.incidentSummary,
     currentVersion: item.currentVersion,
-    recommendedVersion: item.lastStableVersion,
-    evidence: item.evidence,
+    recommendedVersion: activeDeployment.version,
+    evidence: activeDeployment.evidence,
     blastRadius: item.blastRadius,
     primaryActionLabel: "Dry run 시작",
-    secondaryActionLabel: item.status === "dry_run_completed" || item.status === "confirm_ready" ? "최종 확인" : "영향 범위 보기",
+    secondaryActionLabel:
+      activeDeployment.status === "dry_run_completed" || activeDeployment.status === "confirm_ready"
+        ? "최종 확인"
+        : "영향 범위 보기",
   };
 }

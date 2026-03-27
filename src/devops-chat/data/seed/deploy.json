@@ -2,21 +2,21 @@
   "key": "deploy",
   "navLabel": "배포",
   "pageTitle": "Deployments",
-  "pageDescription": "서비스별 배포 요청, 진행 상태, 최근 이력을 관리합니다.",
+  "pageDescription": "등록된 이미지, 배포 요청, 실행 상태를 AWS 스타일 운영 흐름으로 관리합니다.",
   "pageScope": "production / korea cluster",
-  "lastUpdated": "Seed snapshot · 2026-03-24 10:15 KST",
+  "lastUpdated": "Seed snapshot · 2026-03-25 12:53 KST",
   "filters": [
-    "Environment: Production",
-    "Service: payments-api",
-    "Status: Active",
-    "Strategy: Canary"
+    "Registry: ECR",
+    "Cluster: prod-apne2",
+    "Workflow: image -> request -> run",
+    "Mode: manual first"
   ],
-  "primaryActionLabel": "새 배포",
+  "primaryActionLabel": "새 배포 요청",
   "tableTitle": "Deployment requests",
   "assistantTitle": "AI Deployment Assistant",
-  "assistantDescription": "현재 선택한 서비스의 배포 초안을 문맥 기반으로 압축해서 보여줍니다.",
-  "composerPlaceholder": "예: 현재 선택한 서비스의 운영 배포 초안을 만들어줘",
-  "selectedId": "deploy-req-103",
+  "assistantDescription": "선택된 deploy request 기준으로 rollout 맥락을 압축해서 보여줍니다.",
+  "composerPlaceholder": "예: 현재 선택한 request 기준으로 rollout 리스크를 정리해줘",
+  "selectedId": null,
   "intents": [
     {
       "id": "deploy-draft",
@@ -34,167 +34,63 @@
       "prompt": "현재 선택한 배포의 핵심 리스크와 체크 포인트만 정리해줘"
     }
   ],
-  "items": [
+  "images": [
     {
-      "id": "deploy-req-103",
-      "service": "payments-api",
-      "environment": "production",
-      "targetVersion": "v2.3.18",
-      "recommendedVersion": "v2.3.18",
-      "strategy": "canary_10_50_100",
-      "requestedBy": "mina.cho",
-      "updatedAt": "2m ago",
-      "status": "approval_pending",
-      "baselineDeployment": "deploy-201",
-      "baselineVersion": "v2.3.16",
-      "artifact": "ecr.io/payments:v2.3.18-rc1",
-      "healthCheckPath": "/healthz/ready",
-      "impactSummary": "결제 승인 경로만 포함되며 checkout latency risk 는 낮은 편입니다.",
-      "preflightChecks": [
-        "최근 안정 릴리스와 DB schema 차이 없음",
-        "staging smoke + canary precheck 통과",
-        "support team 사전 공지 완료"
+      "id": "img-payments-2318",
+      "repository": "payments-api",
+      "imageTag": "v2.3.18-rc1",
+      "imageUri": "123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/payments-api:v2.3.18-rc1",
+      "gitRef": "refs/heads/release/payments-2.3",
+      "commitSha": "a18fe902",
+      "imageDigest": "sha256:9e6dd0c3c7ad91e5fe7a1187a1f3c4be",
+      "buildStatus": "push_verified",
+      "pushedAt": "2026-03-25 12:10 KST",
+      "updatedAt": "12:10",
+      "services": [
+        "payments-api"
       ],
-      "rolloutConfig": [
-        "10% canary 5분 관찰 후 50% 확대",
-        "SLO error budget 0.2% 초과 시 자동 중단",
-        "실패 시 baseline v2.3.16 즉시 롤백"
-      ],
-      "healthSignals": [
-        "readiness endpoint /healthz/ready",
-        "결제 승인 p95 450ms 이하 유지",
-        "card timeout alert muted 아님"
-      ],
-      "recentSuccess": {
-        "version": "v2.3.16",
-        "strategy": "canary_10_50_100",
-        "deployedAt": "2026-03-23 18:20 KST",
-        "releaseId": "deploy-201"
-      },
-      "activityLog": [
-        {
-          "time": "10:11",
-          "value": "AI draft generated from recent stable release"
-        },
-        {
-          "time": "10:12",
-          "value": "Risk summary assembled from deploy + incident history"
-        },
-        {
-          "time": "10:14",
-          "value": "Waiting for production approval"
-        }
-      ],
-      "assistantMessages": [
-        "현재 선택된 서비스 기준으로 배포 초안을 준비했습니다.",
-        "최근 검증 이력을 기준으로 v2.3.18을 추천합니다.",
-        "실행 전 확인이 필요한 핵심 항목만 남겼습니다."
+      "notes": [
+        "staging smoke passed",
+        "schema diff 없음"
       ]
     },
     {
-      "id": "deploy-run-221",
-      "service": "checkout",
-      "environment": "production",
-      "targetVersion": "v1.8.42",
-      "recommendedVersion": "v1.8.42",
-      "strategy": "rolling",
-      "requestedBy": "auto-pipeline",
-      "updatedAt": "14m ago",
-      "status": "deploying",
-      "baselineDeployment": "deploy-198",
-      "baselineVersion": "v1.8.39",
-      "artifact": "ecr.io/checkout:v1.8.42",
-      "healthCheckPath": "/internal/readyz",
-      "impactSummary": "checkout write path 전반에 적용되며 캐시 warm-up 시간만 유의하면 됩니다.",
-      "preflightChecks": [
-        "feature flag default-off 확인",
-        "DB migration 없음",
-        "checkout latency budget 정상"
+      "id": "img-checkout-1842",
+      "repository": "checkout",
+      "imageTag": "v1.8.42",
+      "imageUri": "123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/checkout:v1.8.42",
+      "gitRef": "refs/tags/checkout-1.8.42",
+      "commitSha": "4be78df1",
+      "imageDigest": "sha256:0df31af94a09e87521b9b6d50c9931aa",
+      "buildStatus": "registered",
+      "pushedAt": "2026-03-25 11:48 KST",
+      "updatedAt": "11:48",
+      "services": [
+        "checkout"
       ],
-      "rolloutConfig": [
-        "rolling batch 25%",
-        "error spike 2분 지속 시 자동 pause",
-        "rollback image already pinned"
-      ],
-      "healthSignals": [
-        "checkout error rate 0.1% 이하",
-        "redis reconnect 알림 없음",
-        "cart sync queue backlog 정상"
-      ],
-      "recentSuccess": {
-        "version": "v1.8.39",
-        "strategy": "rolling",
-        "deployedAt": "2026-03-23 13:05 KST",
-        "releaseId": "deploy-198"
-      },
-      "activityLog": [
-        {
-          "time": "09:58",
-          "value": "Deployment started from pipeline handoff"
-        },
-        {
-          "time": "10:01",
-          "value": "25% traffic completed successfully"
-        },
-        {
-          "time": "10:04",
-          "value": "Verification in progress"
-        }
-      ],
-      "assistantMessages": [
-        "현재 배포는 이미 실행 중입니다.",
-        "다음 확인 포인트는 verification 완료 여부입니다.",
-        "문제가 없으면 완료 상태로 반영할 수 있습니다."
+      "notes": [
+        "feature flag default-off",
+        "warming profile 필요"
       ]
     },
     {
-      "id": "deploy-run-219",
-      "service": "catalog-api",
-      "environment": "staging",
-      "targetVersion": "v4.2.1",
-      "recommendedVersion": "v4.2.1",
-      "strategy": "rolling",
-      "requestedBy": "jin.park",
-      "updatedAt": "31m ago",
-      "status": "succeeded",
-      "baselineDeployment": "deploy-190",
-      "baselineVersion": "v4.2.0",
-      "artifact": "ecr.io/catalog-api:v4.2.1",
-      "healthCheckPath": "/health",
-      "impactSummary": "catalog search facet 개선 릴리스이며 현재 장애 신호는 없습니다.",
-      "preflightChecks": [
-        "staging synthetic test passed",
-        "cache invalidation completed",
-        "search team notified"
+      "id": "img-catalog-421",
+      "repository": "catalog-api",
+      "imageTag": "v4.2.1",
+      "imageUri": "123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/catalog-api:v4.2.1",
+      "gitRef": "refs/heads/release/catalog-4.2",
+      "commitSha": "991d23ef",
+      "imageDigest": "sha256:34e1a8a9d019732f4b507812f310fbb9",
+      "buildStatus": "registered",
+      "pushedAt": "2026-03-25 09:20 KST",
+      "updatedAt": "09:20",
+      "services": [
+        "catalog-api"
       ],
-      "rolloutConfig": [
-        "rolling 100%",
-        "rollback target pinned to v4.2.0"
-      ],
-      "healthSignals": [
-        "cache miss rate 정상",
-        "search latency stable"
-      ],
-      "recentSuccess": {
-        "version": "v4.2.0",
-        "strategy": "rolling",
-        "deployedAt": "2026-03-22 16:40 KST",
-        "releaseId": "deploy-190"
-      },
-      "activityLog": [
-        {
-          "time": "09:42",
-          "value": "Deployment completed"
-        },
-        {
-          "time": "09:45",
-          "value": "Health checks stable for 20m"
-        }
-      ],
-      "assistantMessages": [
-        "이 배포는 이미 완료 상태입니다.",
-        "필요하면 완료 이력 기준으로 새 초안을 다시 만들 수 있습니다."
+      "notes": [
+        "search cache invalidation 완료"
       ]
     }
-  ]
+  ],
+  "items": []
 }

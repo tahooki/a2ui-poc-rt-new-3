@@ -20,6 +20,17 @@ export type AssistantIntent = {
   prompt: string;
 };
 
+export type AssistantMessageRole = "user" | "assistant";
+
+export type AssistantMessageStatus = "complete" | "streaming" | "error";
+
+export type AssistantMessage = {
+  id: string;
+  role: AssistantMessageRole;
+  content: string;
+  status: AssistantMessageStatus;
+};
+
 export type DeployStatus =
   | "draft_ready"
   | "approval_pending"
@@ -27,6 +38,8 @@ export type DeployStatus =
   | "verifying"
   | "succeeded"
   | "failed";
+
+export type ApprovalType = "temporary_access" | "config_change" | "data_operation";
 
 export type ApprovalStatus = "pending" | "approved" | "held";
 
@@ -38,14 +51,32 @@ export type RollbackStatus =
   | "confirm_ready"
   | "executed";
 
+export type DeployImage = {
+  id: string;
+  repository: string;
+  imageTag: string;
+  imageUri: string;
+  gitRef: string;
+  commitSha: string;
+  imageDigest: string;
+  buildStatus: string;
+  pushedAt: string;
+  updatedAt: string;
+  services: string[];
+  notes: string[];
+};
+
 export type DeployItem = {
   id: string;
+  requestId: string;
+  selectedImageId: string;
   service: string;
   environment: string;
   targetVersion: string;
   recommendedVersion: string;
   strategy: string;
   requestedBy: string;
+  requestedAt: string;
   updatedAt: string;
   status: DeployStatus;
   baselineDeployment: string;
@@ -56,6 +87,23 @@ export type DeployItem = {
   preflightChecks: string[];
   rolloutConfig: string[];
   healthSignals: string[];
+  cpu: string;
+  memory: string;
+  containerPort: string;
+  desiredCount: string;
+  minimumHealthyPercent: string;
+  maximumPercent: string;
+  healthCheckGracePeriod: string;
+  rollbackBaseline: string;
+  executionProfile: string;
+  operatorNote: string;
+  taskDefinitionRevision: string;
+  currentStage: string;
+  rolloutProgress: string;
+  healthStatus: string;
+  verificationStatus: string;
+  runningCount: string;
+  events: string[];
   recentSuccess: {
     version: string;
     strategy: string;
@@ -66,9 +114,10 @@ export type DeployItem = {
   assistantMessages: string[];
 };
 
-export type ApprovalItem = {
+type BaseApprovalItem = {
   id: string;
-  service: string;
+  type: ApprovalType;
+  title: string;
   environment: string;
   requestedBy: string;
   team: string;
@@ -79,30 +128,89 @@ export type ApprovalItem = {
   verificationSummary: string;
   verificationChecks: string[];
   impactScope: string;
-  changeSummary: string[];
   rollbackAvailability: string;
   notes: string[];
   status: ApprovalStatus;
   assistantMessages: string[];
 };
 
+export type TemporaryAccessApprovalItem = BaseApprovalItem & {
+  type: "temporary_access";
+  detail: {
+    principal: string;
+    resource: string;
+    scope: string;
+    duration: string;
+    justification: string;
+    safeguards: string[];
+    expiresAt: string;
+  };
+};
+
+export type ConfigChangeApprovalItem = BaseApprovalItem & {
+  type: "config_change";
+  detail: {
+    service: string;
+    changeType: string;
+    currentValue: string;
+    proposedValue: string;
+    rollbackMethod: string;
+    targetConfig: string;
+    verificationEvidence: string[];
+  };
+};
+
+export type DataOperationApprovalItem = BaseApprovalItem & {
+  type: "data_operation";
+  detail: {
+    operationType: string;
+    target: string;
+    executionWindow: string;
+    recoveryMethod: string;
+    blastRadius: string;
+    recordCount: string;
+    executionChecks: string[];
+  };
+};
+
+export type ApprovalItem =
+  | TemporaryAccessApprovalItem
+  | ConfigChangeApprovalItem
+  | DataOperationApprovalItem;
+
+export type RollbackDeployment = {
+  id: string;
+  version: string;
+  deployedAt: string;
+  strategy: string;
+  healthSummary: string;
+  verification: string;
+  rollbackEligible: boolean;
+  releaseSummary: string;
+  rollbackRisk: string;
+  status: RollbackStatus;
+  whyThisTarget: string;
+  evidence: string[];
+  dryRunChecks: string[];
+  confirmChecklist: string[];
+  recoveryWindow: string;
+  notes: string[];
+};
+
 export type RollbackItem = {
   id: string;
   service: string;
   environment: string;
-  incident: string;
-  severity: string;
   currentVersion: string;
-  lastStableVersion: string;
-  updatedAt: string;
-  status: RollbackStatus;
-  evidence: string[];
+  latestDeploymentId: string;
+  latestStatus: string;
+  incidentSummary: string;
+  severity: string;
+  recommendedRollbackDeploymentId: string;
+  recommendedRollbackVersion: string;
   blastRadius: string;
-  recoveryWindow: string;
-  recentDeployHistory: string[];
-  dryRunChecks: string[];
-  confirmChecklist: string[];
-  notes: string[];
+  lastUpdated: string;
+  deploymentHistory: RollbackDeployment[];
   assistantMessages: string[];
 };
 
@@ -124,7 +232,10 @@ type BaseSeed<TItem, TPage extends PageKey> = {
   items: TItem[];
 };
 
-export type DeploySeed = BaseSeed<DeployItem, "deploy">;
+export type DeploySeed = BaseSeed<DeployItem, "deploy"> & {
+  images: DeployImage[];
+};
+
 export type ApprovalSeed = BaseSeed<ApprovalItem, "approve">;
 export type RollbackSeed = BaseSeed<RollbackItem, "rollback">;
 

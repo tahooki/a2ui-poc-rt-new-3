@@ -3,17 +3,20 @@ import styles from "@/devops-console/console-page.module.css";
 import { Icon, type IconName } from "@/devops-console/foundation/icon-registry";
 import type { PageKey } from "@/devops-chat/types/domain";
 
-const navItems: Array<{ href: `/${PageKey}`; key: PageKey; label: string; icon: IconName }> = [
-  { href: "/deploy", key: "deploy", label: "Deploy", icon: "deploy" },
+export type NavKey = PageKey | "assistant";
+
+const navItems: Array<{ href: string; key: NavKey; label: string; icon: IconName }> = [
+  { href: "/deploy/image", key: "deploy", label: "Deploy", icon: "deploy" },
   { href: "/approve", key: "approve", label: "Approve", icon: "approve" },
   { href: "/rollback", key: "rollback", label: "Rollback", icon: "rollback" },
+  { href: "/assistant", key: "assistant", label: "Assistant", icon: "assistant" },
 ];
 
 export function SidebarNav({
   activePage,
   isOpen,
 }: {
-  activePage: PageKey;
+  activePage: NavKey;
   isOpen: boolean;
 }) {
   return (

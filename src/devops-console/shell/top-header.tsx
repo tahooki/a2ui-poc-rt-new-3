@@ -1,3 +1,4 @@
+import Link from "next/link";
 import styles from "@/devops-console/console-page.module.css";
 import { Icon } from "@/devops-console/foundation/icon-registry";
 
@@ -6,6 +7,8 @@ export function TopHeader({
   pageScope,
   pageTitle,
   assistantOpen,
+  assistantHref,
+  hideAssistantTrigger,
   onToggleAssistant,
   onToggleSidebar,
 }: {
@@ -13,6 +16,8 @@ export function TopHeader({
   pageScope: string;
   pageTitle: string;
   assistantOpen: boolean;
+  assistantHref?: string;
+  hideAssistantTrigger?: boolean;
   onToggleAssistant: () => void;
   onToggleSidebar: () => void;
 }) {
@@ -37,13 +42,19 @@ export function TopHeader({
           <Icon name="history" size={14} />
           {lastUpdated}
         </span>
-        <button
-          className={`${styles.iconButton} ${assistantOpen ? styles.iconButtonActive : ""}`}
-          onClick={onToggleAssistant}
-          type="button"
-        >
-          <Icon name="robot" size={16} />
-        </button>
+        {hideAssistantTrigger ? null : assistantHref ? (
+          <Link className={styles.iconButton} href={assistantHref}>
+            <Icon name="robot" size={16} />
+          </Link>
+        ) : (
+          <button
+            className={`${styles.iconButton} ${assistantOpen ? styles.iconButtonActive : ""}`}
+            onClick={onToggleAssistant}
+            type="button"
+          >
+            <Icon name="robot" size={16} />
+          </button>
+        )}
       </div>
     </header>
   );

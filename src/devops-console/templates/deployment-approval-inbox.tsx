@@ -17,10 +17,10 @@ export function DeploymentApprovalInbox({
     <article className={styles.templateCard}>
       <div className={styles.templateHeaderRow}>
         <div>
-          <div className={styles.sectionEyebrow}>Approval inbox</div>
+          <div className={styles.sectionEyebrow}>{template.requestTypeLabel}</div>
           <h4 className={styles.templateTitle}>{template.requestId}</h4>
           <p className={styles.templateDescription}>
-            {template.service} / {template.environment}
+            {template.title} / {template.environment}
           </p>
         </div>
         <StatusChip label={template.state} tone={tone} />
@@ -37,9 +37,18 @@ export function DeploymentApprovalInbox({
           <div className={styles.propertyValue}>{template.impactScope}</div>
         </div>
         <div className={styles.templateMetaCard}>
-          <div className={styles.metaLabel}>Rollback</div>
-          <div className={styles.propertyValue}>{template.rollbackAvailability}</div>
+          <div className={styles.metaLabel}>Decision guidance</div>
+          <div className={styles.propertyValue}>{template.decisionGuidance}</div>
         </div>
+      </div>
+
+      <div className={styles.templateMetaGrid}>
+        {template.keyFacts.map((fact) => (
+          <div className={styles.templateMetaCard} key={fact.label}>
+            <div className={styles.metaLabel}>{fact.label}</div>
+            <div className={`${styles.propertyValue} ${fact.mono ? styles.mono : ""}`}>{fact.value}</div>
+          </div>
+        ))}
       </div>
 
       <div className={styles.checkList}>

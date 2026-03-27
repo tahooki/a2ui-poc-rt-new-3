@@ -40,6 +40,7 @@ export function DevopsConsolePage({ pageKey }: { pageKey: PageKey }) {
   const runSecondaryTemplateAction = useDevopsConsoleStore((state) => state.runSecondaryTemplateAction);
   const viewModel = buildConsoleViewModel(pageKey, pages);
   const selectedItem = findSelectedItem(pageKey, pages);
+  const assistantEnabled = pageKey === "deploy";
 
   const assistant = (
     <AssistantWorkspace
@@ -47,7 +48,9 @@ export function DevopsConsolePage({ pageKey }: { pageKey: PageKey }) {
       composerText={viewModel.composerText}
       context={viewModel.assistantContext}
       description={viewModel.assistantDescription}
+      error={viewModel.error}
       intents={viewModel.intents}
+      isSubmitting={viewModel.isSubmitting}
       messages={viewModel.messages}
       onClose={() => setAssistantOpen(false)}
       onComposerChange={(value) => setComposerText(pageKey, value)}
@@ -59,7 +62,7 @@ export function DevopsConsolePage({ pageKey }: { pageKey: PageKey }) {
       onSecondaryAction={() => runSecondaryTemplateAction(pageKey)}
       onSubmit={() => {
         setAssistantOpen(true);
-        submitPrompt(pageKey);
+        void submitPrompt(pageKey);
       }}
       template={viewModel.template}
       title={viewModel.assistantTitle}
@@ -69,10 +72,16 @@ export function DevopsConsolePage({ pageKey }: { pageKey: PageKey }) {
   return (
     <AppFrame
       activePage={pageKey}
-      assistant={assistant}
-      assistantOpen={assistantOpen}
+      assistant={assistantEnabled ? assistant : undefined}
+      assistantOpen={assistantEnabled ? assistantOpen : false}
+      hideAssistantTrigger={!assistantEnabled}
       lastUpdated={viewModel.lastUpdated}
-      onToggleAssistant={() => setAssistantOpen((value) => !value)}
+      onToggleAssistant={() => {
+        if (!assistantEnabled) {
+          return;
+        }
+        setAssistantOpen((value) => !value);
+      }}
       onToggleSidebar={() => setSidebarOpen((value) => !value)}
       pageScope={viewModel.pageScope}
       pageTitle={viewModel.pageTitle}
@@ -97,11 +106,15 @@ export function DevopsConsolePage({ pageKey }: { pageKey: PageKey }) {
 
       <FilterBar
         filters={viewModel.filters}
-        onPrimaryAction={() => {
-          setAssistantOpen(true);
-          runPrimaryPageAction(pageKey);
-        }}
-        primaryActionLabel={viewModel.primaryActionLabel}
+        onPrimaryAction={
+          assistantEnabled
+            ? () => {
+                setAssistantOpen(true);
+                runPrimaryPageAction(pageKey);
+              }
+            : undefined
+        }
+        primaryActionLabel={assistantEnabled ? viewModel.primaryActionLabel : undefined}
       />
 
       {pageKey === "deploy" ? (

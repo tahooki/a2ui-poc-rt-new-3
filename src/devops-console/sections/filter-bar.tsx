@@ -3,8 +3,8 @@ import { Icon } from "@/devops-console/foundation/icon-registry";
 
 type FilterBarProps = {
   filters: string[];
-  primaryActionLabel: string;
-  onPrimaryAction: () => void;
+  primaryActionLabel?: string;
+  onPrimaryAction?: () => void;
 };
 
 export function FilterBar({
@@ -27,10 +27,12 @@ export function FilterBar({
           <Icon name="search" size={14} />
           Search scope
         </button>
-        <button className={styles.primaryButton} onClick={onPrimaryAction} type="button">
-          <Icon name="tune" size={14} />
-          {primaryActionLabel}
-        </button>
+        {primaryActionLabel && onPrimaryAction ? (
+          <button className={styles.primaryButton} onClick={onPrimaryAction} type="button">
+            <Icon name="tune" size={14} />
+            {primaryActionLabel}
+          </button>
+        ) : null}
       </div>
     </section>
   );

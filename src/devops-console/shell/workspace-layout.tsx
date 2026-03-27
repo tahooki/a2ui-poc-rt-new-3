@@ -5,18 +5,20 @@ export function WorkspaceLayout({
   assistantOpen,
   children,
 }: {
-  assistant: React.ReactNode;
+  assistant?: React.ReactNode;
   assistantOpen: boolean;
   children: React.ReactNode;
 }) {
   return (
     <div className={`${styles.workspace} ${assistantOpen ? styles.workspaceAssistantOpen : ""}`}>
       <div className={styles.mainArea}>{children}</div>
-      <aside
-        className={`${styles.assistantArea} ${assistantOpen ? styles.assistantAreaOpen : ""}`}
-      >
-        {assistant}
-      </aside>
+      {assistant ? (
+        <aside
+          className={`${styles.assistantArea} ${assistantOpen ? styles.assistantAreaOpen : ""}`}
+        >
+          {assistant}
+        </aside>
+      ) : null}
     </div>
   );
 }

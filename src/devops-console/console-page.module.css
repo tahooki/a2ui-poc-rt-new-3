@@ -223,6 +223,17 @@
   gap: 10px;
 }
 
+.pageContentStack {
+  display: grid;
+  gap: 16px;
+}
+
+.descriptionStack {
+  display: grid;
+  gap: 10px;
+  max-width: 900px;
+}
+
 .pageTitleRow {
   display: flex;
   justify-content: space-between;
@@ -346,6 +357,13 @@
   transform: translateY(-1px);
 }
 
+.primaryButton:disabled,
+.secondaryButton:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .secondaryButton {
   background: transparent;
   color: var(--console-text);
@@ -354,6 +372,12 @@
 .workspaceGrid {
   display: grid;
   grid-template-columns: minmax(0, 1.32fr) minmax(300px, 0.88fr);
+  gap: 16px;
+}
+
+.workspaceGridSingle {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
 }
 
@@ -379,6 +403,127 @@
 
 .selectedHighlightWide {
   grid-template-columns: 1.2fr 1fr 1fr;
+}
+
+.workflowNav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.workflowNavItem {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--console-border);
+  border-radius: var(--console-radius);
+  background: rgba(15, 23, 34, 0.38);
+  color: var(--console-text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.workflowNavItemActive {
+  border-color: rgba(76, 141, 255, 0.58);
+  background: rgba(27, 47, 71, 0.88);
+  color: var(--console-text);
+}
+
+.fieldGrid,
+.heroSplit {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.fieldCard {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid rgba(37, 50, 68, 0.76);
+  border-radius: var(--console-radius);
+  background: rgba(15, 23, 34, 0.38);
+}
+
+.textInput,
+.textArea {
+  width: 100%;
+  min-height: 38px;
+  padding: 10px 12px;
+  border: 1px solid var(--console-border-strong);
+  border-radius: var(--console-radius);
+  background: rgba(15, 23, 34, 0.54);
+  color: var(--console-text);
+  font: inherit;
+}
+
+.textArea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.textInput:focus,
+.textArea:focus {
+  outline: 1px solid rgba(76, 141, 255, 0.62);
+  border-color: rgba(76, 141, 255, 0.62);
+}
+
+.choiceGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.choiceButton {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--console-border);
+  border-radius: var(--console-radius);
+  background: rgba(15, 23, 34, 0.38);
+  color: var(--console-text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.choiceButtonActive {
+  border-color: rgba(76, 141, 255, 0.58);
+  background: rgba(27, 47, 71, 0.88);
+  color: var(--console-text);
+}
+
+.inlineActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.decisionActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.decisionButton {
+  min-width: 132px;
+  padding-inline: 22px;
+}
+
+.panelDisabled {
+  opacity: 0.78;
+}
+
+.fieldsetReset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
 }
 
 .panel {
@@ -554,6 +699,151 @@
   padding: 16px;
 }
 
+.chatAssistantPanel {
+  position: sticky;
+  top: var(--console-header-height);
+  height: calc(100vh - var(--console-header-height));
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  background:
+    radial-gradient(circle at top, rgba(76, 141, 255, 0.08), transparent 24%),
+    linear-gradient(180deg, rgba(17, 26, 38, 0.98), rgba(15, 23, 34, 0.98));
+}
+
+.chatAssistantHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid var(--console-border);
+}
+
+.chatAssistantTitle {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.chatAssistantThread {
+  min-height: 0;
+  overflow: auto;
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  padding: 18px 16px;
+}
+
+.chatThreadEmpty {
+  min-height: 100%;
+}
+
+.chatMessageRow {
+  display: flex;
+}
+
+.chatMessageRowAssistant {
+  justify-content: flex-start;
+}
+
+.chatMessageRowUser {
+  justify-content: flex-end;
+}
+
+.chatMessageBubble {
+  max-width: min(82%, 320px);
+  padding: 12px 14px;
+  border-radius: 18px;
+  font-size: 13px;
+  line-height: 1.6;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.chatMessageBubbleAssistant {
+  border: 1px solid rgba(50, 70, 94, 0.82);
+  background: rgba(20, 30, 43, 0.92);
+  color: var(--console-text);
+  border-top-left-radius: 8px;
+}
+
+.chatMessageBubbleUser {
+  background: linear-gradient(180deg, rgba(76, 141, 255, 0.96), rgba(49, 109, 218, 0.96));
+  color: #f8fbff;
+  border-top-right-radius: 8px;
+}
+
+.chatMessageBubbleError {
+  border: 1px solid rgba(228, 106, 106, 0.44);
+  background: rgba(96, 27, 31, 0.2);
+}
+
+.chatAssistantComposer {
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px 16px;
+  border-top: 1px solid var(--console-border);
+  background: rgba(15, 23, 34, 0.96);
+}
+
+.chatComposerShell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.chatComposerInput {
+  width: 100%;
+  min-height: 52px;
+  max-height: 180px;
+  padding: 14px 16px;
+  border: 1px solid var(--console-border-strong);
+  border-radius: 18px;
+  background: rgba(20, 30, 43, 0.92);
+  color: var(--console-text);
+  font: inherit;
+  resize: vertical;
+}
+
+.chatComposerInput:focus {
+  outline: 1px solid rgba(76, 141, 255, 0.62);
+  border-color: rgba(76, 141, 255, 0.62);
+}
+
+.chatComposerInput:disabled {
+  opacity: 0.72;
+  cursor: wait;
+}
+
+.chatComposerSend {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border: 1px solid rgba(76, 141, 255, 0.62);
+  border-radius: 999px;
+  background: rgba(27, 47, 71, 0.96);
+  color: var(--console-text);
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    opacity 160ms ease,
+    border-color 160ms ease,
+    background-color 160ms ease;
+}
+
+.chatComposerSend:hover {
+  transform: translateY(-1px);
+}
+
+.chatComposerSend:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .assistantPanel {
   padding: 14px;
   display: grid;
@@ -580,6 +870,43 @@
   line-height: 1.55;
 }
 
+.assistantLogItemAssistant {
+  border-left-color: rgba(76, 141, 255, 0.56);
+}
+
+.assistantLogItemUser {
+  border-left-color: rgba(52, 195, 143, 0.56);
+  background: rgba(21, 43, 39, 0.42);
+}
+
+.assistantLogItemStreaming {
+  box-shadow: inset 0 0 0 1px rgba(76, 141, 255, 0.2);
+}
+
+.assistantLogItemError {
+  border-left-color: rgba(228, 106, 106, 0.62);
+}
+
+.assistantLogMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+  color: var(--console-text-muted);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.assistantLogEmpty {
+  padding: 10px 12px;
+  border: 1px dashed var(--console-border);
+  border-radius: var(--console-radius);
+  color: var(--console-text-muted);
+  font-size: 12px;
+}
+
 .intentGrid {
   display: flex;
   flex-wrap: wrap;
@@ -588,6 +915,11 @@
 
 .intentChip {
   cursor: pointer;
+}
+
+.intentChip:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
 }
 
 .intentChip:hover {
@@ -615,6 +947,21 @@
 .composerInput:focus {
   outline: 1px solid rgba(76, 141, 255, 0.62);
   border-color: rgba(76, 141, 255, 0.62);
+}
+
+.composerInput:disabled {
+  opacity: 0.72;
+  cursor: wait;
+}
+
+.assistantError {
+  padding: 10px 12px;
+  border: 1px solid rgba(228, 106, 106, 0.42);
+  border-radius: var(--console-radius);
+  background: rgba(96, 27, 31, 0.14);
+  color: var(--console-text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .templateCard {
@@ -751,9 +1098,12 @@
 
 @media (max-width: 1100px) {
   .workspaceGrid,
+  .workspaceGridSingle,
   .selectedHighlightGrid,
   .selectedHighlightWide,
-  .focusGrid {
+  .focusGrid,
+  .fieldGrid,
+  .heroSplit {
     grid-template-columns: 1fr;
   }
 

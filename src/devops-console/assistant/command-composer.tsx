@@ -5,7 +5,9 @@ import type { AssistantIntent } from "@/devops-chat/types/domain";
 type CommandComposerProps = {
   composerPlaceholder: string;
   composerText: string;
+  error: string | null;
   intents: AssistantIntent[];
+  isSubmitting: boolean;
   onComposerChange: (value: string) => void;
   onIntent: (intentId: string) => void;
   onSubmit: () => void;
@@ -14,7 +16,9 @@ type CommandComposerProps = {
 export function CommandComposer({
   composerPlaceholder,
   composerText,
+  error,
   intents,
+  isSubmitting,
   onComposerChange,
   onIntent,
   onSubmit,
@@ -32,6 +36,7 @@ export function CommandComposer({
           {intents.map((intent) => (
             <button
               className={styles.intentChip}
+              disabled={isSubmitting}
               key={intent.id}
               onClick={() => onIntent(intent.id)}
               type="button"
@@ -53,14 +58,16 @@ export function CommandComposer({
         <div className={styles.composer}>
           <textarea
             className={styles.composerInput}
+            disabled={isSubmitting}
             onChange={(event) => onComposerChange(event.target.value)}
             placeholder={composerPlaceholder}
             value={composerText}
           />
           <div className={styles.composerHint}>{composerPlaceholder}</div>
-          <button className={styles.primaryButton} onClick={onSubmit} type="button">
+          {error ? <div className={styles.assistantError}>{error}</div> : null}
+          <button className={styles.primaryButton} disabled={isSubmitting} onClick={onSubmit} type="button">
             <Icon name="terminal" size={14} />
-            Run assistant step
+            {isSubmitting ? "Streaming..." : "Run assistant step"}
           </button>
         </div>
       </section>

@@ -4,7 +4,7 @@ import { CommandComposer } from "@/devops-console/assistant/command-composer";
 import { ContextSummary } from "@/devops-console/assistant/context-summary";
 import { AssistantHeader } from "@/devops-console/assistant/assistant-header";
 import { TemplateSurface } from "@/devops-console/assistant/template-surface";
-import type { AssistantIntent } from "@/devops-chat/types/domain";
+import type { AssistantIntent, AssistantMessage } from "@/devops-chat/types/domain";
 import type { TemplateEnvelope } from "@/devops-chat/types/templates";
 
 type AssistantWorkspaceProps = {
@@ -12,7 +12,9 @@ type AssistantWorkspaceProps = {
   description: string;
   context: Array<{ label: string; value: string }>;
   intents: AssistantIntent[];
-  messages: string[];
+  messages: AssistantMessage[];
+  isSubmitting: boolean;
+  error: string | null;
   composerText: string;
   composerPlaceholder: string;
   template: TemplateEnvelope | null;
@@ -30,6 +32,8 @@ export function AssistantWorkspace({
   context,
   intents,
   messages,
+  isSubmitting,
+  error,
   composerText,
   composerPlaceholder,
   template,
@@ -53,7 +57,9 @@ export function AssistantWorkspace({
       <CommandComposer
         composerPlaceholder={composerPlaceholder}
         composerText={composerText}
+        error={error}
         intents={intents}
+        isSubmitting={isSubmitting}
         onComposerChange={onComposerChange}
         onIntent={onIntent}
         onSubmit={onSubmit}

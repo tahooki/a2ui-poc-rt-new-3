@@ -2,146 +2,320 @@
   "key": "rollback",
   "navLabel": "롤백",
   "pageTitle": "Rollback",
-  "pageDescription": "문제 배포를 탐지하고 안전한 복귀 버전을 기준으로 롤백을 준비합니다.",
-  "pageScope": "production / incident-linked changes",
-  "lastUpdated": "Seed snapshot · 2026-03-24 10:15 KST",
+  "pageDescription": "운영 중인 서비스를 선택하고 배포 이력에서 되돌릴 버전을 고른 뒤 롤백을 준비합니다.",
+  "pageScope": "production / service history recovery",
+  "lastUpdated": "Seed snapshot · 2026-03-26 11:20 KST",
   "filters": [
-    "Service: payments-api",
-    "Severity: High+",
     "Environment: Production",
-    "Incident: Open"
+    "Status: Recovery Needed",
+    "History: Available",
+    "Mode: quick + detailed"
   ],
-  "primaryActionLabel": "Rollback 준비",
-  "tableTitle": "Rollback candidates",
+  "primaryActionLabel": "Rollback 템플릿 보기",
+  "tableTitle": "Rollback services",
   "assistantTitle": "AI Rollback Assistant",
-  "assistantDescription": "문제 배포와 마지막 안정 버전을 비교해 안전한 복귀 플로우만 남깁니다.",
-  "composerPlaceholder": "예: 현재 선택한 서비스의 안전한 롤백 버전을 찾아줘",
-  "selectedId": "rb-108",
+  "assistantDescription": "서비스 기준으로 추천 rollback target과 dry run / confirm 흐름을 압축해서 보여줍니다.",
+  "composerPlaceholder": "예: 현재 선택한 서비스 기준으로 가장 안전한 rollback target을 정리해줘",
+  "selectedId": "svc-payments-api",
   "intents": [
     {
       "id": "rollback-summary",
-      "label": "안전한 롤백 버전 찾기",
-      "prompt": "현재 선택한 인시던트 기준으로 가장 안전한 롤백 버전을 정리해줘"
+      "label": "추천 rollback target",
+      "prompt": "현재 선택한 서비스 기준으로 가장 안전한 rollback target을 정리해줘"
     },
     {
       "id": "rollback-impact",
       "label": "영향 범위 점검",
-      "prompt": "현재 선택한 롤백의 영향 범위와 dry run 체크 항목만 정리해줘"
+      "prompt": "현재 선택한 rollback target의 영향 범위와 dry run 체크만 정리해줘"
     },
     {
       "id": "rollback-confirm",
       "label": "최종 확인 카드 열기",
-      "prompt": "현재 선택한 롤백의 최종 확인 카드를 열어줘"
+      "prompt": "현재 선택한 rollback target의 최종 확인 카드를 열어줘"
     }
   ],
   "items": [
     {
-      "id": "rb-108",
+      "id": "svc-payments-api",
       "service": "payments-api",
       "environment": "production",
-      "incident": "INC-842 card timeout",
-      "severity": "high",
       "currentVersion": "v2.3.18",
-      "lastStableVersion": "v2.3.16",
-      "updatedAt": "5m ago",
-      "status": "dry_run_ready",
-      "evidence": [
-        "24h error rate below 0.3% on v2.3.16",
-        "timeout spike started immediately after v2.3.18 rollout",
-        "blast radius limited to payments-api"
-      ],
+      "latestDeploymentId": "deploy-pay-318",
+      "latestStatus": "degraded",
+      "incidentSummary": "INC-842 card timeout increase",
+      "severity": "high",
+      "recommendedRollbackDeploymentId": "deploy-pay-316",
+      "recommendedRollbackVersion": "v2.3.16",
       "blastRadius": "payments-api only",
-      "recoveryWindow": "10 minute canary verification",
-      "recentDeployHistory": [
-        "v2.3.18 deployed 09:58 KST",
-        "error spike detected 10:03 KST",
-        "baseline v2.3.16 healthy for previous 24h"
-      ],
-      "dryRunChecks": [
-        "artifact pinning to v2.3.16 확인",
-        "drain policy enabled for 10% canary",
-        "customer support hot path notice sent"
-      ],
-      "confirmChecklist": [
-        "incident commander notified",
-        "rollback window reserved",
-        "payment reconciliation watch enabled"
-      ],
-      "notes": [
-        "p95 latency spike after recent deploy",
-        "rollback before traffic grows further"
-      ],
+      "lastUpdated": "5m ago",
       "assistantMessages": [
-        "최근 장애 이전의 마지막 안정 버전을 기준으로 롤백을 준비했습니다.",
-        "영향 범위 점검을 먼저 수행한 뒤 확정할 수 있습니다.",
-        "최종 롤백 전 확인이 필요한 항목만 남겼습니다."
+        "현재 서비스 기준으로 추천 rollback target과 dry run 단계를 준비했습니다.",
+        "v2.3.16이 가장 안전한 안정 버전으로 보입니다."
+      ],
+      "deploymentHistory": [
+        {
+          "id": "deploy-pay-318",
+          "version": "v2.3.18",
+          "deployedAt": "2026-03-26 09:58 KST",
+          "strategy": "canary_10_50_100",
+          "healthSummary": "timeout spike after rollout",
+          "verification": "failed",
+          "rollbackEligible": false,
+          "releaseSummary": "payment auth timeout handling update",
+          "rollbackRisk": "current live release causing incident",
+          "status": "identified",
+          "whyThisTarget": "current deployment is the regression source, not a rollback target",
+          "evidence": [
+            "timeout spike started immediately after v2.3.18 rollout",
+            "error budget exceeded within 5 minutes"
+          ],
+          "dryRunChecks": [
+            "not applicable"
+          ],
+          "confirmChecklist": [
+            "not applicable"
+          ],
+          "recoveryWindow": "n/a",
+          "notes": [
+            "current problematic deployment"
+          ]
+        },
+        {
+          "id": "deploy-pay-316",
+          "version": "v2.3.16",
+          "deployedAt": "2026-03-25 18:20 KST",
+          "strategy": "canary_10_50_100",
+          "healthSummary": "healthy for previous 24h",
+          "verification": "passed",
+          "rollbackEligible": true,
+          "releaseSummary": "last stable payments release before timeout regression",
+          "rollbackRisk": "low",
+          "status": "dry_run_ready",
+          "whyThisTarget": "24h stable baseline before current incident",
+          "evidence": [
+            "24h error rate stayed below 0.3%",
+            "no payment timeout regression observed",
+            "blast radius limited to payments-api"
+          ],
+          "dryRunChecks": [
+            "artifact pinning to v2.3.16 확인",
+            "drain policy enabled for 10% canary",
+            "payment reconciliation watch enabled"
+          ],
+          "confirmChecklist": [
+            "incident commander notified",
+            "rollback window reserved",
+            "support hot path notice sent"
+          ],
+          "recoveryWindow": "10 minute canary verification",
+          "notes": [
+            "recommended rollback target"
+          ]
+        },
+        {
+          "id": "deploy-pay-314",
+          "version": "v2.3.14",
+          "deployedAt": "2026-03-22 14:05 KST",
+          "strategy": "rolling",
+          "healthSummary": "healthy but older DB schema assumptions",
+          "verification": "passed",
+          "rollbackEligible": true,
+          "releaseSummary": "older stable release before checkout contract changes",
+          "rollbackRisk": "medium",
+          "status": "identified",
+          "whyThisTarget": "stable, but older than required for current contract expectations",
+          "evidence": [
+            "no incident history",
+            "older schema compatibility warning"
+          ],
+          "dryRunChecks": [
+            "schema compatibility validation required",
+            "consumer contract smoke test required"
+          ],
+          "confirmChecklist": [
+            "older release notice sent",
+            "contract verification owner online"
+          ],
+          "recoveryWindow": "15 minute verification",
+          "notes": [
+            "fallback if v2.3.16 artifacts unavailable"
+          ]
+        }
       ]
     },
     {
-      "id": "rb-104",
+      "id": "svc-checkout",
       "service": "checkout",
       "environment": "production",
-      "incident": "INC-835 auth retries",
-      "severity": "critical",
       "currentVersion": "v1.8.42",
-      "lastStableVersion": "v1.8.39",
-      "updatedAt": "19m ago",
-      "status": "confirm_ready",
-      "evidence": [
-        "last stable version ran 48h without auth retry spike",
-        "critical incident linked to latest auth provider change"
-      ],
+      "latestDeploymentId": "deploy-check-1842",
+      "latestStatus": "critical",
+      "incidentSummary": "INC-835 auth retries",
+      "severity": "critical",
+      "recommendedRollbackDeploymentId": "deploy-check-1839",
+      "recommendedRollbackVersion": "v1.8.39",
       "blastRadius": "checkout + login edge",
-      "recoveryWindow": "immediate rollback after command approval",
-      "recentDeployHistory": [
-        "v1.8.42 deployed 09:32 KST",
-        "critical auth retry incident started 09:40 KST"
-      ],
-      "dryRunChecks": [
-        "target image available",
-        "edge cache purge command prepared"
-      ],
-      "confirmChecklist": [
-        "incident channel active",
-        "rollback comms drafted"
-      ],
-      "notes": [
-        "awaiting operator final confirmation"
-      ],
+      "lastUpdated": "19m ago",
       "assistantMessages": [
-        "이 후보는 dry run 검증이 끝나서 최종 확정 단계에 있습니다."
+        "checkout 서비스는 최종 rollback confirm 단계에 가까운 target이 선택돼 있습니다."
+      ],
+      "deploymentHistory": [
+        {
+          "id": "deploy-check-1842",
+          "version": "v1.8.42",
+          "deployedAt": "2026-03-26 09:32 KST",
+          "strategy": "rolling",
+          "healthSummary": "critical auth retry spike",
+          "verification": "failed",
+          "rollbackEligible": false,
+          "releaseSummary": "auth provider retry behavior update",
+          "rollbackRisk": "current live release causing incident",
+          "status": "identified",
+          "whyThisTarget": "current deployment is the regression source",
+          "evidence": [
+            "critical auth retry incident started after rollout"
+          ],
+          "dryRunChecks": [
+            "not applicable"
+          ],
+          "confirmChecklist": [
+            "not applicable"
+          ],
+          "recoveryWindow": "n/a",
+          "notes": [
+            "current problematic deployment"
+          ]
+        },
+        {
+          "id": "deploy-check-1839",
+          "version": "v1.8.39",
+          "deployedAt": "2026-03-24 13:05 KST",
+          "strategy": "rolling",
+          "healthSummary": "stable before auth retry incident",
+          "verification": "passed",
+          "rollbackEligible": true,
+          "releaseSummary": "last known stable checkout release",
+          "rollbackRisk": "low",
+          "status": "confirm_ready",
+          "whyThisTarget": "48h stable baseline without auth retry spike",
+          "evidence": [
+            "stable for 48h before incident",
+            "rollback image already pinned"
+          ],
+          "dryRunChecks": [
+            "target image available",
+            "edge cache purge command prepared"
+          ],
+          "confirmChecklist": [
+            "incident channel active",
+            "rollback comms drafted"
+          ],
+          "recoveryWindow": "immediate rollback after command approval",
+          "notes": [
+            "awaiting operator final confirmation"
+          ]
+        },
+        {
+          "id": "deploy-check-1837",
+          "version": "v1.8.37",
+          "deployedAt": "2026-03-20 17:40 KST",
+          "strategy": "rolling",
+          "healthSummary": "stable but older login edge behavior",
+          "verification": "passed",
+          "rollbackEligible": true,
+          "releaseSummary": "older stable fallback release",
+          "rollbackRisk": "medium",
+          "status": "identified",
+          "whyThisTarget": "available fallback if latest stable target is rejected",
+          "evidence": [
+            "stable before auth provider changes",
+            "older edge cache semantics"
+          ],
+          "dryRunChecks": [
+            "login edge compatibility check",
+            "older feature flag defaults review"
+          ],
+          "confirmChecklist": [
+            "login edge owner online",
+            "cache invalidation ready"
+          ],
+          "recoveryWindow": "15 minute staged verification",
+          "notes": [
+            "secondary rollback option"
+          ]
+        }
       ]
     },
     {
-      "id": "rb-099",
+      "id": "svc-catalog-api",
       "service": "catalog-api",
       "environment": "staging",
-      "incident": "INC-821 stale cache",
-      "severity": "medium",
       "currentVersion": "v4.2.1",
-      "lastStableVersion": "v4.2.0",
-      "updatedAt": "41m ago",
-      "status": "executed",
-      "evidence": [
-        "rollback executed successfully",
-        "cache hit ratio returned to baseline"
-      ],
+      "latestDeploymentId": "deploy-cat-421",
+      "latestStatus": "recovered",
+      "incidentSummary": "INC-821 stale cache",
+      "severity": "medium",
+      "recommendedRollbackDeploymentId": "deploy-cat-420",
+      "recommendedRollbackVersion": "v4.2.0",
       "blastRadius": "catalog-api only",
-      "recoveryWindow": "completed",
-      "recentDeployHistory": [
-        "rollback executed 09:20 KST"
-      ],
-      "dryRunChecks": [
-        "completed"
-      ],
-      "confirmChecklist": [
-        "completed"
-      ],
-      "notes": [
-        "service stabilized after rollback"
-      ],
+      "lastUpdated": "41m ago",
       "assistantMessages": [
-        "이 롤백은 이미 실행 완료 상태입니다."
+        "catalog-api는 이미 rollback이 실행 완료된 이력을 보여줍니다."
+      ],
+      "deploymentHistory": [
+        {
+          "id": "deploy-cat-421",
+          "version": "v4.2.1",
+          "deployedAt": "2026-03-26 08:32 KST",
+          "strategy": "rolling",
+          "healthSummary": "stale cache symptoms after release",
+          "verification": "failed",
+          "rollbackEligible": false,
+          "releaseSummary": "search cache refresh optimization",
+          "rollbackRisk": "current release already rolled back",
+          "status": "identified",
+          "whyThisTarget": "current deployment triggered stale cache incident",
+          "evidence": [
+            "cache hit ratio dropped after release"
+          ],
+          "dryRunChecks": [
+            "not applicable"
+          ],
+          "confirmChecklist": [
+            "not applicable"
+          ],
+          "recoveryWindow": "n/a",
+          "notes": [
+            "already superseded by rollback"
+          ]
+        },
+        {
+          "id": "deploy-cat-420",
+          "version": "v4.2.0",
+          "deployedAt": "2026-03-24 16:40 KST",
+          "strategy": "rolling",
+          "healthSummary": "cache hit ratio returned to baseline",
+          "verification": "passed",
+          "rollbackEligible": true,
+          "releaseSummary": "stable catalog baseline restored after incident",
+          "rollbackRisk": "completed",
+          "status": "executed",
+          "whyThisTarget": "executed rollback target that restored stability",
+          "evidence": [
+            "rollback executed successfully",
+            "cache hit ratio returned to baseline"
+          ],
+          "dryRunChecks": [
+            "completed"
+          ],
+          "confirmChecklist": [
+            "completed"
+          ],
+          "recoveryWindow": "completed",
+          "notes": [
+            "service stabilized after rollback"
+          ]
+        }
       ]
     }
   ]

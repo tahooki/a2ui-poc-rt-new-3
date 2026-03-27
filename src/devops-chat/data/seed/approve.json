@@ -2,30 +2,30 @@
   "key": "approve",
   "navLabel": "승인",
   "pageTitle": "Approvals",
-  "pageDescription": "운영 배포 승인 요청을 검토하고 승인 또는 보류를 처리합니다.",
-  "pageScope": "production / shared approval queue",
-  "lastUpdated": "Seed snapshot · 2026-03-24 10:15 KST",
+  "pageDescription": "운영자가 다양한 변경 요청을 한 곳에서 검토하고 승인 또는 보류를 처리합니다.",
+  "pageScope": "shared approvals / production controls",
+  "lastUpdated": "Seed snapshot · 2026-03-25 18:40 KST",
   "filters": [
+    "Type: Temporary Access",
     "Environment: Production",
-    "Risk: Warning+",
-    "Team: Payments",
-    "Status: Pending"
+    "Status: Pending",
+    "Risk: Warning+"
   ],
   "primaryActionLabel": "검토 시작",
   "tableTitle": "Approval requests",
   "assistantTitle": "AI Approval Assistant",
-  "assistantDescription": "승인 판단에 필요한 정보만 다시 압축해서 보여주는 사이드 워크스페이스입니다.",
-  "composerPlaceholder": "예: 현재 선택한 승인 요청의 핵심 리스크만 정리해줘",
-  "selectedId": "apr-312",
+  "assistantDescription": "현재 탭의 승인 요청을 빠르게 판단할 수 있도록 리스크와 근거를 압축해서 보여줍니다.",
+  "composerPlaceholder": "예: 현재 선택한 승인 요청의 핵심 판단 포인트를 정리해줘",
+  "selectedId": "apr-access-101",
   "intents": [
     {
       "id": "approval-summary",
-      "label": "승인 대기 요약",
+      "label": "핵심 판단 포인트",
       "prompt": "현재 선택한 승인 요청의 핵심 판단 포인트를 요약해줘"
     },
     {
       "id": "approval-risk",
-      "label": "핵심 리스크 보기",
+      "label": "리스크 정리",
       "prompt": "현재 선택한 요청의 리스크와 영향 범위만 압축해줘"
     },
     {
@@ -36,101 +36,416 @@
   ],
   "items": [
     {
-      "id": "apr-312",
-      "service": "payments-api",
+      "id": "apr-access-101",
+      "type": "temporary_access",
+      "title": "payments-prod read access",
       "environment": "production",
       "requestedBy": "mina.cho",
       "team": "Payments",
-      "requestedAt": "10:08 KST",
-      "requestWindow": "today · 10:30-11:00 KST",
-      "riskSummary": "1 warn / 0 fail",
+      "requestedAt": "11:08 KST",
+      "requestWindow": "today · immediate",
+      "riskSummary": "시간 제한 있음 / 범위 제한됨",
       "riskTone": "warning",
-      "verificationSummary": "Canary dry-run passed",
+      "verificationSummary": "incident INC-204 linked",
       "verificationChecks": [
-        "staging smoke passed",
-        "10% canary verification passed",
-        "DB schema change 없음"
+        "incident ticket linked",
+        "read-only scope requested",
+        "2 hour expiry configured"
       ],
-      "impactScope": "payments-api only",
-      "changeSummary": [
-        "application release only",
-        "payment auth timeout handling 개선",
-        "consumer-facing config change 없음"
-      ],
-      "rollbackAvailability": "immediate rollback available",
+      "impactScope": "payments-api logs and artifact bucket only",
+      "rollbackAvailability": "access expires automatically after 2h",
       "notes": [
-        "latency watch needed for 10% canary",
-        "support team notified in advance"
+        "requested for production incident investigation",
+        "no write access requested"
       ],
       "status": "pending",
       "assistantMessages": [
-        "승인 판단에 필요한 핵심 정보만 정리했습니다.",
-        "DB 스키마 변경은 포함되지 않았습니다.",
-        "이 요청은 즉시 롤백 가능한 배포입니다."
-      ]
+        "임시 권한 요청의 범위와 만료 조건을 먼저 확인했습니다.",
+        "incident 연계와 read-only scope가 승인 판단의 핵심입니다."
+      ],
+      "detail": {
+        "principal": "payments-oncall-role",
+        "resource": "s3://prod-payment-artifacts",
+        "scope": "s3:GetObject only",
+        "duration": "2 hours",
+        "justification": "production 5xx incident investigation",
+        "safeguards": [
+          "read-only access",
+          "auto-expire after 2h",
+          "ticket INC-204 linked"
+        ],
+        "expiresAt": "2026-03-25 13:10 KST"
+      }
     },
     {
-      "id": "apr-311",
-      "service": "checkout",
+      "id": "apr-access-102",
+      "type": "temporary_access",
+      "title": "checkout break-glass diagnostics",
       "environment": "production",
       "requestedBy": "d.son",
       "team": "Commerce",
       "requestedAt": "09:42 KST",
-      "requestWindow": "today · 09:50-10:20 KST",
-      "riskSummary": "0 warn / 0 fail",
-      "riskTone": "success",
-      "verificationSummary": "Ready",
-      "verificationChecks": [
-        "synthetic checkout passed",
-        "API error budget healthy",
-        "rollback image pinned"
-      ],
-      "impactScope": "checkout + cart",
-      "changeSummary": [
-        "application release only",
-        "feature flag disabled by default"
-      ],
-      "rollbackAvailability": "rollback available in under 5 minutes",
-      "notes": [
-        "pre-production verification already signed off"
-      ],
-      "status": "approved",
-      "assistantMessages": [
-        "이 요청은 이미 승인 처리되었습니다.",
-        "필요하면 승인 근거를 다시 요약할 수 있습니다."
-      ]
-    },
-    {
-      "id": "apr-309",
-      "service": "inventory-sync",
-      "environment": "staging",
-      "requestedBy": "sre-bot",
-      "team": "Platform",
-      "requestedAt": "08:58 KST",
-      "requestWindow": "today · 09:10-09:40 KST",
-      "riskSummary": "2 warn / 0 fail",
+      "requestWindow": "today · 09:45-11:45 KST",
+      "riskSummary": "범위 넓음 / break-glass",
       "riskTone": "danger",
-      "verificationSummary": "Manual review",
+      "verificationSummary": "manager sign-off attached",
       "verificationChecks": [
-        "queue lag warning remains open",
-        "schema diff 없음",
-        "manual sign-off required"
+        "manager approval attached",
+        "incident severity confirmed",
+        "expiry configured"
       ],
-      "impactScope": "inventory projection pipeline",
-      "changeSummary": [
-        "worker concurrency increase",
-        "manual validation required before release"
-      ],
-      "rollbackAvailability": "staging rollback available",
+      "impactScope": "checkout production diagnostics across app and redis metrics",
+      "rollbackAvailability": "access revoked automatically after window",
       "notes": [
-        "queue lag warning unresolved",
-        "hold until manual review complete"
+        "elevated diagnostics scope requested",
+        "should be held if incident severity is downgraded"
       ],
       "status": "held",
       "assistantMessages": [
-        "이 요청은 현재 보류 상태입니다.",
-        "보류를 해제하려면 미해결 경고부터 정리해야 합니다."
-      ]
+        "이 요청은 범위가 넓어 보류 상태로 유지 중입니다.",
+        "incident severity와 diagnostics necessity를 다시 확인해야 합니다."
+      ],
+      "detail": {
+        "principal": "checkout-sre-breakglass",
+        "resource": "redis-prod-checkout + ecs service metrics",
+        "scope": "diagnostics read + limited session access",
+        "duration": "2 hours",
+        "justification": "checkout severity investigation",
+        "safeguards": [
+          "manager sign-off attached",
+          "session audit enabled",
+          "auto-expire after 2h"
+        ],
+        "expiresAt": "2026-03-25 11:45 KST"
+      }
+    },
+    {
+      "id": "apr-access-103",
+      "type": "temporary_access",
+      "title": "catalog staging support access",
+      "environment": "staging",
+      "requestedBy": "sora.kim",
+      "team": "Catalog",
+      "requestedAt": "13:24 KST",
+      "requestWindow": "today · 13:30-16:30 KST",
+      "riskSummary": "staging only / read-write temp scope",
+      "riskTone": "warning",
+      "verificationSummary": "ticket OPS-882 attached",
+      "verificationChecks": [
+        "staging scope confirmed",
+        "3 hour expiry configured",
+        "team lead acknowledgement attached"
+      ],
+      "impactScope": "catalog staging cache and support bucket",
+      "rollbackAvailability": "access expires automatically after 3h",
+      "notes": [
+        "needed for support replay validation",
+        "write scope is limited to staging support path"
+      ],
+      "status": "pending",
+      "assistantMessages": [
+        "임시 권한 요청의 범위와 staging 영향 범위를 먼저 읽었습니다.",
+        "만료 시간과 write scope 제한이 승인 판단의 핵심입니다."
+      ],
+      "detail": {
+        "principal": "catalog-support-role",
+        "resource": "staging support cache + s3://catalog-support-staging",
+        "scope": "limited write + read access",
+        "duration": "3 hours",
+        "justification": "support replay validation for catalog incident",
+        "safeguards": [
+          "staging only",
+          "auto-expire after 3h",
+          "ticket OPS-882 linked"
+        ],
+        "expiresAt": "2026-03-25 16:30 KST"
+      }
+    },
+    {
+      "id": "apr-config-201",
+      "type": "config_change",
+      "title": "payments timeout tuning",
+      "environment": "production",
+      "requestedBy": "mina.cho",
+      "team": "Payments",
+      "requestedAt": "10:30 KST",
+      "requestWindow": "today · 10:45-11:15 KST",
+      "riskSummary": "1 warn / runtime config only",
+      "riskTone": "warning",
+      "verificationSummary": "staging verification complete",
+      "verificationChecks": [
+        "staging replay verified",
+        "rollback value captured",
+        "alert thresholds reviewed"
+      ],
+      "impactScope": "payments-api only",
+      "rollbackAvailability": "revert to previous timeout in under 2 minutes",
+      "notes": [
+        "change is runtime-only and does not require new image",
+        "checkout dependency latency should be monitored"
+      ],
+      "status": "pending",
+      "assistantMessages": [
+        "운영 설정 변경의 diff와 rollback 경로를 먼저 읽었습니다.",
+        "current/proposed value 비교가 승인 판단의 핵심입니다."
+      ],
+      "detail": {
+        "service": "payments-api",
+        "changeType": "timeout override",
+        "currentValue": "request_timeout=3s",
+        "proposedValue": "request_timeout=5s",
+        "rollbackMethod": "reapply request_timeout=3s",
+        "targetConfig": "ConfigMap payments-runtime",
+        "verificationEvidence": [
+          "staging replay traces attached",
+          "timeout delta benchmark recorded"
+        ]
+      }
+    },
+    {
+      "id": "apr-config-202",
+      "type": "config_change",
+      "title": "search feature flag enable",
+      "environment": "staging",
+      "requestedBy": "jin.park",
+      "team": "Search",
+      "requestedAt": "08:55 KST",
+      "requestWindow": "today · 09:00-09:30 KST",
+      "riskSummary": "0 warn / limited rollout",
+      "riskTone": "success",
+      "verificationSummary": "ready for staged enablement",
+      "verificationChecks": [
+        "staging synthetic test passed",
+        "flag default remains off",
+        "rollback path documented"
+      ],
+      "impactScope": "search API staging only",
+      "rollbackAvailability": "flag can be disabled immediately",
+      "notes": [
+        "feature flag only affects staging cohort"
+      ],
+      "status": "approved",
+      "assistantMessages": [
+        "이 설정 변경은 이미 승인 완료 상태입니다.",
+        "필요하면 변경 diff와 rollback 방법만 다시 요약할 수 있습니다."
+      ],
+      "detail": {
+        "service": "search-api",
+        "changeType": "feature flag enable",
+        "currentValue": "facet_expansion=false",
+        "proposedValue": "facet_expansion=true",
+        "rollbackMethod": "set facet_expansion=false",
+        "targetConfig": "launchdarkly flag facet_expansion",
+        "verificationEvidence": [
+          "staging cohort verification completed",
+          "rollback toggle tested before request"
+        ]
+      }
+    },
+    {
+      "id": "apr-config-203",
+      "type": "config_change",
+      "title": "checkout concurrency guard tuning",
+      "environment": "production",
+      "requestedBy": "ops.platform",
+      "team": "Commerce",
+      "requestedAt": "14:05 KST",
+      "requestWindow": "today · 14:20-14:50 KST",
+      "riskSummary": "1 warn / capacity-sensitive",
+      "riskTone": "warning",
+      "verificationSummary": "pre-prod benchmark attached",
+      "verificationChecks": [
+        "benchmark result attached",
+        "rollback value captured",
+        "alert review complete"
+      ],
+      "impactScope": "checkout worker concurrency only",
+      "rollbackAvailability": "reapply previous concurrency value in under 1 minute",
+      "notes": [
+        "change requested to reduce queue lag during traffic spike"
+      ],
+      "status": "pending",
+      "assistantMessages": [
+        "설정 변경 diff와 benchmark 근거를 먼저 확인했습니다.",
+        "rollback 값과 alert 영향이 승인 판단의 핵심입니다."
+      ],
+      "detail": {
+        "service": "checkout-worker",
+        "changeType": "worker concurrency override",
+        "currentValue": "max_concurrency=20",
+        "proposedValue": "max_concurrency=28",
+        "rollbackMethod": "set max_concurrency=20",
+        "targetConfig": "ConfigMap checkout-runtime",
+        "verificationEvidence": [
+          "pre-prod queue lag benchmark attached",
+          "error budget impact simulation recorded"
+        ]
+      }
+    },
+    {
+      "id": "apr-data-301",
+      "type": "data_operation",
+      "title": "order replay for failed checkout events",
+      "environment": "production",
+      "requestedBy": "ops.bot",
+      "team": "Commerce",
+      "requestedAt": "12:02 KST",
+      "requestWindow": "today · 12:20-12:40 KST",
+      "riskSummary": "duplicate processing risk",
+      "riskTone": "danger",
+      "verificationSummary": "manual validation required",
+      "verificationChecks": [
+        "failed event range identified",
+        "idempotency check incomplete",
+        "support team notified"
+      ],
+      "impactScope": "checkout order events for 1,240 records",
+      "rollbackAvailability": "replay can be halted but already processed events need manual review",
+      "notes": [
+        "risk of duplicate downstream notifications",
+        "hold until idempotency query is attached"
+      ],
+      "status": "held",
+      "assistantMessages": [
+        "데이터 작업은 복구 가능성과 중복 처리 리스크가 중요합니다.",
+        "현재는 idempotency 근거가 부족해 보류 근거가 강합니다."
+      ],
+      "detail": {
+        "operationType": "queue replay",
+        "target": "checkout-failed-events",
+        "executionWindow": "2026-03-25 12:20-12:40 KST",
+        "recoveryMethod": "pause replay and quarantine duplicate events",
+        "blastRadius": "checkout notifications and downstream settlement consumers",
+        "recordCount": "1,240 messages",
+        "executionChecks": [
+          "idempotency query attached",
+          "downstream duplicate guard enabled",
+          "support on-call available"
+        ]
+      }
+    },
+    {
+      "id": "apr-data-302",
+      "type": "data_operation",
+      "title": "catalog backfill for missing attributes",
+      "environment": "staging",
+      "requestedBy": "data.ops",
+      "team": "Catalog",
+      "requestedAt": "07:48 KST",
+      "requestWindow": "today · 08:00-08:30 KST",
+      "riskSummary": "low blast radius",
+      "riskTone": "success",
+      "verificationSummary": "sample validation complete",
+      "verificationChecks": [
+        "sample rows validated",
+        "rollback export snapshot saved",
+        "staging only"
+      ],
+      "impactScope": "catalog staging attributes only",
+      "rollbackAvailability": "snapshot restore available",
+      "notes": [
+        "execution is limited to staging catalog shard"
+      ],
+      "status": "approved",
+      "assistantMessages": [
+        "이 데이터 작업은 이미 승인되었습니다.",
+        "필요하면 execution window와 recovery method를 다시 요약할 수 있습니다."
+      ],
+      "detail": {
+        "operationType": "attribute backfill",
+        "target": "catalog_attributes staging dataset",
+        "executionWindow": "2026-03-25 08:00-08:30 KST",
+        "recoveryMethod": "restore export snapshot",
+        "blastRadius": "staging catalog search only",
+        "recordCount": "8,500 rows",
+        "executionChecks": [
+          "snapshot retained",
+          "sample validation complete",
+          "search index refresh queued"
+        ]
+      }
+    },
+    {
+      "id": "apr-data-303",
+      "type": "data_operation",
+      "title": "billing ledger backfill retry",
+      "environment": "production",
+      "requestedBy": "finance.ops",
+      "team": "Finance Platform",
+      "requestedAt": "15:12 KST",
+      "requestWindow": "today · 15:30-16:10 KST",
+      "riskSummary": "duplicate ledger write risk",
+      "riskTone": "danger",
+      "verificationSummary": "manual reconciliation required",
+      "verificationChecks": [
+        "affected ledger range isolated",
+        "dry-run row count attached",
+        "reconciliation query prepared"
+      ],
+      "impactScope": "billing ledger entries for 3,420 records",
+      "rollbackAvailability": "writes can be halted, but partial records require reconciliation",
+      "notes": [
+        "finance on-call will monitor the full execution window"
+      ],
+      "status": "pending",
+      "assistantMessages": [
+        "데이터 작업 범위와 중복 기록 리스크를 먼저 확인했습니다.",
+        "dry-run 근거와 reconciliation plan이 승인 판단의 핵심입니다."
+      ],
+      "detail": {
+        "operationType": "ledger backfill retry",
+        "target": "billing_ledger production partition 2026-03-25",
+        "executionWindow": "2026-03-25 15:30-16:10 KST",
+        "recoveryMethod": "stop writer and reconcile partial entries from snapshot",
+        "blastRadius": "billing ledger and downstream finance exports",
+        "recordCount": "3,420 rows",
+        "executionChecks": [
+          "dry-run reconciliation attached",
+          "snapshot retained before execution",
+          "finance reviewer on-call"
+        ]
+      }
+    },
+    {
+      "id": "apr-data-304",
+      "type": "data_operation",
+      "title": "inventory dead-letter replay",
+      "environment": "production",
+      "requestedBy": "platform.ops",
+      "team": "Platform",
+      "requestedAt": "16:05 KST",
+      "requestWindow": "today · 16:20-16:50 KST",
+      "riskSummary": "reprocessing spike risk",
+      "riskTone": "warning",
+      "verificationSummary": "sample replay dry-run attached",
+      "verificationChecks": [
+        "dead-letter range isolated",
+        "sample replay output verified",
+        "consumer autoscale guard enabled"
+      ],
+      "impactScope": "inventory-sync production replay for 860 messages",
+      "rollbackAvailability": "replay can be paused and remaining messages re-quarantined",
+      "notes": [
+        "downstream consumer team notified before replay window"
+      ],
+      "status": "pending",
+      "assistantMessages": [
+        "데이터 재처리 범위와 리플레이 스파이크 리스크를 먼저 확인했습니다.",
+        "sample replay 근거와 autoscale guard가 승인 판단의 핵심입니다."
+      ],
+      "detail": {
+        "operationType": "dead-letter replay",
+        "target": "inventory-sync DLQ",
+        "executionWindow": "2026-03-25 16:20-16:50 KST",
+        "recoveryMethod": "pause replay and move remaining messages back to quarantine queue",
+        "blastRadius": "inventory projection refresh and downstream sync consumers",
+        "recordCount": "860 messages",
+        "executionChecks": [
+          "sample replay dry-run attached",
+          "autoscale guard enabled",
+          "platform on-call assigned"
+        ]
+      }
     }
   ]
 }

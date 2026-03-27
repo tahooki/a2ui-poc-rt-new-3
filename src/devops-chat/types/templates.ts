@@ -27,13 +27,15 @@ export type DeploymentApprovalTemplateData = {
   templateId: "deployment_approval_inbox";
   state: DeploymentApprovalTemplateState;
   requestId: string;
-  service: string;
+  requestTypeLabel: string;
+  title: string;
   environment: string;
   riskSummary: string;
   verificationSummary: string;
   impactScope: string;
-  rollbackAvailability: string;
+  decisionGuidance: string;
   checks: string[];
+  keyFacts: Array<{ label: string; value: string; mono?: boolean }>;
   primaryActionLabel: string;
   secondaryActionLabel: string;
 };
