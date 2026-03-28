@@ -23,6 +23,7 @@ import type {
   SemanticTone,
 } from "@/devops-chat/types/domain";
 import type { TemplateEnvelope } from "@/devops-chat/types/templates";
+import type { SurfaceEnvelope } from "@/devops-chat/types/conversation";
 
 export type SummaryMetricViewModel = {
   label: string;
@@ -131,7 +132,9 @@ export type ConsolePageViewModel = {
   error: string | null;
   composerText: string;
   composerPlaceholder: string;
+  /** @deprecated Use activeSurface from conversation store instead. Kept for backward compat. */
   template: TemplateEnvelope | null;
+  activeSurface?: SurfaceEnvelope | null;
 };
 
 type DeployRuntime = {

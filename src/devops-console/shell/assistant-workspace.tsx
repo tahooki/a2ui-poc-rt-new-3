@@ -1,10 +1,8 @@
 /**
- * AssistantWorkspace — Phase 1에서는 도입 보류.
+ * AssistantWorkspace — Phase 3: conversation-driven surface support.
  *
- * 결정: 이번 단계에서는 ChatAssistantPanel을 유지하고,
- * conversation store + structured response 데이터 모델만 정리한다.
- * AssistantWorkspace는 Phase 2에서 activeSurface, template policy,
- * action bridge가 준비된 후 본격 도입한다.
+ * Now supports activeSurface from conversation store alongside
+ * legacy template from view-model.
  */
 import styles from "@/devops-console/console-page.module.css";
 import { AssistantActivityLog } from "@/devops-console/assistant/activity-log";
@@ -14,6 +12,7 @@ import { AssistantHeader } from "@/devops-console/assistant/assistant-header";
 import { TemplateSurface } from "@/devops-console/assistant/template-surface";
 import type { AssistantIntent, AssistantMessage } from "@/devops-chat/types/domain";
 import type { TemplateEnvelope } from "@/devops-chat/types/templates";
+import type { SurfaceEnvelope } from "@/devops-chat/types/conversation";
 
 type AssistantWorkspaceProps = {
   title: string;
@@ -25,13 +24,16 @@ type AssistantWorkspaceProps = {
   error: string | null;
   composerText: string;
   composerPlaceholder: string;
-  template: TemplateEnvelope | null;
+  /** @deprecated Use activeSurface instead */
+  template?: TemplateEnvelope | null;
+  activeSurface?: SurfaceEnvelope | null;
   onClose: () => void;
   onComposerChange: (value: string) => void;
   onIntent: (intentId: string) => void;
   onSubmit: () => void;
   onPrimaryAction: () => void;
   onSecondaryAction: () => void;
+  onDismissSurface?: () => void;
 };
 
 export function AssistantWorkspace({
@@ -45,12 +47,14 @@ export function AssistantWorkspace({
   composerText,
   composerPlaceholder,
   template,
+  activeSurface,
   onClose,
   onComposerChange,
   onIntent,
   onSubmit,
   onPrimaryAction,
   onSecondaryAction,
+  onDismissSurface,
 }: AssistantWorkspaceProps) {
   return (
     <div className={styles.assistantWorkspace}>
@@ -58,6 +62,8 @@ export function AssistantWorkspace({
       <ContextSummary context={context} />
       <AssistantActivityLog messages={messages} />
       <TemplateSurface
+        activeSurface={activeSurface}
+        onDismiss={onDismissSurface}
         onPrimaryAction={onPrimaryAction}
         onSecondaryAction={onSecondaryAction}
         template={template}

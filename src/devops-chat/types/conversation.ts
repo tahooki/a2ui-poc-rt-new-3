@@ -134,6 +134,47 @@ export type SurfaceIntentCandidate = {
 };
 
 // ---------------------------------------------------------------------------
+// Surface envelope (Phase 3)
+// ---------------------------------------------------------------------------
+
+export type SurfaceEnvelope = {
+  templateId: string;
+  payload: Record<string, unknown>;
+  sourceIntent: string;
+  updatedAt: string;
+  freshnessKey?: string;
+  bindingTrace?: {
+    usedFacts: string[];
+    missingFacts: string[];
+  };
+};
+
+// ---------------------------------------------------------------------------
+// Template selection context (Phase 3)
+// ---------------------------------------------------------------------------
+
+export type TemplateSelectionContext = {
+  intentKey: string;
+  workflow: ConversationWorkflowState | null;
+  facts: ConversationFacts;
+  surfaceIntent: SurfaceIntentCandidate | null;
+};
+
+export type TemplateCandidateScore = {
+  templateId: string;
+  eligible: boolean;
+  score: number;
+  matched: string[];
+  missing: string[];
+  disqualified: string[];
+  reason: string;
+};
+
+export type BindingResult =
+  | { ok: true; surface: SurfaceEnvelope }
+  | { ok: false; reason: string; missingFacts: string[] };
+
+// ---------------------------------------------------------------------------
 // Conversation state (full)
 // ---------------------------------------------------------------------------
 
@@ -148,10 +189,7 @@ export type ConversationState = {
   decision: ConversationDecision | null;
   lastDecisionTrace: DecisionTrace | null;
   surfaceIntent: SurfaceIntentCandidate | null;
-  activeSurface: null | {
-    templateId: string;
-    payload: Record<string, unknown>;
-  };
+  activeSurface: SurfaceEnvelope | null;
   activeRequestId: string | null;
   composerText: string;
   error: string | null;

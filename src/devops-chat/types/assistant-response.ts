@@ -7,6 +7,7 @@ import type {
   ConversationWorkflowState,
   DecisionTrace,
   PendingToolState,
+  SurfaceEnvelope,
   SurfaceIntentCandidate,
 } from "./conversation";
 
@@ -43,10 +44,7 @@ export type AssistantTurnResponse = {
     role: "assistant";
     text: string;
   };
-  surface: null | {
-    templateId: string;
-    payload: Record<string, unknown>;
-  };
+  surface: SurfaceEnvelope | null;
   intent?: ConversationIntentState | null;
   workflow?: ConversationWorkflowState | null;
   awaiting: ConversationAwaiting;

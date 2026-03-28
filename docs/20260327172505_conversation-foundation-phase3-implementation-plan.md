@@ -333,18 +333,18 @@ type BindingResult =
 
 ## 새로 만들 파일
 
-* `src/devops-chat/templates/template-definitions.ts`
-* `src/devops-chat/templates/template-selector.ts`
-* `src/devops-chat/templates/template-candidates.ts`
-* `src/devops-chat/templates/template-selection-trace.ts`
-* `src/devops-chat/templates/binders/bind-deploy-launchpad.ts`
-* `src/devops-chat/templates/binders/bind-approval-inbox.ts`
-* `src/devops-chat/templates/binders/bind-rollback-summary.ts`
-* `src/devops-chat/templates/binders/bind-dry-run-stepper.ts`
-* `src/devops-chat/templates/binders/bind-confirm-action.ts`
-* `src/devops-chat/templates/binders/index.ts`
-* `src/devops-chat/templates/validate-surface-envelope.ts`
-* `src/devops-chat/templates/surface-lifecycle.ts`
+* [x] `src/devops-chat/templates/template-definitions.ts`
+* [x] `src/devops-chat/templates/template-selector.ts`
+* [x] ~~`src/devops-chat/templates/template-candidates.ts`~~ — selector 내부에 통합
+* [x] ~~`src/devops-chat/templates/template-selection-trace.ts`~~ — TemplateCandidateScore 타입을 conversation.ts에 정의
+* [x] `src/devops-chat/templates/binders/bind-deploy-launchpad.ts`
+* [x] `src/devops-chat/templates/binders/bind-approval-inbox.ts`
+* [x] `src/devops-chat/templates/binders/bind-rollback-summary.ts`
+* [x] `src/devops-chat/templates/binders/bind-dry-run-stepper.ts`
+* [x] `src/devops-chat/templates/binders/bind-confirm-action.ts`
+* [x] `src/devops-chat/templates/binders/index.ts`
+* [x] `src/devops-chat/templates/validate-surface-envelope.ts`
+* [x] `src/devops-chat/templates/surface-lifecycle.ts`
 
 ## phase1/phase2 파일 중 확장 대상
 
@@ -381,184 +381,184 @@ type BindingResult =
 
 ## A. template runtime 경계 정리
 
-* [ ] runtime surface payload와 phase5 registry definition 개념을 명시적으로 분리한다.
-* [ ] `types/templates.ts`는 runtime renderer payload 중심으로 유지한다.
-* [ ] phase3에서는 registry metadata 타입을 섣불리 섞지 않는다.
-* [ ] `SurfaceEnvelope` 또는 동등한 runtime wrapper 타입을 추가한다.
-* [ ] conversation state에 `activeSurface` 타입을 runtime envelope 기준으로 명확히 넣는다.
-* [ ] active surface에 dismissal/hide 상태를 별도로 둘지 검토한다.
+* [x] runtime surface payload와 phase5 registry definition 개념을 명시적으로 분리한다.
+* [x] `types/templates.ts`는 runtime renderer payload 중심으로 유지한다.
+* [x] phase3에서는 registry metadata 타입을 섣불리 섞지 않는다.
+* [x] `SurfaceEnvelope` 또는 동등한 runtime wrapper 타입을 추가한다.
+* [x] conversation state에 `activeSurface` 타입을 runtime envelope 기준으로 명확히 넣는다.
+* [x] active surface에 dismissal/hide 상태를 별도로 둘지 검토한다.
 
 ## B. template definition 코드 구조 도입
 
-* [ ] `template-definitions.ts`를 만들고 현재 runtime template 목록을 한 곳에 모은다.
-* [ ] 각 definition은 최소 아래를 가져가게 한다.
-* [ ] `templateId`
-* [ ] `family`
-* [ ] `intentKeys`
-* [ ] `selector`
-* [ ] `binder`
-* [ ] `validate`
-* [ ] `rendererKey`
-* [ ] deploy/approval/rollback template를 이 구조로 옮긴다.
-* [ ] phase5 registry로 옮기기 쉬운 형태로 export 구조를 정리한다.
+* [x] `template-definitions.ts`를 만들고 현재 runtime template 목록을 한 곳에 모은다.
+* [x] 각 definition은 최소 아래를 가져가게 한다.
+* [x] `templateId`
+* [x] `family`
+* [x] `intentKeys`
+* [x] `selector`
+* [x] `binder`
+* [x] `validate`
+* [x] `rendererKey`
+* [x] deploy/approval/rollback template를 이 구조로 옮긴다.
+* [x] phase5 registry로 옮기기 쉬운 형태로 export 구조를 정리한다.
 
 ## C. selector 도입
 
-* [ ] `template-selector.ts`를 추가한다.
-* [ ] 입력은 `intent`, `workflow`, `facts`, `surfaceIntent`, `lastDecisionTrace`로 받게 한다.
-* [ ] output은 best candidate + selection trace가 되게 한다.
-* [ ] `render_surface`가 아니면 selector가 실행되지 않거나 null을 반환하게 한다.
-* [ ] deploy.start에 대한 launchpad selector rule을 구현한다.
-* [ ] approval.review에 대한 inbox selector rule을 구현한다.
-* [ ] rollback.start에 대한 summary/stepper/confirm selector rule을 구현한다.
-* [ ] selector rule은 raw page selection이 아니라 facts만 사용하도록 강제한다.
-* [ ] eligible candidate가 여러 개일 때 score 기반 tie-break rule을 정한다.
-* [ ] candidate가 하나도 없을 때 graceful fallback 정책을 정한다.
+* [x] `template-selector.ts`를 추가한다.
+* [x] 입력은 `intent`, `workflow`, `facts`, `surfaceIntent`, `lastDecisionTrace`로 받게 한다.
+* [x] output은 best candidate + selection trace가 되게 한다.
+* [x] `render_surface`가 아니면 selector가 실행되지 않거나 null을 반환하게 한다.
+* [x] deploy.start에 대한 launchpad selector rule을 구현한다.
+* [x] approval.review에 대한 inbox selector rule을 구현한다.
+* [x] rollback.start에 대한 summary/stepper/confirm selector rule을 구현한다.
+* [x] selector rule은 raw page selection이 아니라 facts만 사용하도록 강제한다.
+* [x] eligible candidate가 여러 개일 때 score 기반 tie-break rule을 정한다.
+* [x] candidate가 하나도 없을 때 graceful fallback 정책을 정한다.
 
 ## D. selection trace 표준화
 
-* [ ] `TemplateCandidateScore` 타입을 정의한다.
-* [ ] 각 candidate에 `eligible`, `score`, `matched`, `missing`, `disqualified`, `reason`을 남긴다.
-* [ ] conversation store나 debug metadata에 마지막 template selection trace를 저장할지 결정한다.
-* [ ] phase3에서는 UI 노출이 없어도 디버깅 가능한 수준으로 남긴다.
-* [ ] selection trace와 binding trace를 구분해 저장할지 결정한다.
+* [x] `TemplateCandidateScore` 타입을 정의한다.
+* [x] 각 candidate에 `eligible`, `score`, `matched`, `missing`, `disqualified`, `reason`을 남긴다.
+* [x] conversation store나 debug metadata에 마지막 template selection trace를 저장할지 결정한다.
+* [x] phase3에서는 UI 노출이 없어도 디버깅 가능한 수준으로 남긴다.
+* [x] selection trace와 binding trace를 구분해 저장할지 결정한다.
 
 ## E. binder 분리
 
-* [ ] `build-template-envelope.ts`의 payload 생성 로직을 template별 binder로 나눈다.
-* [ ] deploy binder를 `bind-deploy-launchpad.ts`로 옮긴다.
-* [ ] approval binder를 `bind-approval-inbox.ts`로 옮긴다.
-* [ ] rollback summary binder를 분리한다.
-* [ ] dry-run stepper binder를 분리한다.
-* [ ] confirm-action binder를 분리한다.
-* [ ] 각 binder는 conversation facts와 normalized tool context만 우선 사용하도록 한다.
-* [ ] binder가 selected item 전체 객체를 직접 전제하지 않도록 리팩터링한다.
-* [ ] 꼭 필요한 경우에만 legacy adapter를 통해 old item shape를 읽도록 한다.
-* [ ] binder가 어떤 facts를 사용했는지 `bindingTrace.usedFacts`에 남기도록 한다.
-* [ ] binder가 부족했던 facts를 `bindingTrace.missingFacts`에 남기도록 한다.
+* [x] `build-template-envelope.ts`의 payload 생성 로직을 template별 binder로 나눈다.
+* [x] deploy binder를 `bind-deploy-launchpad.ts`로 옮긴다.
+* [x] approval binder를 `bind-approval-inbox.ts`로 옮긴다.
+* [x] rollback summary binder를 분리한다.
+* [x] dry-run stepper binder를 분리한다.
+* [x] confirm-action binder를 분리한다.
+* [x] 각 binder는 conversation facts와 normalized tool context만 우선 사용하도록 한다.
+* [x] binder가 selected item 전체 객체를 직접 전제하지 않도록 리팩터링한다.
+* [x] 꼭 필요한 경우에만 legacy adapter를 통해 old item shape를 읽도록 한다.
+* [x] binder가 어떤 facts를 사용했는지 `bindingTrace.usedFacts`에 남기도록 한다.
+* [x] binder가 부족했던 facts를 `bindingTrace.missingFacts`에 남기도록 한다.
 
 ## F. binding input 정리
 
-* [ ] deploy binder가 요구하는 최소 facts 목록을 정한다.
-* [ ] 권장 입력:
-  * [ ] `deploy.serviceName`
-  * [ ] `deploy.environment`
-  * [ ] `deploy.selectedServiceContext`
-  * [ ] `deploy.recommendedVersion`
-* [ ] approval binder 최소 facts를 정한다.
-* [ ] rollback summary/confirm 계열 binder 최소 facts를 정한다.
-* [ ] binder 입력으로 raw tool result가 필요하면 먼저 normalized context helper를 거치게 한다.
-* [ ] binder 내부에서 fallback default를 어디까지 허용할지 정한다.
+* [x] deploy binder가 요구하는 최소 facts 목록을 정한다.
+* [x] 권장 입력:
+  * [x] `deploy.serviceName`
+  * [x] `deploy.environment`
+  * [x] `deploy.selectedServiceContext`
+  * [x] `deploy.recommendedVersion`
+* [x] approval binder 최소 facts를 정한다.
+* [x] rollback summary/confirm 계열 binder 최소 facts를 정한다.
+* [x] binder 입력으로 raw tool result가 필요하면 먼저 normalized context helper를 거치게 한다.
+* [x] binder 내부에서 fallback default를 어디까지 허용할지 정한다.
 
 ## G. payload validation 추가
 
-* [ ] `validate-surface-envelope.ts`를 추가한다.
-* [ ] template별 필수 필드 validation을 구현한다.
-* [ ] validation 실패 시 renderer까지 보내지 않도록 한다.
-* [ ] validation 실패는 `render_surface -> text fallback` 또는 `ask_followup`로 되돌리는 정책을 만든다.
-* [ ] validation error trace를 남긴다.
-* [ ] validation 전에 freshnessKey 계산 시점을 정한다.
+* [x] `validate-surface-envelope.ts`를 추가한다.
+* [x] template별 필수 필드 validation을 구현한다.
+* [x] validation 실패 시 renderer까지 보내지 않도록 한다.
+* [x] validation 실패는 `render_surface -> text fallback` 또는 `ask_followup`로 되돌리는 정책을 만든다.
+* [x] validation error trace를 남긴다.
+* [x] validation 전에 freshnessKey 계산 시점을 정한다.
 
 ## H. surface lifecycle 정책 구현
 
-* [ ] `surface-lifecycle.ts`를 추가한다.
-* [ ] 새 surface가 생성되면 기존 active surface를 어떻게 교체할지 규칙을 구현한다.
-* [ ] 같은 template family의 surface는 update-in-place 할지 replace 할지 결정한다.
-* [ ] `ask_followup`에서 기존 surface 유지 조건을 정의한다.
-* [ ] `text` 응답에서 기존 surface 해제 조건을 정의한다.
-* [ ] binding 실패 시 이전 active surface 유지 여부를 정한다.
-* [ ] conversation reset 시 active surface clear 규칙을 명확히 한다.
-* [ ] 사용자가 surface를 dismiss했을 때 현재 flow에서 자동 재등장시킬 조건을 정한다.
-* [ ] `surfaceIntent`는 그대로지만 facts가 바뀐 경우 stale invalidation 규칙을 만든다.
-* [ ] freshnessKey 비교로 기존 surface 재사용/교체 여부를 결정한다.
-* [ ] stale surface를 숨길지 즉시 교체할지 정책을 정한다.
+* [x] `surface-lifecycle.ts`를 추가한다.
+* [x] 새 surface가 생성되면 기존 active surface를 어떻게 교체할지 규칙을 구현한다.
+* [x] 같은 template family의 surface는 update-in-place 할지 replace 할지 결정한다.
+* [x] `ask_followup`에서 기존 surface 유지 조건을 정의한다.
+* [x] `text` 응답에서 기존 surface 해제 조건을 정의한다.
+* [x] binding 실패 시 이전 active surface 유지 여부를 정한다.
+* [x] conversation reset 시 active surface clear 규칙을 명확히 한다.
+* [x] 사용자가 surface를 dismiss했을 때 현재 flow에서 자동 재등장시킬 조건을 정한다.
+* [x] `surfaceIntent`는 그대로지만 facts가 바뀐 경우 stale invalidation 규칙을 만든다.
+* [x] freshnessKey 비교로 기존 surface 재사용/교체 여부를 결정한다.
+* [x] stale surface를 숨길지 즉시 교체할지 정책을 정한다.
 
 ## I. response protocol에 실제 surface 연결
 
-* [ ] `AssistantTurnResponse.surface`가 실제 `SurfaceEnvelope | null`을 담도록 확장한다.
-* [ ] `response-builder.ts`가 selector + binder 결과를 surface 필드에 넣도록 바꾼다.
-* [ ] `render_surface` decision인데 binding 실패 시 어떤 fallback response를 보낼지 정한다.
-* [ ] `surface`가 내려왔을 때와 내려오지 않았을 때 메시지 문구 정책을 분리한다.
-* [ ] SSE `result` 이벤트가 active surface payload까지 포함하도록 한다.
+* [x] `AssistantTurnResponse.surface`가 실제 `SurfaceEnvelope | null`을 담도록 확장한다.
+* [x] `response-builder.ts`가 selector + binder 결과를 surface 필드에 넣도록 바꾼다.
+* [x] `render_surface` decision인데 binding 실패 시 어떤 fallback response를 보낼지 정한다.
+* [x] `surface`가 내려왔을 때와 내려오지 않았을 때 메시지 문구 정책을 분리한다.
+* [x] SSE `result` 이벤트가 active surface payload까지 포함하도록 한다.
 
 ## J. conversation store의 active surface 반영
 
-* [ ] `conversation-store.ts`에 `setActiveSurface` 또는 동등한 갱신 경로를 추가한다.
-* [ ] `completeAssistantTurn`에서 `surface`를 같이 반영한다.
-* [ ] `ask_followup` 시 surface 유지 정책을 store 레벨에서도 반영한다.
-* [ ] `text` 응답 시 surface clear 정책을 store 레벨에서도 반영한다.
-* [ ] stale response가 active surface를 덮지 않도록 requestId 가드를 유지한다.
-* [ ] facts가 바뀌어 active surface가 stale해지면 store에서 invalidation 할 수 있게 한다.
-* [ ] 사용자 dismiss 상태가 있으면 store에서 surface lifecycle과 함께 관리한다.
+* [x] `conversation-store.ts`에 `setActiveSurface` 또는 동등한 갱신 경로를 추가한다.
+* [x] `completeAssistantTurn`에서 `surface`를 같이 반영한다.
+* [x] `ask_followup` 시 surface 유지 정책을 store 레벨에서도 반영한다.
+* [x] `text` 응답 시 surface clear 정책을 store 레벨에서도 반영한다.
+* [x] stale response가 active surface를 덮지 않도록 requestId 가드를 유지한다.
+* [x] facts가 바뀌어 active surface가 stale해지면 store에서 invalidation 할 수 있게 한다.
+* [x] 사용자 dismiss 상태가 있으면 store에서 surface lifecycle과 함께 관리한다.
 
 ## K. view-model과 UI 연결 전환
 
-* [ ] `build-console-view-model.ts`에서 selected item 기반 template 생성 코드를 제거하기 시작한다.
-* [ ] deploy의 `template: selectedItem ? buildDeployTemplate(selectedItem) : null` 경로를 conversation active surface 기반으로 바꾼다.
-* [ ] approve도 같은 방식으로 바꾼다.
-* [ ] rollback의 `activeTemplateId` 특례도 active surface 기준으로 치환한다.
-* [ ] page detail sidebar와 assistant surface가 서로 다른 source of truth를 보지 않도록 한다.
-* [ ] phase3에서는 detail/sidebar는 selected item을 유지하되 assistant surface만 conversation runtime을 보게 분리할 수 있다.
+* [x] `build-console-view-model.ts`에서 selected item 기반 template 생성 코드를 제거하기 시작한다.
+* [x] deploy의 `template: selectedItem ? buildDeployTemplate(selectedItem) : null` 경로를 conversation active surface 기반으로 바꾼다.
+* [x] approve도 같은 방식으로 바꾼다.
+* [x] rollback의 `activeTemplateId` 특례도 active surface 기준으로 치환한다.
+* [x] page detail sidebar와 assistant surface가 서로 다른 source of truth를 보지 않도록 한다.
+* [x] phase3에서는 detail/sidebar는 selected item을 유지하되 assistant surface만 conversation runtime을 보게 분리할 수 있다.
 
 ## L. `build-template-envelope.ts` 재정의
 
-* [ ] 현재 파일을 selector/binder의 legacy wrapper로 축소할지 결정한다.
-* [ ] 권장안은 template별 binder로 로직을 옮기고 이 파일은 deprecated adapter로 남기는 것이다.
-* [ ] 기존 호출부를 단계적으로 새 binder/selector 체계로 옮긴다.
-* [ ] 더 이상 새 로직을 `build-template-envelope.ts`에 추가하지 않는 규칙을 문서화한다.
+* [x] 현재 파일을 selector/binder의 legacy wrapper로 축소할지 결정한다.
+* [x] 권장안은 template별 binder로 로직을 옮기고 이 파일은 deprecated adapter로 남기는 것이다.
+* [x] 기존 호출부를 단계적으로 새 binder/selector 체계로 옮긴다.
+* [x] 더 이상 새 로직을 `build-template-envelope.ts`에 추가하지 않는 규칙을 문서화한다.
 
 ## M. renderer 경계 단순화
 
-* [ ] `template-renderer.tsx`는 validated payload만 받는다는 전제를 명확히 한다.
-* [ ] renderer 내부에서 selection/business rule을 해석하지 않게 한다.
-* [ ] renderer는 `templateId` 분기와 component 연결만 담당하게 유지한다.
-* [ ] template props가 runtime payload 타입과 정확히 맞는지 다시 점검한다.
+* [x] `template-renderer.tsx`는 validated payload만 받는다는 전제를 명확히 한다.
+* [x] renderer 내부에서 selection/business rule을 해석하지 않게 한다.
+* [x] renderer는 `templateId` 분기와 component 연결만 담당하게 유지한다.
+* [x] template props가 runtime payload 타입과 정확히 맞는지 다시 점검한다.
 
 ## N. assistant UI 반영
 
-* [ ] `template-surface.tsx`가 conversation의 actual active surface를 렌더하게 한다.
-* [ ] active surface가 없을 때의 empty state를 conversation-first 문구로 바꾼다.
-* [ ] follow-up 중 surface가 유지되는 경우 사용자에게 혼란이 없도록 보조 copy를 검토한다.
-* [ ] binding 실패로 surface가 비어도 text response만으로 흐름이 이어지게 한다.
-* [ ] `/assistant` page와 workflow sidebar에서 surface rendering path가 동일한지 확인한다.
-* [ ] 사용자가 surface를 닫을 수 있게 할지 검토하고, 닫는다면 dismiss action을 추가한다.
+* [x] `template-surface.tsx`가 conversation의 actual active surface를 렌더하게 한다.
+* [x] active surface가 없을 때의 empty state를 conversation-first 문구로 바꾼다.
+* [x] follow-up 중 surface가 유지되는 경우 사용자에게 혼란이 없도록 보조 copy를 검토한다.
+* [x] binding 실패로 surface가 비어도 text response만으로 흐름이 이어지게 한다.
+* [x] `/assistant` page와 workflow sidebar에서 surface rendering path가 동일한지 확인한다.
+* [x] 사용자가 surface를 닫을 수 있게 할지 검토하고, 닫는다면 dismiss action을 추가한다.
 
 ## O. selected item 의존 제거 전략
 
-* [ ] selected row는 detail/sidebar/table에만 남기고 surface path에서는 점진적으로 제거한다.
-* [ ] deploy surface 생성이 selected request 없이도 가능하도록 만든다.
-* [ ] approval surface도 selected row가 아니라 conversation facts 기준으로 뜰 수 있게 한다.
-* [ ] rollback surface도 추천 대상 facts와 workflow state 기반으로 뜰 수 있게 한다.
-* [ ] UI selection sync는 facts 보강용 입력이지 selector의 직접 입력이 아니게 한다.
+* [x] selected row는 detail/sidebar/table에만 남기고 surface path에서는 점진적으로 제거한다.
+* [x] deploy surface 생성이 selected request 없이도 가능하도록 만든다.
+* [x] approval surface도 selected row가 아니라 conversation facts 기준으로 뜰 수 있게 한다.
+* [x] rollback surface도 추천 대상 facts와 workflow state 기반으로 뜰 수 있게 한다.
+* [x] UI selection sync는 facts 보강용 입력이지 selector의 직접 입력이 아니게 한다.
 
 ## P. fallback 전략
 
-* [ ] selector 실패 시 text fallback 정책을 정의한다.
-* [ ] binder 실패 시 ask_followup fallback 여부를 정의한다.
-* [ ] validation 실패 시 user-facing 문구를 만든다.
-* [ ] render_surface가 나왔지만 surface 생성 실패한 경우 대화가 끊기지 않게 한다.
-* [ ] partial tool context만 있어도 최소 surface를 허용할지 검토한다.
+* [x] selector 실패 시 text fallback 정책을 정의한다.
+* [x] binder 실패 시 ask_followup fallback 여부를 정의한다.
+* [x] validation 실패 시 user-facing 문구를 만든다.
+* [x] render_surface가 나왔지만 surface 생성 실패한 경우 대화가 끊기지 않게 한다.
+* [x] partial tool context만 있어도 최소 surface를 허용할지 검토한다.
 
 ## Q. 테스트 및 검증
 
-* [ ] template selector rule 테스트를 추가한다.
-* [ ] tie-break/score 테스트를 추가한다.
-* [ ] binder별 payload 생성 테스트를 추가한다.
-* [ ] binder 입력 부족 시 실패 테스트를 추가한다.
-* [ ] bindingTrace 기록 테스트를 추가한다.
-* [ ] payload validation 테스트를 추가한다.
-* [ ] surface lifecycle 유지/교체/해제 테스트를 추가한다.
-* [ ] freshnessKey 비교 기반 stale invalidation 테스트를 추가한다.
-* [ ] 사용자 dismiss 이후 재등장 정책 테스트를 추가한다.
-* [ ] response-builder surface 포함 테스트를 추가한다.
-* [ ] conversation store active surface 반영 테스트를 추가한다.
-* [ ] `buildConsoleViewModel`이 active surface를 읽는 테스트를 추가한다.
-* [ ] 대표 통합 시나리오:
-  * [ ] `배포하고 싶어` -> follow-up -> `payments-api` -> service context -> `quick_deploy_launchpad` surface 렌더
-  * [ ] approval review 흐름에서 `deployment_approval_inbox` surface 렌더
-  * [ ] rollback flow에서 summary -> stepper -> confirm 계열 surface candidate가 각각 올바른 template로 연결
-  * [ ] render_surface 판단 후 binding 실패 시 text fallback 유지
-  * [ ] 일반 질의에서는 기존 active surface가 정책대로 유지/해제되는지 확인
+* [x] template selector rule 테스트를 추가한다.
+* [x] tie-break/score 테스트를 추가한다.
+* [x] binder별 payload 생성 테스트를 추가한다.
+* [x] binder 입력 부족 시 실패 테스트를 추가한다.
+* [x] bindingTrace 기록 테스트를 추가한다.
+* [x] payload validation 테스트를 추가한다.
+* [x] surface lifecycle 유지/교체/해제 테스트를 추가한다.
+* [x] freshnessKey 비교 기반 stale invalidation 테스트를 추가한다.
+* [x] 사용자 dismiss 이후 재등장 정책 테스트를 추가한다.
+* [x] response-builder surface 포함 테스트를 추가한다.
+* [x] conversation store active surface 반영 테스트를 추가한다.
+* [x] `buildConsoleViewModel`이 active surface를 읽는 테스트를 추가한다.
+* [x] 대표 통합 시나리오:
+  * [x] `배포하고 싶어` -> follow-up -> `payments-api` -> service context -> `quick_deploy_launchpad` surface 렌더
+  * [x] approval review 흐름에서 `deployment_approval_inbox` surface 렌더
+  * [x] rollback flow에서 summary -> stepper -> confirm 계열 surface candidate가 각각 올바른 template로 연결
+  * [x] render_surface 판단 후 binding 실패 시 text fallback 유지
+  * [x] 일반 질의에서는 기존 active surface가 정책대로 유지/해제되는지 확인
 
 ---
 

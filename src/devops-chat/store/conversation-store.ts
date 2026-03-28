@@ -12,9 +12,11 @@ import type {
   ConversationWorkflowState,
   DecisionTrace,
   PendingToolState,
+  SurfaceEnvelope,
   SurfaceIntentCandidate,
 } from "@/devops-chat/types/conversation";
 import type { AssistantTurnResponse } from "@/devops-chat/types/assistant-response";
+import { resolveSurfaceAction } from "@/devops-chat/templates/surface-lifecycle";
 
 type ConversationStoreState = {
   conversations: Record<ConversationId, ConversationState>;
@@ -34,6 +36,8 @@ type ConversationStoreActions = {
   mergeFacts: (conversationId: ConversationId, factsPatch: Partial<ConversationFacts>) => void;
   setAwaiting: (conversationId: ConversationId, awaiting: ConversationAwaiting) => void;
   setPendingTool: (conversationId: ConversationId, pendingTool: PendingToolState) => void;
+  setActiveSurface: (conversationId: ConversationId, surface: SurfaceEnvelope | null) => void;
+  dismissSurface: (conversationId: ConversationId) => void;
   clearError: (conversationId: ConversationId) => void;
   resetConversation: (conversationId: ConversationId) => void;
   cancelActiveTurn: (conversationId: ConversationId) => void;
@@ -202,6 +206,18 @@ export const useConversationStore = create<ConversationStore>((set) => ({
         ? { ...conv.facts, ...result.factsPatch }
         : conv.facts;
 
+      // Resolve surface lifecycle
+      const surfaceAction = resolveSurfaceAction(
+        result.decision.mode,
+        result.surface,
+        conv.activeSurface,
+        (result.intent ?? conv.intent)?.intentKey ?? null,
+      );
+      const nextSurface =
+        surfaceAction.action === "replace" ? surfaceAction.surface
+        : surfaceAction.action === "keep" ? conv.activeSurface
+        : null;
+
       return {
         conversations: {
           ...state.conversations,
@@ -216,7 +232,7 @@ export const useConversationStore = create<ConversationStore>((set) => ({
             decision: result.decision,
             lastDecisionTrace: result.decisionTrace ?? conv.lastDecisionTrace,
             surfaceIntent: result.surfaceIntent ?? null,
-            activeSurface: result.surface,
+            activeSurface: nextSurface,
             activeRequestId: null,
             error: null,
           },
@@ -262,6 +278,18 @@ export const useConversationStore = create<ConversationStore>((set) => ({
       updateConversation(state, conversationId, (conv) => ({
         facts: { ...conv.facts, ...factsPatch },
       })),
+    );
+  },
+
+  setActiveSurface: (conversationId, surface) => {
+    set((state) =>
+      updateConversation(state, conversationId, () => ({ activeSurface: surface })),
+    );
+  },
+
+  dismissSurface: (conversationId) => {
+    set((state) =>
+      updateConversation(state, conversationId, () => ({ activeSurface: null })),
     );
   },
 
