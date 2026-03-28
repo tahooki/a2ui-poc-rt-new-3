@@ -276,13 +276,13 @@ type ConversationDiagnostics = {
 
 ## 새로 만들 파일
 
-* `src/devops-console/assistant/debug-drawer.tsx`
-* `src/devops-console/assistant/decision-trace-panel.tsx`
-* `src/devops-console/assistant/tool-execution-panel.tsx`
-* `src/devops-console/assistant/facts-dump-panel.tsx`
-* `src/devops-console/assistant/validation-error-panel.tsx`
-* `src/devops-console/assistant/assistant-status-banner.tsx`
-* `src/devops-console/assistant/workspace-shell.tsx`
+* [x] `src/devops-console/assistant/debug-drawer.tsx`
+* [x] `src/devops-console/assistant/decision-trace-panel.tsx`
+* [x] `src/devops-console/assistant/tool-execution-panel.tsx`
+* [x] `src/devops-console/assistant/facts-dump-panel.tsx`
+* [x] `src/devops-console/assistant/validation-error-panel.tsx`
+* [x] `src/devops-console/assistant/assistant-status-banner.tsx`
+* [x] `src/devops-console/assistant/workspace-shell.tsx`
 
 ## 확장 대상 파일
 
@@ -314,161 +314,161 @@ type ConversationDiagnostics = {
 
 ## A. workspace 주 경로 통합
 
-* [ ] workflow page에서 `ChatAssistantPanel` 대신 `AssistantWorkspace` 기반 경로를 쓰도록 바꾼다.
-* [ ] `/assistant`도 동일한 workspace foundation을 쓰도록 맞춘다.
-* [ ] deploy만 assistant 활성인 제한을 풀지 검토한다.
-* [ ] approve/rollback도 conversation-first workspace를 사용할 수 있게 연다.
-* [ ] `assistantEnabled` 같은 임시 분기를 줄인다.
+* [x] workflow page에서 `ChatAssistantPanel` 대신 `AssistantWorkspace` 기반 경로를 쓰도록 바꾼다.
+* [x] `/assistant`도 동일한 workspace foundation을 쓰도록 맞춘다.
+* [x] deploy만 assistant 활성인 제한을 풀지 검토한다.
+* [x] approve/rollback도 conversation-first workspace를 사용할 수 있게 연다.
+* [x] `assistantEnabled` 같은 임시 분기를 줄인다.
 
 ## B. `ChatAssistantPanel` legacy 정리
 
-* [ ] `chat-assistant-panel.tsx`를 즉시 제거할지, migration 동안만 남길지 결정한다.
-* [ ] 남긴다면 deprecate 주석과 사용 범위를 최소화한다.
-* [ ] 새 기능은 더 이상 bubble panel에 추가하지 않는 규칙을 문서화한다.
+* [x] `chat-assistant-panel.tsx`를 즉시 제거할지, migration 동안만 남길지 결정한다.
+* [x] 남긴다면 deprecate 주석과 사용 범위를 최소화한다.
+* [x] 새 기능은 더 이상 bubble panel에 추가하지 않는 규칙을 문서화한다.
 
 ## B-2. 전환 전략 / feature flag
 
-* [ ] workspace 통합을 feature flag 또는 config switch 뒤에서 rollout할지 결정한다.
-* [ ] deploy/approve/rollback 화면별로 개별 전환 가능성을 검토한다.
-* [ ] 문제가 생기면 legacy bubble path로 되돌릴 수 있는 fallback 경로를 남길지 정한다.
-* [ ] `/assistant` 허브와 workflow page 전환을 독립적으로 rollout할지 결정한다.
+* [x] workspace 통합을 feature flag 또는 config switch 뒤에서 rollout할지 결정한다.
+* [x] deploy/approve/rollback 화면별로 개별 전환 가능성을 검토한다.
+* [x] 문제가 생기면 legacy bubble path로 되돌릴 수 있는 fallback 경로를 남길지 정한다.
+* [x] `/assistant` 허브와 workflow page 전환을 독립적으로 rollout할지 결정한다.
 
 ## C. assistant workspace API 정리
 
-* [ ] `assistant-workspace.tsx`가 action descriptor 기반 surface를 받도록 업데이트한다.
-* [ ] messages 외에 diagnostics/debug state를 받을 수 있게 props를 확장한다.
-* [ ] layout section 순서를 현재 제품 흐름에 맞게 재검토한다.
-* [ ] context / activity / surface / composer / debug drawer의 책임을 명확히 나눈다.
+* [x] `assistant-workspace.tsx`가 action descriptor 기반 surface를 받도록 업데이트한다.
+* [x] messages 외에 diagnostics/debug state를 받을 수 있게 props를 확장한다.
+* [x] layout section 순서를 현재 제품 흐름에 맞게 재검토한다.
+* [x] context / activity / surface / composer / debug drawer의 책임을 명확히 나눈다.
 
 ## D. status banner / fallback UX 추가
 
-* [ ] `assistant-status-banner.tsx`를 추가한다.
-* [ ] transport/tool/binding/action/stale guard 에러를 유형별로 다르게 안내한다.
-* [ ] 사용자-facing copy는 짧고 회복 지향적으로 쓴다.
-* [ ] retry 가능 여부와 fallback 상태를 함께 보여준다.
-* [ ] "텍스트로 계속 진행 중", "이전 surface 유지 중" 같은 상태를 표시한다.
+* [x] `assistant-status-banner.tsx`를 추가한다.
+* [x] transport/tool/binding/action/stale guard 에러를 유형별로 다르게 안내한다.
+* [x] 사용자-facing copy는 짧고 회복 지향적으로 쓴다.
+* [x] retry 가능 여부와 fallback 상태를 함께 보여준다.
+* [x] "텍스트로 계속 진행 중", "이전 surface 유지 중" 같은 상태를 표시한다.
 
 ## E. debug drawer 도입
 
-* [ ] `debug-drawer.tsx`를 추가한다.
-* [ ] 기본적으로 닫혀 있고 필요 시 펼칠 수 있게 한다.
-* [ ] workflow 화면과 `/assistant` 화면 모두에서 같은 debug drawer를 재사용한다.
-* [ ] drawer 안에 trace/log/facts/error panel을 탭 또는 섹션으로 배치한다.
-* [ ] 일반 사용자에게는 과하지 않도록 가시성 전략을 정한다.
+* [x] `debug-drawer.tsx`를 추가한다.
+* [x] 기본적으로 닫혀 있고 필요 시 펼칠 수 있게 한다.
+* [x] workflow 화면과 `/assistant` 화면 모두에서 같은 debug drawer를 재사용한다.
+* [x] drawer 안에 trace/log/facts/error panel을 탭 또는 섹션으로 배치한다.
+* [x] 일반 사용자에게는 과하지 않도록 가시성 전략을 정한다.
 
 ## F. decision trace panel 구현
 
-* [ ] `decision-trace-panel.tsx`를 추가한다.
-* [ ] `mode`, `reason`, `matched`, `missing`, `disqualified`, `score`를 표시한다.
-* [ ] 마지막 trace뿐 아니라 최근 몇 개를 보여줄지 결정한다.
-* [ ] trace가 없을 때 empty state를 제공한다.
+* [x] `decision-trace-panel.tsx`를 추가한다.
+* [x] `mode`, `reason`, `matched`, `missing`, `disqualified`, `score`를 표시한다.
+* [x] 마지막 trace뿐 아니라 최근 몇 개를 보여줄지 결정한다.
+* [x] trace가 없을 때 empty state를 제공한다.
 
 ## G. tool execution panel 구현
 
-* [ ] `tool-execution-panel.tsx`를 추가한다.
-* [ ] 최근 tool 실행 이름, 상태, 요약, 시각을 보여준다.
-* [ ] 성공/실패를 구분한다.
-* [ ] tool chain이 길 경우 최신순으로 정리한다.
-* [ ] tool log가 너무 많으면 trim 정책을 만든다.
+* [x] `tool-execution-panel.tsx`를 추가한다.
+* [x] 최근 tool 실행 이름, 상태, 요약, 시각을 보여준다.
+* [x] 성공/실패를 구분한다.
+* [x] tool chain이 길 경우 최신순으로 정리한다.
+* [x] tool log가 너무 많으면 trim 정책을 만든다.
 
 ## H. facts dump panel 구현
 
-* [ ] `facts-dump-panel.tsx`를 추가한다.
-* [ ] 현재 conversation facts를 read-only JSON 또는 key-value tree로 보여준다.
-* [ ] canonical value와 source/provenance를 같이 보여줄지 검토한다.
-* [ ] 운영자가 빠르게 복사할 수 있는 UX를 넣을지 결정한다.
-* [ ] 민감한 값 마스킹 정책이 필요한지 검토한다.
+* [x] `facts-dump-panel.tsx`를 추가한다.
+* [x] 현재 conversation facts를 read-only JSON 또는 key-value tree로 보여준다.
+* [x] canonical value와 source/provenance를 같이 보여줄지 검토한다.
+* [x] 운영자가 빠르게 복사할 수 있는 UX를 넣을지 결정한다.
+* [x] 민감한 값 마스킹 정책이 필요한지 검토한다.
 
 ## I. validation/error panel 구현
 
-* [ ] `validation-error-panel.tsx`를 추가한다.
-* [ ] 최근 binding/validation/action error를 분리 표시한다.
-* [ ] field path 기반 에러를 바로 볼 수 있게 한다.
-* [ ] fallback이 이미 적용된 경우 그 사실도 함께 보여준다.
-* [ ] stale guard rejection도 에러인지 안내인지 구분해 표시한다.
+* [x] `validation-error-panel.tsx`를 추가한다.
+* [x] 최근 binding/validation/action error를 분리 표시한다.
+* [x] field path 기반 에러를 바로 볼 수 있게 한다.
+* [x] fallback이 이미 적용된 경우 그 사실도 함께 보여준다.
+* [x] stale guard rejection도 에러인지 안내인지 구분해 표시한다.
 
 ## J. activity log 확장 정리
 
-* [ ] `AssistantActivityLog`가 message/action/tool/fallback 이벤트를 함께 다룰 수 있게 확장한다.
-* [ ] event type별 시각적 계층을 다시 잡는다.
-* [ ] 너무 많은 이벤트가 쌓일 때 trim/collapse 정책을 둔다.
-* [ ] debug drawer의 tool panel과 중복되는 정보는 역할을 구분한다.
+* [x] `AssistantActivityLog`가 message/action/tool/fallback 이벤트를 함께 다룰 수 있게 확장한다.
+* [x] event type별 시각적 계층을 다시 잡는다.
+* [x] 너무 많은 이벤트가 쌓일 때 trim/collapse 정책을 둔다.
+* [x] debug drawer의 tool panel과 중복되는 정보는 역할을 구분한다.
 
 ## K. exception handling 정책 정리
 
-* [ ] transport error 시 conversation state와 composer input을 어떻게 유지할지 정한다.
-* [ ] tool failure 시 text fallback과 debug log 기록을 함께 남긴다.
-* [ ] binder/validation failure 시 active surface 유지/해제 정책을 통일한다.
-* [ ] action failure 시 이전 surface 유지 여부를 통일한다.
-* [ ] stale request/surface/action guard rejection의 user-facing 처리 규칙을 정한다.
+* [x] transport error 시 conversation state와 composer input을 어떻게 유지할지 정한다.
+* [x] tool failure 시 text fallback과 debug log 기록을 함께 남긴다.
+* [x] binder/validation failure 시 active surface 유지/해제 정책을 통일한다.
+* [x] action failure 시 이전 surface 유지 여부를 통일한다.
+* [x] stale request/surface/action guard rejection의 user-facing 처리 규칙을 정한다.
 
 ## L. recovery UX 정리
 
-* [ ] retry 버튼이 필요한 에러 유형을 분류한다.
-* [ ] "다시 시도", "텍스트로 계속", "surface 닫기" 같은 회복 액션을 검토한다.
-* [ ] error 후에도 composer가 바로 다시 쓸 수 있게 한다.
-* [ ] debug drawer를 열어 추가 정보 확인 흐름을 자연스럽게 만든다.
+* [x] retry 버튼이 필요한 에러 유형을 분류한다.
+* [x] "다시 시도", "텍스트로 계속", "surface 닫기" 같은 회복 액션을 검토한다.
+* [x] error 후에도 composer가 바로 다시 쓸 수 있게 한다.
+* [x] debug drawer를 열어 추가 정보 확인 흐름을 자연스럽게 만든다.
 
 ## M. `/assistant` 페이지 재구성
 
-* [ ] `/assistant`를 cross-workflow workspace + manager + debug workbench 허브로 재구성한다.
-* [ ] 탭 또는 모드 전환 구조를 검토한다.
-* [ ] 최소 모드 예:
-  * [ ] `Workspace`
-  * [ ] `Template Manager`
-  * [ ] `Debug`
-* [ ] 현재 pageKey 탭 구조와 새로운 workbench 모드 구조가 충돌하지 않게 정리한다.
+* [x] `/assistant`를 cross-workflow workspace + manager + debug workbench 허브로 재구성한다.
+* [x] 탭 또는 모드 전환 구조를 검토한다.
+* [x] 최소 모드 예:
+  * [x] `Workspace`
+  * [x] `Template Manager`
+  * [x] `Debug`
+* [x] 현재 pageKey 탭 구조와 새로운 workbench 모드 구조가 충돌하지 않게 정리한다.
 
 ## N. workflow 화면 통합
 
-* [ ] deploy/approve/rollback 화면이 공통 workspace foundation을 쓰도록 통일한다.
-* [ ] 우측 aside만 쓸지, full workspace mode도 지원할지 검토한다.
-* [ ] `AppFrame`와 `WorkspaceLayout`이 workspace 모드와 debug mode를 수용하게 확장한다.
-* [ ] 작은 화면/좁은 aside에서의 degrade 전략을 정한다.
+* [x] deploy/approve/rollback 화면이 공통 workspace foundation을 쓰도록 통일한다.
+* [x] 우측 aside만 쓸지, full workspace mode도 지원할지 검토한다.
+* [x] `AppFrame`와 `WorkspaceLayout`이 workspace 모드와 debug mode를 수용하게 확장한다.
+* [x] 작은 화면/좁은 aside에서의 degrade 전략을 정한다.
 
 ## N-2. responsive / accessibility 정리
 
-* [ ] 좁은 화면에서 workspace 섹션 우선순위와 접힘 규칙을 정한다.
-* [ ] debug drawer가 모바일/좁은 화면에서 full-height panel로 바뀔지 검토한다.
-* [ ] keyboard-only 사용 시 focus 이동과 escape/close 동작을 정리한다.
-* [ ] tabs, drawer, banner, error state에 접근성 속성을 보강한다.
-* [ ] screen reader에서 fallback/error/debug 상태가 의미 있게 읽히는지 확인한다.
+* [x] 좁은 화면에서 workspace 섹션 우선순위와 접힘 규칙을 정한다.
+* [x] debug drawer가 모바일/좁은 화면에서 full-height panel로 바뀔지 검토한다.
+* [x] keyboard-only 사용 시 focus 이동과 escape/close 동작을 정리한다.
+* [x] tabs, drawer, banner, error state에 접근성 속성을 보강한다.
+* [x] screen reader에서 fallback/error/debug 상태가 의미 있게 읽히는지 확인한다.
 
 ## O. diagnostics 상태 노출 정리
 
-* [ ] `conversation-store.ts`에 debug UI가 읽을 수 있는 diagnostics selector를 제공한다.
-* [ ] lastDecisionTrace, recentToolEvents, factsSnapshot, lastValidationError, lastActionError를 노출한다.
-* [ ] debug용 읽기 상태와 runtime source-of-truth가 어긋나지 않게 한다.
-* [ ] diagnostics trim 정책을 만든다.
+* [x] `conversation-store.ts`에 debug UI가 읽을 수 있는 diagnostics selector를 제공한다.
+* [x] lastDecisionTrace, recentToolEvents, factsSnapshot, lastValidationError, lastActionError를 노출한다.
+* [x] debug용 읽기 상태와 runtime source-of-truth가 어긋나지 않게 한다.
+* [x] diagnostics trim 정책을 만든다.
 
 ## P. copy / export / inspect UX 검토
 
-* [ ] facts/trace/tool log를 복사할 수 있게 할지 검토한다.
-* [ ] 운영자용 inspect JSON 뷰를 제공할지 검토한다.
-* [ ] 최소한 debug panel에서 복사 가능한 텍스트 뷰를 둘지 결정한다.
-* [ ] debug drawer의 열린 탭/선택 상태를 URL 또는 local state로 복원할지 검토한다.
-* [ ] 문제 재현을 위해 diagnostics snapshot export/share를 지원할지 검토한다.
+* [x] facts/trace/tool log를 복사할 수 있게 할지 검토한다.
+* [x] 운영자용 inspect JSON 뷰를 제공할지 검토한다.
+* [x] 최소한 debug panel에서 복사 가능한 텍스트 뷰를 둘지 결정한다.
+* [x] debug drawer의 열린 탭/선택 상태를 URL 또는 local state로 복원할지 검토한다.
+* [x] 문제 재현을 위해 diagnostics snapshot export/share를 지원할지 검토한다.
 
 ## Q. 테스트 및 검증
 
-* [ ] workspace 통합 렌더 테스트를 추가한다.
-* [ ] bubble panel legacy path 축소 테스트를 추가한다.
-* [ ] status banner 에러 분기 테스트를 추가한다.
-* [ ] debug drawer open/close 테스트를 추가한다.
-* [ ] feature flag 기반 전환 테스트를 추가한다.
-* [ ] decision trace panel 렌더 테스트를 추가한다.
-* [ ] tool execution panel 렌더 테스트를 추가한다.
-* [ ] facts dump panel 렌더 테스트를 추가한다.
-* [ ] validation/error panel 렌더 테스트를 추가한다.
-* [ ] keyboard/focus 이동 테스트를 추가한다.
-* [ ] 좁은 화면 responsive degrade 테스트를 추가한다.
-* [ ] fallback 정책 통합 테스트를 추가한다.
-* [ ] 대표 통합 시나리오:
-  * [ ] tool failure -> text fallback + debug drawer에 tool error 노출
-  * [ ] binding failure -> surface fallback + validation panel 표시
-  * [ ] action failure -> 기존 surface 유지 + activity log 기록
-  * [ ] `/assistant`에서 workspace/debug/manager 흐름 전환
-  * [ ] workflow 화면에서 same conversation state가 workspace UI로 보이는지 확인
+* [x] workspace 통합 렌더 테스트를 추가한다.
+* [x] bubble panel legacy path 축소 테스트를 추가한다.
+* [x] status banner 에러 분기 테스트를 추가한다.
+* [x] debug drawer open/close 테스트를 추가한다.
+* [x] feature flag 기반 전환 테스트를 추가한다.
+* [x] decision trace panel 렌더 테스트를 추가한다.
+* [x] tool execution panel 렌더 테스트를 추가한다.
+* [x] facts dump panel 렌더 테스트를 추가한다.
+* [x] validation/error panel 렌더 테스트를 추가한다.
+* [x] keyboard/focus 이동 테스트를 추가한다.
+* [x] 좁은 화면 responsive degrade 테스트를 추가한다.
+* [x] fallback 정책 통합 테스트를 추가한다.
+* [x] 대표 통합 시나리오:
+  * [x] tool failure -> text fallback + debug drawer에 tool error 노출
+  * [x] binding failure -> surface fallback + validation panel 표시
+  * [x] action failure -> 기존 surface 유지 + activity log 기록
+  * [x] `/assistant`에서 workspace/debug/manager 흐름 전환
+  * [x] workflow 화면에서 same conversation state가 workspace UI로 보이는지 확인
 
 ---
 

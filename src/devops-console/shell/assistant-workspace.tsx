@@ -34,6 +34,8 @@ type AssistantWorkspaceProps = {
   onPrimaryAction: () => void;
   onSecondaryAction: () => void;
   onDismissSurface?: () => void;
+  /** Phase 4: action descriptor callback */
+  onAction?: (actionId: string, payload?: Record<string, unknown>) => void;
 };
 
 export function AssistantWorkspace({
@@ -55,6 +57,7 @@ export function AssistantWorkspace({
   onPrimaryAction,
   onSecondaryAction,
   onDismissSurface,
+  onAction,
 }: AssistantWorkspaceProps) {
   return (
     <div className={styles.assistantWorkspace}>
@@ -63,6 +66,7 @@ export function AssistantWorkspace({
       <AssistantActivityLog messages={messages} />
       <TemplateSurface
         activeSurface={activeSurface}
+        onAction={onAction}
         onDismiss={onDismissSurface}
         onPrimaryAction={onPrimaryAction}
         onSecondaryAction={onSecondaryAction}

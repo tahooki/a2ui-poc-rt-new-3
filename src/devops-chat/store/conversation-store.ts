@@ -368,3 +368,43 @@ export function isConversationSubmitting(
 ): boolean {
   return state.conversations[conversationId]?.activeRequestId != null;
 }
+
+// ---------------------------------------------------------------------------
+// Diagnostics selector (Phase 6)
+// ---------------------------------------------------------------------------
+
+export type ConversationDiagnostics = {
+  lastDecisionTrace: unknown | null;
+  factsSnapshot: Record<string, unknown>;
+  activeSurfaceMeta: {
+    templateId: string;
+    updatedAt: string;
+    freshnessKey?: string;
+  } | null;
+  lastError: string | null;
+  intentKey: string | null;
+  workflowStep: string | null;
+};
+
+export function selectDiagnostics(
+  state: ConversationStoreState,
+  conversationId: ConversationId,
+): ConversationDiagnostics | null {
+  const conv = state.conversations[conversationId];
+  if (!conv) return null;
+
+  return {
+    lastDecisionTrace: conv.lastDecisionTrace,
+    factsSnapshot: conv.facts as unknown as Record<string, unknown>,
+    activeSurfaceMeta: conv.activeSurface
+      ? {
+          templateId: conv.activeSurface.templateId,
+          updatedAt: conv.activeSurface.updatedAt,
+          freshnessKey: conv.activeSurface.freshnessKey,
+        }
+      : null,
+    lastError: conv.error,
+    intentKey: conv.intent?.intentKey ?? null,
+    workflowStep: conv.workflow?.stepKey ?? null,
+  };
+}

@@ -1,3 +1,10 @@
+/**
+ * @deprecated Phase 6: Legacy bubble chat panel.
+ *
+ * Use AssistantWorkspace + WorkspaceShell instead for the main path.
+ * This file is kept for backward compatibility during migration.
+ * Do not add new features here.
+ */
 "use client";
 
 import { useEffect, useRef } from "react";
