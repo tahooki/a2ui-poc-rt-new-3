@@ -3,8 +3,20 @@
 import { useEffect, useRef } from "react";
 import { Icon } from "@/devops-console/foundation/icon-registry";
 import styles from "@/devops-console/console-page.module.css";
-import { useChatAssistantStore } from "@/devops-chat/store/chat-assistant-store";
+import {
+  useConversationStore,
+  pageConversationId,
+  selectConversation,
+  isConversationSubmitting,
+} from "@/devops-chat/store/conversation-store";
+import {
+  streamAssistantChat,
+  ChatProtocolError,
+  type ChatStreamRequest,
+} from "@/devops-chat/lib/chat-api";
+import { buildContextSnapshot } from "@/devops-chat/lib/context-snapshot";
 import type { ApprovalItem, DeployItem, PageKey, RollbackItem } from "@/devops-chat/types/domain";
+import type { ConversationMessage } from "@/devops-chat/types/conversation";
 
 type ChatAssistantPanelProps = {
   onClose: () => void;
@@ -17,18 +29,110 @@ export function ChatAssistantPanel({
   pageKey,
   selectedItem,
 }: ChatAssistantPanelProps) {
-  const messages = useChatAssistantStore((state) => state.messages);
-  const composerText = useChatAssistantStore((state) => state.composerText);
-  const isSubmitting = useChatAssistantStore((state) => state.isSubmitting);
-  const error = useChatAssistantStore((state) => state.error);
-  const clearError = useChatAssistantStore((state) => state.clearError);
-  const setComposerText = useChatAssistantStore((state) => state.setComposerText);
-  const submitPrompt = useChatAssistantStore((state) => state.submitPrompt);
-  const endRef = useRef<HTMLDivElement | null>(null);
+  const conversationId = pageConversationId(pageKey);
 
+  const ensureConversation = useConversationStore((s) => s.ensureConversation);
+  const setComposerText = useConversationStore((s) => s.setComposerText);
+  const startUserTurn = useConversationStore((s) => s.startUserTurn);
+  const appendAssistantDelta = useConversationStore((s) => s.appendAssistantDelta);
+  const completeAssistantTurn = useConversationStore((s) => s.completeAssistantTurn);
+  const failAssistantTurn = useConversationStore((s) => s.failAssistantTurn);
+  const setPendingTool = useConversationStore((s) => s.setPendingTool);
+  const mergeFacts = useConversationStore((s) => s.mergeFacts);
+  const clearError = useConversationStore((s) => s.clearError);
+
+  const conversation = useConversationStore((s) => selectConversation(s, conversationId));
+  const isSubmitting = useConversationStore((s) => isConversationSubmitting(s, conversationId));
+
+  const messages = conversation?.messages ?? [];
+  const composerText = conversation?.composerText ?? "";
+  const pendingTool = conversation?.pendingTool ?? null;
+  const awaiting = conversation?.awaiting ?? null;
+  const error = conversation?.error ?? null;
+
+  const endRef = useRef<HTMLDivElement | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
+
+  // Ensure conversation exists
+  useEffect(() => {
+    ensureConversation(conversationId, { pageKey });
+  }, [conversationId, pageKey, ensureConversation]);
+
+  // Sync selected entity into facts
+  useEffect(() => {
+    if (!conversation) return;
+    mergeFacts(conversationId, {
+      pageKey,
+      selectedEntity: selectedItem ? (structuredClone(selectedItem) as Record<string, unknown>) : null,
+    });
+  }, [conversationId, pageKey, selectedItem, mergeFacts, !!conversation]);
+
+  // Auto-scroll
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" });
   }, [messages]);
+
+  async function handleSubmit() {
+    const input = composerText.trim();
+    if (!input || isSubmitting) return;
+
+    const requestId = crypto.randomUUID();
+    const contextSnapshot = buildContextSnapshot(pageKey, selectedItem);
+
+    // Build history from existing messages
+    const history = messages
+      .filter((m: ConversationMessage) => m.status === "complete" && m.text.trim() && m.role !== "tool")
+      .slice(-10)
+      .map((m: ConversationMessage) => ({ role: m.role as "user" | "assistant", content: m.text }));
+
+    startUserTurn(conversationId, input, requestId);
+
+    // Abort previous request if any
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    const request: ChatStreamRequest = {
+      conversationId,
+      input,
+      contextSnapshot,
+      history,
+      facts: conversation?.facts ?? {},
+    };
+
+    try {
+      const result = await streamAssistantChat(
+        request,
+        {
+          onDelta(text) {
+            appendAssistantDelta(conversationId, requestId, text);
+          },
+          onTool(payload) {
+            setPendingTool(conversationId, {
+              toolName: payload.toolName,
+              status: payload.status,
+              summary: payload.summary,
+            });
+          },
+          onResult(turnResult) {
+            completeAssistantTurn(conversationId, requestId, turnResult);
+          },
+        },
+        controller.signal,
+      );
+
+      // If result event wasn't received but stream ended normally
+      if (result && conversation?.activeRequestId === requestId) {
+        completeAssistantTurn(conversationId, requestId, result);
+      }
+    } catch (error) {
+      if ((error as Error).name === "AbortError") return;
+      const isProtocol = error instanceof ChatProtocolError;
+      const prefix = isProtocol ? "[서버 오류] " : "[연결 오류] ";
+      const message = prefix + (error instanceof Error ? error.message : "Assistant request failed.");
+      failAssistantTurn(conversationId, requestId, message);
+    }
+  }
 
   return (
     <div className={styles.chatAssistantPanel}>
@@ -43,7 +147,7 @@ export function ChatAssistantPanel({
       </div>
 
       <div className={styles.chatAssistantThread}>
-        {messages.map((message) => (
+        {messages.map((message: ConversationMessage) => (
           <div
             className={`${styles.chatMessageRow} ${
               message.role === "user" ? styles.chatMessageRowUser : styles.chatMessageRowAssistant
@@ -57,18 +161,35 @@ export function ChatAssistantPanel({
                 message.status === "error" ? styles.chatMessageBubbleError : ""
               }`}
             >
-              {message.content || "응답을 생성하고 있습니다..."}
+              {message.text || "응답을 생성하고 있습니다..."}
             </div>
           </div>
         ))}
 
-        {messages.length ? null : <div className={styles.chatThreadEmpty} />}
+        {pendingTool ? (
+          <div className={`${styles.chatMessageRow} ${styles.chatMessageRowAssistant}`}>
+            <div className={`${styles.chatMessageBubble} ${styles.chatMessageBubbleAssistant}`}>
+              🔧 {pendingTool.toolName} {pendingTool.status === "running" ? "실행 중..." : pendingTool.summary ?? ""}
+            </div>
+          </div>
+        ) : null}
+
+        {awaiting ? (
+          <div className={`${styles.chatMessageRow} ${styles.chatMessageRowAssistant}`}>
+            <div className={`${styles.chatMessageBubble} ${styles.chatMessageBubbleAssistant}`}
+              style={{ opacity: 0.7, fontStyle: "italic" }}>
+              {awaiting.prompt}
+            </div>
+          </div>
+        ) : null}
+
+        {messages.length === 0 && !pendingTool && !awaiting ? <div className={styles.chatThreadEmpty} /> : null}
         <div ref={endRef} />
       </div>
 
       <div className={styles.chatAssistantComposer}>
         {error ? (
-          <div className={styles.assistantError} onAnimationEnd={clearError}>
+          <div className={styles.assistantError} onAnimationEnd={() => clearError(conversationId)}>
             {error}
           </div>
         ) : null}
@@ -77,15 +198,13 @@ export function ChatAssistantPanel({
             className={styles.chatComposerInput}
             disabled={isSubmitting}
             onChange={(event) => {
-              if (error) {
-                clearError();
-              }
-              setComposerText(event.target.value);
+              if (error) clearError(conversationId);
+              setComposerText(conversationId, event.target.value);
             }}
             onKeyDown={(event) => {
               if (event.key === "Enter" && !event.shiftKey) {
                 event.preventDefault();
-                void submitPrompt({ pageKey, selectedItem });
+                void handleSubmit();
               }
             }}
             placeholder="메시지를 입력하세요"
@@ -95,7 +214,7 @@ export function ChatAssistantPanel({
           <button
             className={styles.chatComposerSend}
             disabled={!composerText.trim() || isSubmitting}
-            onClick={() => void submitPrompt({ pageKey, selectedItem })}
+            onClick={() => void handleSubmit()}
             type="button"
           >
             <Icon name="chevronRight" size={16} />

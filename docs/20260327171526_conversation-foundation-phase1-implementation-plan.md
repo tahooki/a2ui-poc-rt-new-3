@@ -474,148 +474,148 @@ type AssistantTurnResponse = {
 
 ## A. 타입 모델 정리
 
-* [ ] `src/devops-chat/types/conversation.ts`를 추가하고 conversation 전용 상태 타입을 정의한다.
-* [ ] `ConversationMessage`에 `role: "tool"`을 열어 두고, 추후 tool log 메시지를 담을 수 있게 한다.
-* [ ] `ConversationFacts`를 페이지 선택 상태의 복사본이 아니라 "현재 대화에서 수집된 사실" 중심으로 설계한다.
-* [ ] `ConversationAwaiting` 타입을 추가하고 최소 `free_text`, `service_selection`, `confirmation`을 포함한다.
-* [ ] `PendingToolState` 타입을 추가해 UI에서 로딩 상태를 텍스트 외에도 표현할 수 있게 한다.
-* [ ] `ConversationDecision` 타입을 추가하고 `text | ask_followup | render_surface`를 명시한다.
-* [ ] `src/devops-chat/types/assistant-response.ts`를 추가하고 `AssistantTurnRequest`, `AssistantTurnResponse`, SSE event payload 타입을 정의한다.
-* [ ] `src/devops-chat/types/domain.ts`에 있는 assistant 관련 타입을 그대로 둘지, conversation 타입으로 이관할지 결정하고 한 방향으로 정리한다.
+* [x] `src/devops-chat/types/conversation.ts`를 추가하고 conversation 전용 상태 타입을 정의한다.
+* [x] `ConversationMessage`에 `role: "tool"`을 열어 두고, 추후 tool log 메시지를 담을 수 있게 한다.
+* [x] `ConversationFacts`를 페이지 선택 상태의 복사본이 아니라 "현재 대화에서 수집된 사실" 중심으로 설계한다.
+* [x] `ConversationAwaiting` 타입을 추가하고 최소 `free_text`, `service_selection`, `confirmation`을 포함한다.
+* [x] `PendingToolState` 타입을 추가해 UI에서 로딩 상태를 텍스트 외에도 표현할 수 있게 한다.
+* [x] `ConversationDecision` 타입을 추가하고 `text | ask_followup | render_surface`를 명시한다.
+* [x] `src/devops-chat/types/assistant-response.ts`를 추가하고 `AssistantTurnRequest`, `AssistantTurnResponse`, SSE event payload 타입을 정의한다.
+* [x] `src/devops-chat/types/domain.ts`에 있는 assistant 관련 타입을 그대로 둘지, conversation 타입으로 이관할지 결정하고 한 방향으로 정리한다.
 
 ## B. conversation store 도입
 
-* [ ] `src/devops-chat/store/conversation-store.ts`를 추가한다.
-* [ ] store shape를 `conversations: Record<ConversationId, ConversationState>` 구조로 만든다.
-* [ ] page별 기본 conversation ID 정책을 정의한다.
-* [ ] `ensureConversation` 액션으로 conversation이 없는 경우 초기 생성되게 한다.
-* [ ] `setComposerText`, `clearError`, `resetConversation` 액션을 conversation ID 기준으로 제공한다.
-* [ ] `startUserTurn`에서 user message와 assistant streaming placeholder를 동시에 생성한다.
-* [ ] `appendAssistantDelta`에서 placeholder message에 delta를 누적한다.
-* [ ] `completeAssistantTurn`에서 `message`, `awaiting`, `pendingTool`, `decision`, `surface`를 한 번에 반영한다.
-* [ ] `failAssistantTurn`에서 streaming placeholder를 error 상태로 정리한다.
-* [ ] 메시지 trim 정책을 store 내부 공통 로직으로 모은다.
-* [ ] `/assistant` 전용 페이지와 각 workflow sidebar가 같은 store 인스턴스를 쓰도록 만든다.
+* [x] `src/devops-chat/store/conversation-store.ts`를 추가한다.
+* [x] store shape를 `conversations: Record<ConversationId, ConversationState>` 구조로 만든다.
+* [x] page별 기본 conversation ID 정책을 정의한다.
+* [x] `ensureConversation` 액션으로 conversation이 없는 경우 초기 생성되게 한다.
+* [x] `setComposerText`, `clearError`, `resetConversation` 액션을 conversation ID 기준으로 제공한다.
+* [x] `startUserTurn`에서 user message와 assistant streaming placeholder를 동시에 생성한다.
+* [x] `appendAssistantDelta`에서 placeholder message에 delta를 누적한다.
+* [x] `completeAssistantTurn`에서 `message`, `awaiting`, `pendingTool`, `decision`, `surface`를 한 번에 반영한다.
+* [x] `failAssistantTurn`에서 streaming placeholder를 error 상태로 정리한다.
+* [x] 메시지 trim 정책을 store 내부 공통 로직으로 모은다.
+* [x] `/assistant` 전용 페이지와 각 workflow sidebar가 같은 store 인스턴스를 쓰도록 만든다.
 
 ## C. 기존 store 중복 제거
 
-* [ ] `chat-assistant-store.ts`를 conversation store wrapper로 바꾸거나 제거한다.
-* [ ] `app-store.ts`의 `assistant` runtime 타입 정의를 축소 또는 제거한다.
-* [ ] `app-store.ts`에서 `submitPrompt`, `setComposerText`, `activateIntent`, assistant error/loading 관리 코드를 conversation store로 이동한다.
-* [ ] `app-store.ts`에 남아야 할 것은 domain runtime과 실제 page action뿐인지 확인하고 책임을 다시 분리한다.
-* [ ] `app-store.ts`의 deploy/approve/rollback row selection 시 assistant message를 직접 reset하는 로직을 제거하거나 conversation context sync로 바꾼다.
-* [ ] row selection이 conversation을 무조건 초기화하지 않도록 정책을 정한다.
+* [x] `chat-assistant-store.ts`를 conversation store wrapper로 바꾸거나 제거한다.
+* [x] `app-store.ts`의 `assistant` runtime 타입 정의를 축소 또는 제거한다.
+* [x] `app-store.ts`에서 `submitPrompt`, `setComposerText`, `activateIntent`, assistant error/loading 관리 코드를 conversation store로 이동한다.
+* [x] `app-store.ts`에 남아야 할 것은 domain runtime과 실제 page action뿐인지 확인하고 책임을 다시 분리한다.
+* [x] `app-store.ts`의 deploy/approve/rollback row selection 시 assistant message를 직접 reset하는 로직을 제거하거나 conversation context sync로 바꾼다.
+* [x] row selection이 conversation을 무조건 초기화하지 않도록 정책을 정한다.
 
 ## D. conversation context snapshot 정리
 
-* [ ] 각 page runtime에서 conversation request에 포함할 context snapshot shape를 정의한다.
-* [ ] deploy는 선택된 request, 선택 이미지, workflow draft 일부를 snapshot으로 제공한다.
-* [ ] approve는 active tab, selected request, risk summary를 snapshot으로 제공한다.
-* [ ] rollback은 selected service, active deployment, current status를 snapshot으로 제공한다.
-* [ ] snapshot builder를 별도 함수로 분리해 UI 컴포넌트에서 직접 JSON 조립하지 않게 한다.
-* [ ] selection/tab/page 변경 시 snapshot을 언제 갱신할지 명시한다.
-* [ ] 권장안은 "submit 시점 snapshot 캡처 + selection 변경 시 facts.selectedEntity 동기화"다.
-* [ ] snapshot에는 화면 렌더용 전체 runtime을 싣지 말고, assistant 판단에 필요한 최소 필드만 담는다.
+* [x] 각 page runtime에서 conversation request에 포함할 context snapshot shape를 정의한다.
+* [x] deploy는 선택된 request, 선택 이미지, workflow draft 일부를 snapshot으로 제공한다.
+* [x] approve는 active tab, selected request, risk summary를 snapshot으로 제공한다.
+* [x] rollback은 selected service, active deployment, current status를 snapshot으로 제공한다.
+* [x] snapshot builder를 별도 함수로 분리해 UI 컴포넌트에서 직접 JSON 조립하지 않게 한다.
+* [x] selection/tab/page 변경 시 snapshot을 언제 갱신할지 명시한다.
+* [x] 권장안은 "submit 시점 snapshot 캡처 + selection 변경 시 facts.selectedEntity 동기화"다.
+* [x] snapshot에는 화면 렌더용 전체 runtime을 싣지 말고, assistant 판단에 필요한 최소 필드만 담는다.
 
 ## E. tool foundation 도입
 
-* [ ] `tool-registry.ts`에 tool 정의 타입과 registry 생성 함수를 만든다.
-* [ ] `tool-executor.ts`에 공통 실행 결과 포맷을 만든다.
-* [ ] `tool-result-adapter.ts`에 tool 결과를 conversation facts에 반영하는 adapter를 만든다.
-* [ ] deploy seed에서 최근 배포 목록을 요약할 수 있는 `getPreviousDeployments`를 구현한다.
-* [ ] deploy seed에서 서비스 목록을 뽑는 `getDeployableServices`를 구현한다.
-* [ ] approval seed에서 대기 큐 요약을 반환하는 `getApprovalQueueSummary`를 구현한다.
-* [ ] rollback seed에서 후보 버전과 상태를 반환하는 `getRollbackCandidates`를 구현한다.
-* [ ] 조회성 tool은 모두 read-only로 유지하고, 상태 변경은 이번 단계에서 금지한다.
-* [ ] tool 결과 객체에 `ok`, `toolName`, `data`, `summary` 필드를 공통으로 맞춘다.
-* [ ] tool 결과 adapter가 `factsPatch`를 반환하도록 맞춘다.
-* [ ] tool이 없어도 deterministic하게 답할 수 있는 기본 contextual summarizer를 준비한다.
+* [x] `tool-registry.ts`에 tool 정의 타입과 registry 생성 함수를 만든다.
+* [x] `tool-executor.ts`에 공통 실행 결과 포맷을 만든다.
+* [x] `tool-result-adapter.ts`에 tool 결과를 conversation facts에 반영하는 adapter를 만든다.
+* [x] deploy seed에서 최근 배포 목록을 요약할 수 있는 `getPreviousDeployments`를 구현한다.
+* [x] deploy seed에서 서비스 목록을 뽑는 `getDeployableServices`를 구현한다.
+* [x] approval seed에서 대기 큐 요약을 반환하는 `getApprovalQueueSummary`를 구현한다.
+* [x] rollback seed에서 후보 버전과 상태를 반환하는 `getRollbackCandidates`를 구현한다.
+* [x] 조회성 tool은 모두 read-only로 유지하고, 상태 변경은 이번 단계에서 금지한다.
+* [x] tool 결과 객체에 `ok`, `toolName`, `data`, `summary` 필드를 공통으로 맞춘다.
+* [x] tool 결과 adapter가 `factsPatch`를 반환하도록 맞춘다.
+* [x] tool이 없어도 deterministic하게 답할 수 있는 기본 contextual summarizer를 준비한다.
 
 ## F. orchestrator 도입
 
-* [ ] `orchestrate-chat-turn.ts`를 추가한다.
-* [ ] orchestrator 입력은 `conversationId`, `prompt`, `history`, `contextSnapshot`, `facts`가 되게 한다.
-* [ ] 1차 기반에서는 LLM 자유 판단에만 의존하지 않고, keyword + context 기반의 간단한 resolver를 둔다.
-* [ ] "이전 배포", "최근 배포", "deployable service", "rollback candidate" 같은 대표 질의는 명시적으로 tool로 연결한다.
-* [ ] tool이 선택되면 먼저 실행하고, 결과를 요약한 뒤 assistant text를 만든다.
-* [ ] tool이 불필요한 경우에만 plain contextual answer 경로로 보낸다.
-* [ ] follow-up이 필요한 경우 `decision.mode = "ask_followup"`과 `awaiting`을 반환한다.
-* [ ] 이번 단계에서는 `decision.mode = "render_surface"`를 거의 쓰지 않더라도 필드는 남겨 둔다.
-* [ ] 1차 기반의 기본 원칙은 "tool 결과만으로도 답변이 성립"이 되도록 잡는다.
-* [ ] 즉 `OPENAI_API_KEY`가 없거나 LLM 호출이 실패해도 tool summary 기반 응답은 가능해야 한다.
-* [ ] orchestrator는 최종적으로 `factsPatch`, `decision`, `awaiting`, `surface`, `message`를 함께 반환한다.
+* [x] `orchestrate-chat-turn.ts`를 추가한다.
+* [x] orchestrator 입력은 `conversationId`, `prompt`, `history`, `contextSnapshot`, `facts`가 되게 한다.
+* [x] 1차 기반에서는 LLM 자유 판단에만 의존하지 않고, keyword + context 기반의 간단한 resolver를 둔다.
+* [x] "이전 배포", "최근 배포", "deployable service", "rollback candidate" 같은 대표 질의는 명시적으로 tool로 연결한다.
+* [x] tool이 선택되면 먼저 실행하고, 결과를 요약한 뒤 assistant text를 만든다.
+* [x] tool이 불필요한 경우에만 plain contextual answer 경로로 보낸다.
+* [x] follow-up이 필요한 경우 `decision.mode = "ask_followup"`과 `awaiting`을 반환한다.
+* [x] 이번 단계에서는 `decision.mode = "render_surface"`를 거의 쓰지 않더라도 필드는 남겨 둔다.
+* [x] 1차 기반의 기본 원칙은 "tool 결과만으로도 답변이 성립"이 되도록 잡는다.
+* [x] 즉 `OPENAI_API_KEY`가 없거나 LLM 호출이 실패해도 tool summary 기반 응답은 가능해야 한다.
+* [x] orchestrator는 최종적으로 `factsPatch`, `decision`, `awaiting`, `surface`, `message`를 함께 반환한다.
 
 ## G. API route 리팩터링
 
-* [ ] `/api/chat` request body를 `pageKey`, `selectedItem`, `templateId` 중심에서 `conversationId`, `input`, `contextSnapshot`, `history`, `facts` 중심으로 재설계한다.
-* [ ] route 내부 OpenAI 직접 프록시 코드를 orchestrator 호출 구조로 바꾼다.
-* [ ] 필요 시 orchestrator 내부에서만 OpenAI를 호출하게 해 route의 책임을 줄인다.
-* [ ] SSE 응답에 `delta`, `tool`, `result`, `error`, `done` 이벤트를 보낼 수 있게 한다.
-* [ ] `result` 이벤트에 structured turn response 전체를 담는다.
-* [ ] tool 실행 전후를 SSE로 흘려 UI가 pending state를 표현할 수 있게 한다.
-* [ ] fallback text 생성 책임을 프론트가 아니라 서버 orchestrator 쪽으로 옮긴다.
-* [ ] `requestId`를 request/response 양쪽에 포함해 client가 stale event를 무시할 수 있게 한다.
-* [ ] tool-only 응답은 text delta가 하나도 없어도 `result` 이벤트만으로 정상 완료될 수 있게 한다.
-* [ ] response shape에 `protocolVersion` 필드를 둘지 검토한다.
+* [x] `/api/chat` request body를 `pageKey`, `selectedItem`, `templateId` 중심에서 `conversationId`, `input`, `contextSnapshot`, `history`, `facts` 중심으로 재설계한다.
+* [x] route 내부 OpenAI 직접 프록시 코드를 orchestrator 호출 구조로 바꾼다.
+* [x] 필요 시 orchestrator 내부에서만 OpenAI를 호출하게 해 route의 책임을 줄인다.
+* [x] SSE 응답에 `delta`, `tool`, `result`, `error`, `done` 이벤트를 보낼 수 있게 한다.
+* [x] `result` 이벤트에 structured turn response 전체를 담는다.
+* [x] tool 실행 전후를 SSE로 흘려 UI가 pending state를 표현할 수 있게 한다.
+* [x] fallback text 생성 책임을 프론트가 아니라 서버 orchestrator 쪽으로 옮긴다.
+* [x] `requestId`를 request/response 양쪽에 포함해 client가 stale event를 무시할 수 있게 한다.
+* [x] tool-only 응답은 text delta가 하나도 없어도 `result` 이벤트만으로 정상 완료될 수 있게 한다.
+* [x] response shape에 `protocolVersion` 필드를 둘지 검토한다.
 
 ## H. client chat API 정리
 
-* [ ] `src/devops-chat/lib/chat-api.ts`의 request 타입을 새 protocol 기준으로 수정한다.
-* [ ] SSE parser가 `delta` 외 이벤트를 인식하도록 확장한다.
-* [ ] `onTool`, `onResult`, `onError`, `onDone` 핸들러를 추가한다.
-* [ ] 단순 text accumulation과 structured result 반영을 분리한다.
-* [ ] parse 실패 시 event 단위 에러 메시지가 충분히 보이도록 한다.
-* [ ] request별 `AbortController` 또는 동등한 취소 메커니즘을 도입한다.
-* [ ] 같은 conversation에 새 turn이 시작되면 이전 inflight request를 취소하거나 결과를 폐기하는 정책을 구현한다.
-* [ ] `result`가 도착했는데도 `requestId`가 현재 active request와 다르면 반영하지 않도록 가드한다.
+* [x] `src/devops-chat/lib/chat-api.ts`의 request 타입을 새 protocol 기준으로 수정한다.
+* [x] SSE parser가 `delta` 외 이벤트를 인식하도록 확장한다.
+* [x] `onTool`, `onResult`, `onError`, `onDone` 핸들러를 추가한다.
+* [x] 단순 text accumulation과 structured result 반영을 분리한다.
+* [x] parse 실패 시 event 단위 에러 메시지가 충분히 보이도록 한다.
+* [x] request별 `AbortController` 또는 동등한 취소 메커니즘을 도입한다.
+* [x] 같은 conversation에 새 turn이 시작되면 이전 inflight request를 취소하거나 결과를 폐기하는 정책을 구현한다.
+* [x] `result`가 도착했는데도 `requestId`가 현재 active request와 다르면 반영하지 않도록 가드한다.
 
 ## I. UI 반영
 
-* [ ] `ChatAssistantPanel`이 conversation ID를 받아 conversation store를 읽도록 바꾼다.
-* [ ] `selectedItem` 직접 전달 의존을 줄이고, 필요 정보는 context snapshot builder를 통해 전달한다.
-* [ ] panel에 pending tool 상태를 보여줄 영역을 추가한다.
-* [ ] panel에 awaiting follow-up 상태를 보여줄 보조 문구를 추가한다.
-* [ ] 현재 에러 렌더링은 유지하되, protocol error와 transport error를 구분할 수 있게 한다.
-* [ ] streaming placeholder 문구를 structured turn lifecycle에 맞게 다듬는다.
-* [ ] tool-only 응답처럼 delta 없이 final result만 오는 경우도 자연스럽게 렌더되게 한다.
-* [ ] selection이 바뀌었는데 이전 turn이 늦게 끝난 경우 현재 conversation과 맞지 않는 응답이 보이지 않게 한다.
+* [x] `ChatAssistantPanel`이 conversation ID를 받아 conversation store를 읽도록 바꾼다.
+* [x] `selectedItem` 직접 전달 의존을 줄이고, 필요 정보는 context snapshot builder를 통해 전달한다.
+* [x] panel에 pending tool 상태를 보여줄 영역을 추가한다.
+* [x] panel에 awaiting follow-up 상태를 보여줄 보조 문구를 추가한다.
+* [x] 현재 에러 렌더링은 유지하되, protocol error와 transport error를 구분할 수 있게 한다.
+* [x] streaming placeholder 문구를 structured turn lifecycle에 맞게 다듬는다.
+* [x] tool-only 응답처럼 delta 없이 final result만 오는 경우도 자연스럽게 렌더되게 한다.
+* [x] selection이 바뀌었는데 이전 turn이 늦게 끝난 경우 현재 conversation과 맞지 않는 응답이 보이지 않게 한다.
 
 ## J. view-model 및 page 연결
 
-* [ ] `buildConsoleViewModel.ts`가 assistant 메시지와 composer state를 conversation store selector 기반으로 읽도록 바꾼다.
-* [ ] deploy/approve/rollback별 conversation ID 결정 로직을 공통화한다.
-* [ ] 현재 deploy/approve는 `activeTemplateId`가 사실상 무시되는 문제를 문서화하고, 1차에서는 template surface를 selected item 기반으로 유지할지 명확히 결정한다.
-* [ ] 1차 단계에서는 template surface를 크게 건드리지 않더라도, conversation state에 `surface` 필드를 저장해 이후 연결점을 확보한다.
-* [ ] `/assistant` 페이지와 각 workflow page 사이에서 protocol 차이가 생기지 않도록 맞춘다.
-* [ ] page 이동 또는 row/tab 변경 시 conversation reset 여부를 명시하고 기본값은 "reset하지 않음"으로 유지한다.
+* [x] `buildConsoleViewModel.ts`가 assistant 메시지와 composer state를 conversation store selector 기반으로 읽도록 바꾼다.
+* [x] deploy/approve/rollback별 conversation ID 결정 로직을 공통화한다.
+* [x] 현재 deploy/approve는 `activeTemplateId`가 사실상 무시되는 문제를 문서화하고, 1차에서는 template surface를 selected item 기반으로 유지할지 명확히 결정한다.
+* [x] 1차 단계에서는 template surface를 크게 건드리지 않더라도, conversation state에 `surface` 필드를 저장해 이후 연결점을 확보한다.
+* [x] `/assistant` 페이지와 각 workflow page 사이에서 protocol 차이가 생기지 않도록 맞춘다.
+* [x] page 이동 또는 row/tab 변경 시 conversation reset 여부를 명시하고 기본값은 "reset하지 않음"으로 유지한다.
 
 ## K. legacy 정리
 
-* [ ] `prompt-router.ts`는 더 이상 핵심 orchestrator가 아니라 legacy helper임을 주석 또는 파일 구조상 분명히 한다.
-* [ ] `build-template-envelope.ts`는 1차 단계에서 직접 확장하지 말고, 이후 facts 기반 selector로 넘어갈 교체 지점을 문서화한다.
-* [ ] 사용되지 않는 `AssistantWorkspace`를 이번 단계에서 도입할지 보류할지 결정하고 문서에 남긴다.
-* [ ] 권장안은 이번 단계에서는 `AssistantWorkspace` 도입 보류, 데이터 모델만 정리다.
+* [x] `prompt-router.ts`는 더 이상 핵심 orchestrator가 아니라 legacy helper임을 주석 또는 파일 구조상 분명히 한다.
+* [x] `build-template-envelope.ts`는 1차 단계에서 직접 확장하지 말고, 이후 facts 기반 selector로 넘어갈 교체 지점을 문서화한다.
+* [x] 사용되지 않는 `AssistantWorkspace`를 이번 단계에서 도입할지 보류할지 결정하고 문서에 남긴다.
+* [x] 권장안은 이번 단계에서는 `AssistantWorkspace` 도입 보류, 데이터 모델만 정리다.
 
 ## L. 테스트 및 검증
 
-* [ ] 테스트 러너 부재를 해소할지 결정한다. 권장안은 최소 Vitest 도입이다.
-* [ ] conversation store 상태 전이 테스트를 추가한다.
-* [ ] chat API SSE parser 테스트를 추가한다.
-* [ ] tool executor 결과 포맷 테스트를 추가한다.
-* [ ] orchestrator의 대표 질의 분기 테스트를 추가한다.
-* [ ] facts patch merge 테스트를 추가한다.
-* [ ] inflight request 경쟁 상태 테스트를 추가한다.
-* [ ] selection 변경 후 stale response 무시 테스트를 추가한다.
-* [ ] `OPENAI_API_KEY`가 없어도 tool-backed deterministic response가 가능한지 테스트한다.
-* [ ] 수동 검증 시나리오를 문서로 남긴다.
-* [ ] 최소 수동 검증 항목:
-  * [ ] 일반 질문이 text-only로 응답되는가
-  * [ ] 조회성 질문이 tool 기반 요약으로 응답되는가
-  * [ ] context가 부족하면 follow-up 상태가 생기는가
-  * [ ] deploy/approve/rollback 페이지에서 assistant가 공통 protocol로 동작하는가
-  * [ ] `/assistant` 페이지와 workflow sidebar의 응답 구조가 동일한가
-  * [ ] row를 바꾼 직후 이전 요청 응답이 늦게 도착해도 화면이 오염되지 않는가
-  * [ ] 같은 conversation에 연속 submit 시 마지막 요청만 유효하게 반영되는가
+* [x] 테스트 러너 부재를 해소할지 결정한다. 권장안은 최소 Vitest 도입이다.
+* [x] conversation store 상태 전이 테스트를 추가한다.
+* [x] chat API SSE parser 테스트를 추가한다.
+* [x] tool executor 결과 포맷 테스트를 추가한다.
+* [x] orchestrator의 대표 질의 분기 테스트를 추가한다.
+* [x] facts patch merge 테스트를 추가한다.
+* [x] inflight request 경쟁 상태 테스트를 추가한다.
+* [x] selection 변경 후 stale response 무시 테스트를 추가한다.
+* [x] `OPENAI_API_KEY`가 없어도 tool-backed deterministic response가 가능한지 테스트한다.
+* [x] 수동 검증 시나리오를 문서로 남긴다.
+* [x] 최소 수동 검증 항목:
+  * [x] 일반 질문이 text-only로 응답되는가
+  * [x] 조회성 질문이 tool 기반 요약으로 응답되는가
+  * [x] context가 부족하면 follow-up 상태가 생기는가
+  * [x] deploy/approve/rollback 페이지에서 assistant가 공통 protocol로 동작하는가
+  * [x] `/assistant` 페이지와 workflow sidebar의 응답 구조가 동일한가
+  * [x] row를 바꾼 직후 이전 요청 응답이 늦게 도착해도 화면이 오염되지 않는가
+  * [x] 같은 conversation에 연속 submit 시 마지막 요청만 유효하게 반영되는가
 
 ---
 

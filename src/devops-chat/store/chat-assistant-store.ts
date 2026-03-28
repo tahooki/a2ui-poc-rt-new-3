@@ -1,7 +1,12 @@
+/**
+ * @deprecated Legacy chat assistant store.
+ * Replaced by conversation-store.ts as part of the Conversation Foundation Phase 1.
+ * Kept temporarily for reference. No active consumers remain.
+ */
 "use client";
 
 import { create } from "zustand";
-import { streamAssistantChat, type AssistantChatRequest } from "@/devops-chat/lib/chat-api";
+import { legacyStreamAssistantChat, type AssistantChatRequest } from "@/devops-chat/lib/chat-api";
 import type {
   ApprovalItem,
   AssistantMessage,
@@ -91,7 +96,7 @@ export const useChatAssistantStore = create<ChatAssistantStore>((set, get) => ({
     }));
 
     try {
-      await streamAssistantChat(requestPayload, {
+      await legacyStreamAssistantChat(requestPayload, {
         onDelta: (text) => {
           set((state) => ({
             messages: state.messages.map((message) =>

@@ -1,3 +1,17 @@
+/**
+ * @deprecated Legacy template envelope builder.
+ *
+ * Phase 1에서는 이 파일을 직접 확장하지 않는다.
+ * Phase 2에서 conversation facts 기반 template selector로 교체 예정.
+ *
+ * 교체 지점:
+ * - buildDeployTemplate → facts.deploy + decision.mode === "render_surface"로 전환
+ * - buildApprovalTemplate → facts.approval 기반 선택으로 전환
+ * - buildRollbackTemplate → facts.rollback + rollback status 기반 선택으로 전환
+ *
+ * 현재는 view-model에서 selected item 기반으로 직접 호출되고 있으며,
+ * conversation store의 activeSurface 필드가 이후 연결점이 된다.
+ */
 import {
   deployStatusMeta,
   rollbackStatusMeta,

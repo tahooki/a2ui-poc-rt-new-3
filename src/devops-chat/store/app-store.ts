@@ -4,7 +4,7 @@ import { create } from "zustand";
 import approveSeedData from "@/devops-chat/data/seed/approve.json";
 import deploySeedData from "@/devops-chat/data/seed/deploy.json";
 import rollbackSeedData from "@/devops-chat/data/seed/rollback.json";
-import { streamAssistantChat, type AssistantChatRequest } from "@/devops-chat/lib/chat-api";
+import { legacyStreamAssistantChat, type AssistantChatRequest } from "@/devops-chat/lib/chat-api";
 import { findIntentPrompt, routePromptForSelection } from "@/devops-chat/lib/prompt-router";
 import {
   getDefaultTemplateIdForApproval,
@@ -608,7 +608,9 @@ export const useDevopsConsoleStore = create<DevopsConsoleStore>((set, get) => ({
             draft.workflow.requestDraft = createDeployRequestDraft(selectedImage, selectedItem);
           }
 
-          resetAssistantState(draft.assistant, getDefaultMessages(selectedItem), getDeployTemplateId());
+          // Row selection no longer resets assistant messages.
+          // Conversation store handles message lifecycle; only template ID updated here.
+          draft.assistant.activeTemplateId = getDeployTemplateId();
         });
 
         return { pages: { ...state.pages, deploy: page } };
@@ -622,7 +624,7 @@ export const useDevopsConsoleStore = create<DevopsConsoleStore>((set, get) => ({
             draft.activeTab = selectedItem.type;
           }
 
-          resetAssistantState(draft.assistant, getDefaultMessages(selectedItem), getApprovalTemplateId());
+          draft.assistant.activeTemplateId = getApprovalTemplateId();
         });
 
         return { pages: { ...state.pages, approve: page } };
@@ -632,13 +634,10 @@ export const useDevopsConsoleStore = create<DevopsConsoleStore>((set, get) => ({
         draft.selectedId = rowId;
         const selectedService = withSelectedRollbackService(draft.items, rowId);
         draft.activeDeploymentId = getDefaultRollbackDeploymentId(selectedService);
-        const selectedDeployment = withSelectedRollbackDeployment(selectedService, draft.activeDeploymentId);
 
-        resetAssistantState(
-          draft.assistant,
-          buildRollbackAssistantMessages(selectedService, selectedDeployment),
-          selectedService ? getDefaultTemplateIdForRollback(selectedService) : "rollback_summary",
-        );
+        draft.assistant.activeTemplateId = selectedService
+          ? getDefaultTemplateIdForRollback(selectedService)
+          : "rollback_summary";
       });
 
       return { pages: { ...state.pages, rollback: page } };
@@ -651,7 +650,8 @@ export const useDevopsConsoleStore = create<DevopsConsoleStore>((set, get) => ({
         const firstItemInTab = getApprovalItemsByTab(draft.items, tab)[0] ?? null;
         draft.selectedId = firstItemInTab?.id ?? null;
 
-        resetAssistantState(draft.assistant, getDefaultMessages(firstItemInTab), getApprovalTemplateId());
+        // Tab change no longer resets assistant messages.
+        draft.assistant.activeTemplateId = getApprovalTemplateId();
       });
 
       return { pages: { ...state.pages, approve: page } };
@@ -663,13 +663,10 @@ export const useDevopsConsoleStore = create<DevopsConsoleStore>((set, get) => ({
         draft.selectedId = serviceId;
         draft.activeDeploymentId = deploymentId;
         const selectedService = withSelectedRollbackService(draft.items, serviceId);
-        const selectedDeployment = withSelectedRollbackDeployment(selectedService, deploymentId);
 
-        resetAssistantState(
-          draft.assistant,
-          buildRollbackAssistantMessages(selectedService, selectedDeployment),
-          selectedService ? getDefaultTemplateIdForRollback(selectedService) : "rollback_summary",
-        );
+        draft.assistant.activeTemplateId = selectedService
+          ? getDefaultTemplateIdForRollback(selectedService)
+          : "rollback_summary";
       });
 
       return { pages: { ...state.pages, rollback: page } };
@@ -955,7 +952,7 @@ export const useDevopsConsoleStore = create<DevopsConsoleStore>((set, get) => ({
     }
 
     try {
-      await streamAssistantChat(requestPayload, {
+      await legacyStreamAssistantChat(requestPayload, {
         onDelta: (text) => {
           set((state) => ({
             pages: updatePageAssistantState(state.pages, pageKey, (assistant) => {

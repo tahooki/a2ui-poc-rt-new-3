@@ -1,3 +1,8 @@
+/**
+ * @deprecated Legacy prompt router.
+ * Replaced by server/orchestrate-chat-turn.ts (Conversation Foundation Phase 1).
+ * Still used by app-store.ts legacy submitPrompt path.
+ */
 import type {
   ApprovalItem,
   AssistantIntent,

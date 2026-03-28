@@ -638,10 +638,11 @@ export function buildConsoleViewModel(pageKey: PageKey, pages: RuntimePageMap): 
             ]
           : [{ label: "Page", value: page.seed.pageTitle }],
         intents: page.seed.intents,
-        messages: page.assistant.messages,
-        isSubmitting: page.assistant.isSubmitting,
-        error: page.assistant.error,
-        composerText: page.assistant.composerText,
+        // Assistant state is now managed by conversation-store; these are kept as defaults for backward compat.
+        messages: [],
+        isSubmitting: false,
+        error: null,
+        composerText: "",
         composerPlaceholder: page.seed.composerPlaceholder,
         template: selectedItem ? buildDeployTemplate(selectedItem) : null,
       };
@@ -688,10 +689,10 @@ export function buildConsoleViewModel(pageKey: PageKey, pages: RuntimePageMap): 
             ]
           : [{ label: "Page", value: page.seed.pageTitle }],
         intents: page.seed.intents,
-        messages: page.assistant.messages,
-        isSubmitting: page.assistant.isSubmitting,
-        error: page.assistant.error,
-        composerText: page.assistant.composerText,
+        messages: [],
+        isSubmitting: false,
+        error: null,
+        composerText: "",
         composerPlaceholder: page.seed.composerPlaceholder,
         template: selectedItem ? buildApprovalTemplate(selectedItem) : null,
       };
@@ -769,10 +770,10 @@ export function buildConsoleViewModel(pageKey: PageKey, pages: RuntimePageMap): 
             ]
           : [{ label: "Page", value: page.seed.pageTitle }],
         intents: page.seed.intents,
-        messages: page.assistant.messages,
-        isSubmitting: page.assistant.isSubmitting,
-        error: page.assistant.error,
-        composerText: page.assistant.composerText,
+        messages: [],
+        isSubmitting: false,
+        error: null,
+        composerText: "",
         composerPlaceholder: page.seed.composerPlaceholder,
         template: selectedItem
           ? buildRollbackTemplate(selectedItem, selectedDeployment, page.assistant.activeTemplateId ?? undefined)

@@ -1,3 +1,11 @@
+/**
+ * AssistantWorkspace — Phase 1에서는 도입 보류.
+ *
+ * 결정: 이번 단계에서는 ChatAssistantPanel을 유지하고,
+ * conversation store + structured response 데이터 모델만 정리한다.
+ * AssistantWorkspace는 Phase 2에서 activeSurface, template policy,
+ * action bridge가 준비된 후 본격 도입한다.
+ */
 import styles from "@/devops-console/console-page.module.css";
 import { AssistantActivityLog } from "@/devops-console/assistant/activity-log";
 import { CommandComposer } from "@/devops-console/assistant/command-composer";
