@@ -319,24 +319,24 @@ type TemplatePreviewCase = {
 
 ## 새로 만들 파일
 
-* `src/devops-chat/template-registry/registry-types.ts`
-* `src/devops-chat/template-registry/template-registry.ts`
-* `src/devops-chat/template-registry/definitions/quick-deploy-launchpad.ts`
-* `src/devops-chat/template-registry/definitions/deployment-approval-inbox.ts`
-* `src/devops-chat/template-registry/definitions/rollback-summary.ts`
-* `src/devops-chat/template-registry/definitions/dry-run-stepper.ts`
-* `src/devops-chat/template-registry/definitions/confirm-action.ts`
-* `src/devops-chat/template-registry/build-contract-view-model.ts`
-* `src/devops-chat/template-registry/build-template-list-view-model.ts`
-* `src/devops-chat/template-registry/run-template-simulator.ts`
-* `src/devops-chat/template-registry/run-template-preview.ts`
-* `src/devops-console/template-admin/template-list-panel.tsx`
-* `src/devops-console/template-admin/template-contract-viewer.tsx`
-* `src/devops-console/template-admin/example-payload-editor.tsx`
-* `src/devops-console/template-admin/template-live-preview.tsx`
-* `src/devops-console/template-admin/selection-policy-viewer.tsx`
-* `src/devops-console/template-admin/decision-simulator.tsx`
-* `src/devops-console/template-admin/template-manager-page.tsx`
+* [x] `src/devops-chat/template-registry/registry-types.ts`
+* [x] `src/devops-chat/template-registry/template-registry.ts`
+* [x] `src/devops-chat/template-registry/definitions/quick-deploy-launchpad.ts`
+* [x] `src/devops-chat/template-registry/definitions/deployment-approval-inbox.ts`
+* [x] `src/devops-chat/template-registry/definitions/rollback-summary.ts`
+* [x] `src/devops-chat/template-registry/definitions/dry-run-stepper.ts`
+* [x] `src/devops-chat/template-registry/definitions/confirm-action.ts`
+* [x] `src/devops-chat/template-registry/build-contract-view-model.ts`
+* [x] `src/devops-chat/template-registry/build-template-list-view-model.ts`
+* [x] `src/devops-chat/template-registry/run-template-simulator.ts`
+* [x] `src/devops-chat/template-registry/run-template-preview.ts`
+* [x] `src/devops-console/template-admin/template-list-panel.tsx`
+* [x] `src/devops-console/template-admin/template-contract-viewer.tsx`
+* [x] `src/devops-console/template-admin/example-payload-editor.tsx`
+* [x] `src/devops-console/template-admin/template-live-preview.tsx`
+* [x] `src/devops-console/template-admin/selection-policy-viewer.tsx`
+* [x] `src/devops-console/template-admin/decision-simulator.tsx`
+* [x] `src/devops-console/template-admin/template-manager-page.tsx`
 
 ## 확장 대상 파일
 
@@ -365,163 +365,163 @@ type TemplatePreviewCase = {
 
 ## A. registry 타입 도입
 
-* [ ] `registry-types.ts`를 추가한다.
-* [ ] `TemplateRegistryDefinition` 타입을 정의한다.
-* [ ] `TemplateInputContract` 타입을 정의한다.
-* [ ] `TemplateSelectionPolicyDoc` 타입을 정의한다.
-* [ ] `TemplatePreviewCase` 타입을 정의한다.
-* [ ] runtime payload와 registry definition이 다른 타입 계층임을 코드로 분리한다.
-* [ ] registry definition에 provenance 메타데이터(`sourcePath`, `owner`, `updatedAt`)를 둘지 확정한다.
+* [x] `registry-types.ts`를 추가한다.
+* [x] `TemplateRegistryDefinition` 타입을 정의한다.
+* [x] `TemplateInputContract` 타입을 정의한다.
+* [x] `TemplateSelectionPolicyDoc` 타입을 정의한다.
+* [x] `TemplatePreviewCase` 타입을 정의한다.
+* [x] runtime payload와 registry definition이 다른 타입 계층임을 코드로 분리한다.
+* [x] registry definition에 provenance 메타데이터(`sourcePath`, `owner`, `updatedAt`)를 둘지 확정한다.
 
 ## B. template registry 구현
 
-* [ ] `template-registry.ts`를 추가한다.
-* [ ] 모든 template definition을 한곳에서 export한다.
-* [ ] templateId 기준 lookup API를 만든다.
-* [ ] rendererKey 기준 lookup이 필요한지 검토한다.
-* [ ] status/version/title/description을 모든 template에 채운다.
-* [ ] registry가 phase3 runtime selector와 naming이 어긋나지 않게 맞춘다.
-* [ ] runtime source-of-truth와 registry 문서 모델의 관계를 코드 주석/문서로 명시한다.
+* [x] `template-registry.ts`를 추가한다.
+* [x] 모든 template definition을 한곳에서 export한다.
+* [x] templateId 기준 lookup API를 만든다.
+* [x] rendererKey 기준 lookup이 필요한지 검토한다.
+* [x] status/version/title/description을 모든 template에 채운다.
+* [x] registry가 phase3 runtime selector와 naming이 어긋나지 않게 맞춘다.
+* [x] runtime source-of-truth와 registry 문서 모델의 관계를 코드 주석/문서로 명시한다.
 
 ## C. template별 definition 문서화
 
-* [ ] `quick-deploy-launchpad` definition 문서를 만든다.
-* [ ] `deployment-approval-inbox` definition 문서를 만든다.
-* [ ] `rollback-summary` definition 문서를 만든다.
-* [ ] `dry-run-stepper` definition 문서를 만든다.
-* [ ] `confirm-action` definition 문서를 만든다.
-* [ ] 각 definition에 contract/selectionPolicyDoc/previewCases를 채운다.
-* [ ] previewCases는 phase3 binder가 실제로 만들 수 있는 payload shape와 맞게 유지한다.
-* [ ] manual 작성 필드와 runtime-derived 필드를 구분할지 결정한다.
+* [x] `quick-deploy-launchpad` definition 문서를 만든다.
+* [x] `deployment-approval-inbox` definition 문서를 만든다.
+* [x] `rollback-summary` definition 문서를 만든다.
+* [x] `dry-run-stepper` definition 문서를 만든다.
+* [x] `confirm-action` definition 문서를 만든다.
+* [x] 각 definition에 contract/selectionPolicyDoc/previewCases를 채운다.
+* [x] previewCases는 phase3 binder가 실제로 만들 수 있는 payload shape와 맞게 유지한다.
+* [x] manual 작성 필드와 runtime-derived 필드를 구분할지 결정한다.
 
 ## D. contract 문서 모델 구성
 
-* [ ] 각 template payload 타입을 contract field 문서로 풀어내는 기준을 만든다.
-* [ ] 필드 path, type, required, description, example, enumValues를 일관되게 기록한다.
-* [ ] nested field 표기 규칙을 정한다.
-* [ ] array/object 필드 문서화 규칙을 정한다.
-* [ ] example 값이 runtime payload와 어긋나지 않도록 검증 경로를 둔다.
-* [ ] contract 문서가 runtime type에서 유도된 항목인지 수동 설명 항목인지 구분할지 결정한다.
+* [x] 각 template payload 타입을 contract field 문서로 풀어내는 기준을 만든다.
+* [x] 필드 path, type, required, description, example, enumValues를 일관되게 기록한다.
+* [x] nested field 표기 규칙을 정한다.
+* [x] array/object 필드 문서화 규칙을 정한다.
+* [x] example 값이 runtime payload와 어긋나지 않도록 검증 경로를 둔다.
+* [x] contract 문서가 runtime type에서 유도된 항목인지 수동 설명 항목인지 구분할지 결정한다.
 
 ## E. contract viewer 구현
 
-* [ ] `template-contract-viewer.tsx`를 추가한다.
-* [ ] contract field 목록을 문서형 테이블로 렌더한다.
-* [ ] required/type/description/example을 보기 쉽게 표시한다.
-* [ ] 필드가 많아져도 읽기 가능한 density를 설계한다.
-* [ ] Swagger-like 읽기 경험을 목표로 한다.
+* [x] `template-contract-viewer.tsx`를 추가한다.
+* [x] contract field 목록을 문서형 테이블로 렌더한다.
+* [x] required/type/description/example을 보기 쉽게 표시한다.
+* [x] 필드가 많아져도 읽기 가능한 density를 설계한다.
+* [x] Swagger-like 읽기 경험을 목표로 한다.
 
 ## F. template list 구현
 
-* [ ] `template-list-panel.tsx`를 추가한다.
-* [ ] templateId, title, version, status, rendererKey를 목록으로 보여준다.
-* [ ] 선택된 template를 우측 detail/workbench에 연결한다.
-* [ ] status badge와 last updated 정보를 둘지 검토한다.
-* [ ] draft/deprecated 상태를 시각적으로 구분한다.
+* [x] `template-list-panel.tsx`를 추가한다.
+* [x] templateId, title, version, status, rendererKey를 목록으로 보여준다.
+* [x] 선택된 template를 우측 detail/workbench에 연결한다.
+* [x] status badge와 last updated 정보를 둘지 검토한다.
+* [x] draft/deprecated 상태를 시각적으로 구분한다.
 
 ## G. example payload editor 구현
 
-* [ ] `example-payload-editor.tsx`를 추가한다.
-* [ ] preview case 선택과 수동 JSON 입력을 모두 지원한다.
-* [ ] JSON parse error를 즉시 보여준다.
-* [ ] contract validation error를 즉시 보여준다.
-* [ ] 마지막 편집 payload를 template 단위로 유지할지 검토한다.
+* [x] `example-payload-editor.tsx`를 추가한다.
+* [x] preview case 선택과 수동 JSON 입력을 모두 지원한다.
+* [x] JSON parse error를 즉시 보여준다.
+* [x] contract validation error를 즉시 보여준다.
+* [x] 마지막 편집 payload를 template 단위로 유지할지 검토한다.
 
 ## H. live preview 구현
 
-* [ ] `template-live-preview.tsx`를 추가한다.
-* [ ] contract validation을 통과한 payload만 `TemplateRenderer`로 넘긴다.
-* [ ] preview가 runtime renderer를 그대로 재사용하도록 한다.
-* [ ] preview 전용 mock action handler를 둘지 결정한다.
-* [ ] action 버튼이 preview에서 눌렸을 때 no-op로 둘지, 설명용 feedback만 줄지 정한다.
+* [x] `template-live-preview.tsx`를 추가한다.
+* [x] contract validation을 통과한 payload만 `TemplateRenderer`로 넘긴다.
+* [x] preview가 runtime renderer를 그대로 재사용하도록 한다.
+* [x] preview 전용 mock action handler를 둘지 결정한다.
+* [x] action 버튼이 preview에서 눌렸을 때 no-op로 둘지, 설명용 feedback만 줄지 정한다.
 
 ## I. selection policy viewer 구현
 
-* [ ] `selection-policy-viewer.tsx`를 추가한다.
-* [ ] intentKeys, requiredFacts, optionalFacts, disqualifiers, minScore를 표시한다.
-* [ ] 지금은 편집보다 읽기 전용으로 시작한다.
-* [ ] phase3 selector rule과 policy doc가 어긋나지 않도록 확인 경로를 둔다.
+* [x] `selection-policy-viewer.tsx`를 추가한다.
+* [x] intentKeys, requiredFacts, optionalFacts, disqualifiers, minScore를 표시한다.
+* [x] 지금은 편집보다 읽기 전용으로 시작한다.
+* [x] phase3 selector rule과 policy doc가 어긋나지 않도록 확인 경로를 둔다.
 
 ## J. decision simulator 구현
 
-* [ ] `decision-simulator.tsx`를 추가한다.
-* [ ] conversation facts JSON 입력기를 만든다.
-* [ ] phase2 decision engine을 직접 호출해 `text | ask_followup | render_surface`를 확인한다.
-* [ ] phase3 template selector를 직접 호출해 candidate 결과를 본다.
-* [ ] final chosen template와 trace를 함께 보여준다.
-* [ ] 최종 선택뿐 아니라 전체 candidate 목록과 score를 함께 보여준다.
-* [ ] matched/missing/disqualified/reason/score를 표시한다.
-* [ ] 필요하면 binder 실행 후 preview까지 이어지는 옵션을 추가한다.
+* [x] `decision-simulator.tsx`를 추가한다.
+* [x] conversation facts JSON 입력기를 만든다.
+* [x] phase2 decision engine을 직접 호출해 `text | ask_followup | render_surface`를 확인한다.
+* [x] phase3 template selector를 직접 호출해 candidate 결과를 본다.
+* [x] final chosen template와 trace를 함께 보여준다.
+* [x] 최종 선택뿐 아니라 전체 candidate 목록과 score를 함께 보여준다.
+* [x] matched/missing/disqualified/reason/score를 표시한다.
+* [x] 필요하면 binder 실행 후 preview까지 이어지는 옵션을 추가한다.
 
 ## K. simulator 실행 경로 구현
 
-* [ ] `run-template-simulator.ts`를 추가한다.
-* [ ] 입력은 conversation facts, intentKey, workflow state 정도로 받는다.
-* [ ] decision engine과 selector를 runtime과 동일 경로로 재사용한다.
-* [ ] simulator용 fake conversation wrapper를 만들지 결정한다.
-* [ ] 결과를 UI 친화적인 trace 모델로 변환한다.
+* [x] `run-template-simulator.ts`를 추가한다.
+* [x] 입력은 conversation facts, intentKey, workflow state 정도로 받는다.
+* [x] decision engine과 selector를 runtime과 동일 경로로 재사용한다.
+* [x] simulator용 fake conversation wrapper를 만들지 결정한다.
+* [x] 결과를 UI 친화적인 trace 모델로 변환한다.
 
 ## L. preview 실행 경로 구현
 
-* [ ] `run-template-preview.ts`를 추가한다.
-* [ ] payload JSON -> validation -> runtime renderer props 흐름을 캡슐화한다.
-* [ ] preview payload가 invalid면 render 대신 error view model을 반환한다.
-* [ ] preview case 선택 시 registry 정의에서 바로 payload를 읽는다.
+* [x] `run-template-preview.ts`를 추가한다.
+* [x] payload JSON -> validation -> runtime renderer props 흐름을 캡슐화한다.
+* [x] preview payload가 invalid면 render 대신 error view model을 반환한다.
+* [x] preview case 선택 시 registry 정의에서 바로 payload를 읽는다.
 
 ## M. assistant page / manager page 재구성
 
-* [ ] `template-manager-page.tsx`를 추가한다.
-* [ ] list / contract / editor / preview / simulator를 한 화면 워크벤치로 배치한다.
-* [ ] 기존 `assistant-page.tsx`를 template manager host로 바꿀지 별도 route 성격으로 둘지 결정한다.
-* [ ] 권장안은 assistant page 내 탭 또는 mode switch로 통합하는 것이다.
-* [ ] chat-only 화면과 manager workbench가 분리된 mental model을 가지게 한다.
+* [x] `template-manager-page.tsx`를 추가한다.
+* [x] list / contract / editor / preview / simulator를 한 화면 워크벤치로 배치한다.
+* [x] 기존 `assistant-page.tsx`를 template manager host로 바꿀지 별도 route 성격으로 둘지 결정한다.
+* [x] 권장안은 assistant page 내 탭 또는 mode switch로 통합하는 것이다.
+* [x] chat-only 화면과 manager workbench가 분리된 mental model을 가지게 한다.
 
 ## N. runtime과 registry 연결 확인
 
-* [ ] phase3 binder/selector/runtime template id가 registry definition과 정확히 일치하는지 검증한다.
-* [ ] definition 문서가 runtime payload와 drift하지 않도록 비교 함수를 둘지 검토한다.
-* [ ] preview case payload가 runtime validator를 통과하는지 자동 체크한다.
-* [ ] selection policy doc와 selector rule이 어긋나면 경고를 낼지 검토한다.
-* [ ] contract/selectionPolicyDoc drift가 있으면 관리자 화면에서 어떤 수준으로 경고할지 정한다.
+* [x] phase3 binder/selector/runtime template id가 registry definition과 정확히 일치하는지 검증한다.
+* [x] definition 문서가 runtime payload와 drift하지 않도록 비교 함수를 둘지 검토한다.
+* [x] preview case payload가 runtime validator를 통과하는지 자동 체크한다.
+* [x] selection policy doc와 selector rule이 어긋나면 경고를 낼지 검토한다.
+* [x] contract/selectionPolicyDoc drift가 있으면 관리자 화면에서 어떤 수준으로 경고할지 정한다.
 
 ## O. editor/preview 상태 관리
 
-* [ ] 선택 template, 선택 preview case, 현재 JSON 입력, validation result를 관리하는 store 또는 local state 구조를 정한다.
-* [ ] template를 바꿀 때 편집 payload를 초기화할지 유지할지 정책을 정한다.
-* [ ] parse error와 validation error를 구분한다.
-* [ ] simulator facts 입력과 preview payload 입력을 섞지 않게 상태를 분리한다.
-* [ ] 수동 편집 payload를 preview case 기준값으로 reset하는 UX를 넣을지 결정한다.
+* [x] 선택 template, 선택 preview case, 현재 JSON 입력, validation result를 관리하는 store 또는 local state 구조를 정한다.
+* [x] template를 바꿀 때 편집 payload를 초기화할지 유지할지 정책을 정한다.
+* [x] parse error와 validation error를 구분한다.
+* [x] simulator facts 입력과 preview payload 입력을 섞지 않게 상태를 분리한다.
+* [x] 수동 편집 payload를 preview case 기준값으로 reset하는 UX를 넣을지 결정한다.
 
 ## P. validation 및 오류 표시
 
-* [ ] contract validation error viewer를 추가한다.
-* [ ] payload parse error, validation error, simulator error, runtime preview error를 구분 표시한다.
-* [ ] 운영자가 어느 필드가 문제인지 바로 찾을 수 있게 field path를 보여준다.
-* [ ] binding/selection mismatch가 있으면 설명 가능한 에러 메시지를 만든다.
+* [x] contract validation error viewer를 추가한다.
+* [x] payload parse error, validation error, simulator error, runtime preview error를 구분 표시한다.
+* [x] 운영자가 어느 필드가 문제인지 바로 찾을 수 있게 field path를 보여준다.
+* [x] binding/selection mismatch가 있으면 설명 가능한 에러 메시지를 만든다.
 
 ## Q. action preview 정책
 
-* [ ] preview surface의 action 버튼을 disabled로 둘지 검토한다.
-* [ ] 또는 no-op mock handler를 붙여 클릭 설명만 보여줄지 결정한다.
-* [ ] preview 환경에서 실제 domain action이 절대 실행되지 않도록 guard를 둔다.
+* [x] preview surface의 action 버튼을 disabled로 둘지 검토한다.
+* [x] 또는 no-op mock handler를 붙여 클릭 설명만 보여줄지 결정한다.
+* [x] preview 환경에서 실제 domain action이 절대 실행되지 않도록 guard를 둔다.
 
 ## R. 테스트 및 검증
 
-* [ ] registry definition shape 테스트를 추가한다.
-* [ ] contract field 문서화 테스트를 추가한다.
-* [ ] preview case가 validator를 통과하는지 테스트한다.
-* [ ] contract viewer view model 테스트를 추가한다.
-* [ ] list view model 테스트를 추가한다.
-* [ ] decision simulator trace 테스트를 추가한다.
-* [ ] simulator가 runtime selector/decision engine과 같은 결과를 내는지 비교 테스트를 추가한다.
-* [ ] live preview가 `TemplateRenderer`를 재사용하는 경로 테스트를 추가한다.
-* [ ] parse error / validation error / simulator error UI 테스트를 추가한다.
-* [ ] 대표 통합 시나리오:
-  * [ ] registry 목록에서 template 선택
-  * [ ] contract 확인
-  * [ ] example payload 선택 -> live preview 성공
-  * [ ] 수동 JSON 수정 -> validation error 확인
-  * [ ] facts JSON 입력 -> decision simulator 실행 -> chosen template와 trace 확인
+* [x] registry definition shape 테스트를 추가한다.
+* [x] contract field 문서화 테스트를 추가한다.
+* [x] preview case가 validator를 통과하는지 테스트한다.
+* [x] contract viewer view model 테스트를 추가한다.
+* [x] list view model 테스트를 추가한다.
+* [x] decision simulator trace 테스트를 추가한다.
+* [x] simulator가 runtime selector/decision engine과 같은 결과를 내는지 비교 테스트를 추가한다.
+* [x] live preview가 `TemplateRenderer`를 재사용하는 경로 테스트를 추가한다.
+* [x] parse error / validation error / simulator error UI 테스트를 추가한다.
+* [x] 대표 통합 시나리오:
+  * [x] registry 목록에서 template 선택
+  * [x] contract 확인
+  * [x] example payload 선택 -> live preview 성공
+  * [x] 수동 JSON 수정 -> validation error 확인
+  * [x] facts JSON 입력 -> decision simulator 실행 -> chosen template와 trace 확인
 
 ---
 
