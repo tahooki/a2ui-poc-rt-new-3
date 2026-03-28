@@ -3,7 +3,11 @@ import type {
   ConversationAwaiting,
   ConversationFacts,
   ConversationId,
+  ConversationIntentState,
+  ConversationWorkflowState,
+  DecisionTrace,
   PendingToolState,
+  SurfaceIntentCandidate,
 } from "./conversation";
 
 export type AssistantTurnRequest = {
@@ -12,6 +16,9 @@ export type AssistantTurnRequest = {
   contextSnapshot: ContextSnapshot;
   history: AssistantTurnHistoryItem[];
   facts: ConversationFacts;
+  intent?: ConversationIntentState | null;
+  workflow?: ConversationWorkflowState | null;
+  awaiting?: ConversationAwaiting;
 };
 
 export type ContextSnapshot = {
@@ -40,12 +47,16 @@ export type AssistantTurnResponse = {
     templateId: string;
     payload: Record<string, unknown>;
   };
+  intent?: ConversationIntentState | null;
+  workflow?: ConversationWorkflowState | null;
   awaiting: ConversationAwaiting;
   pendingTool: PendingToolState;
   decision: {
     mode: "text" | "ask_followup" | "render_surface";
     reason?: string;
   };
+  decisionTrace?: DecisionTrace | null;
+  surfaceIntent?: SurfaceIntentCandidate | null;
   toolResults?: ToolResultEntry[];
   factsPatch?: Partial<ConversationFacts>;
 };

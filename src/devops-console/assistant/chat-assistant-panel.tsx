@@ -48,6 +48,8 @@ export function ChatAssistantPanel({
   const composerText = conversation?.composerText ?? "";
   const pendingTool = conversation?.pendingTool ?? null;
   const awaiting = conversation?.awaiting ?? null;
+  const intent = conversation?.intent ?? null;
+  const workflow = conversation?.workflow ?? null;
   const error = conversation?.error ?? null;
 
   const endRef = useRef<HTMLDivElement | null>(null);
@@ -72,8 +74,13 @@ export function ChatAssistantPanel({
     endRef.current?.scrollIntoView({ block: "end" });
   }, [messages]);
 
-  async function handleSubmit() {
-    const input = composerText.trim();
+  function handleOptionSelect(value: string) {
+    setComposerText(conversationId, "");
+    void handleSubmit(value);
+  }
+
+  async function handleSubmit(directInput?: string) {
+    const input = directInput ?? composerText.trim();
     if (!input || isSubmitting) return;
 
     const requestId = crypto.randomUUID();
@@ -98,6 +105,9 @@ export function ChatAssistantPanel({
       contextSnapshot,
       history,
       facts: conversation?.facts ?? {},
+      intent,
+      workflow,
+      awaiting,
     };
 
     try {
@@ -175,12 +185,28 @@ export function ChatAssistantPanel({
         ) : null}
 
         {awaiting ? (
-          <div className={`${styles.chatMessageRow} ${styles.chatMessageRowAssistant}`}>
-            <div className={`${styles.chatMessageBubble} ${styles.chatMessageBubbleAssistant}`}
-              style={{ opacity: 0.7, fontStyle: "italic" }}>
-              {awaiting.prompt}
+          <>
+            <div className={`${styles.chatMessageRow} ${styles.chatMessageRowAssistant}`}>
+              <div className={`${styles.chatMessageBubble} ${styles.chatMessageBubbleAssistant}`}
+                style={{ opacity: 0.7, fontStyle: "italic" }}>
+                {awaiting.prompt}
+              </div>
             </div>
-          </div>
+            {awaiting.options && awaiting.options.length > 0 ? (
+              <div className={styles.chatAwaitingChips}>
+                {awaiting.options.map((opt) => (
+                  <button
+                    className={styles.chatAwaitingChip}
+                    key={opt.value}
+                    onClick={() => handleOptionSelect(opt.value)}
+                    type="button"
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </>
         ) : null}
 
         {messages.length === 0 && !pendingTool && !awaiting ? <div className={styles.chatThreadEmpty} /> : null}

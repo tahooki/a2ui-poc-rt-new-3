@@ -99,7 +99,15 @@ describe("conversation-store", () => {
 
     const response = makeTurnResponse({
       requestId: "req-1",
-      awaiting: { kind: "free_text", prompt: "다음 질문을 입력해주세요" },
+      awaiting: {
+        kind: "slot",
+        slotKey: "general.input",
+        prompt: "다음 질문을 입력해주세요",
+        expectedInput: "free_text",
+        retryCount: 0,
+        originIntentKey: "general.qna",
+        originRequestId: "req-1",
+      },
       decision: { mode: "ask_followup" },
       factsPatch: { deploy: { lastAction: "query" } },
     });
@@ -108,7 +116,8 @@ describe("conversation-store", () => {
 
     const conv = getState().conversations[TEST_ID];
     expect(conv.activeRequestId).toBeNull();
-    expect(conv.awaiting).toEqual({ kind: "free_text", prompt: "다음 질문을 입력해주세요" });
+    expect(conv.awaiting?.kind).toBe("slot");
+    expect(conv.awaiting?.prompt).toBe("다음 질문을 입력해주세요");
     expect(conv.decision?.mode).toBe("ask_followup");
     expect(conv.facts.deploy).toEqual({ lastAction: "query" });
 

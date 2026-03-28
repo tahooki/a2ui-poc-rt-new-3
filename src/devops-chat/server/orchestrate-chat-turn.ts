@@ -1,10 +1,24 @@
-import type { ConversationFacts } from "@/devops-chat/types/conversation";
+import type {
+  ConversationAwaiting,
+  ConversationFacts,
+  ConversationIntentState,
+  ConversationWorkflowState,
+} from "@/devops-chat/types/conversation";
 import type {
   AssistantTurnHistoryItem,
   AssistantTurnResponse,
   ContextSnapshot,
+  ToolResultEntry,
 } from "@/devops-chat/types/assistant-response";
-import { resolveToolForInput } from "./tools/tool-registry";
+import { resolveAwaiting } from "./orchestration/awaiting-resolver";
+import { resolveIntent } from "./orchestration/intent-resolver";
+import { planTools, deduplicateTools } from "./orchestration/tool-planner";
+import { getFilledSlots, mergeSlotPatch, setSlot } from "./orchestration/slot-memory";
+import { getWorkflowForIntent } from "./orchestration/workflow-definitions";
+import { getFirstMissingRequiredSlot, getSlotSchema } from "./orchestration/slot-definitions";
+import { evaluateDecision } from "./decision/decision-engine";
+import { buildTurnResponse } from "./orchestration/response-builder";
+import { getTool } from "./tools/tool-registry";
 import { executeTool } from "./tools/tool-executor";
 import { adaptToolResult } from "./tools/tool-result-adapter";
 import { ensureBuiltinToolsRegistered } from "./tools/register-builtin-tools";
@@ -16,6 +30,9 @@ export type OrchestrateTurnInput = {
   history: AssistantTurnHistoryItem[];
   contextSnapshot: ContextSnapshot;
   facts: ConversationFacts;
+  intent?: ConversationIntentState | null;
+  workflow?: ConversationWorkflowState | null;
+  awaiting?: ConversationAwaiting;
 };
 
 export type OrchestrateTurnCallbacks = {
@@ -24,9 +41,320 @@ export type OrchestrateTurnCallbacks = {
   onToolDone?: (toolName: string, summary: string) => void;
 };
 
+const MAX_ITERATIONS = 3;
+
 /**
- * Build the system prompt for the LLM call.
+ * Phase 2 orchestration pipeline.
+ *
+ * 1. hydrate conversation state
+ * 2. resolve awaiting answer
+ * 3. resolve intent/workflow
+ * 4. plan tool(s)
+ * 5. execute tool(s)
+ * 6. merge facts/slots
+ * 7. evaluate decision
+ * 8. build response
  */
+export async function orchestrateChatTurn(
+  turnInput: OrchestrateTurnInput,
+  callbacks: OrchestrateTurnCallbacks = {},
+): Promise<AssistantTurnResponse> {
+  ensureBuiltinToolsRegistered();
+
+  const {
+    requestId,
+    input,
+    history,
+    contextSnapshot,
+  } = turnInput;
+
+  let facts: ConversationFacts = { ...turnInput.facts };
+  let currentIntent = turnInput.intent ?? null;
+  let currentWorkflow = turnInput.workflow ?? null;
+  let currentAwaiting = turnInput.awaiting ?? null;
+
+  const toolResults: ToolResultEntry[] = [];
+  const executedTools: string[] = [];
+  let factsPatch: Partial<ConversationFacts> = {};
+
+  // -----------------------------------------------------------------------
+  // Step 2: Resolve awaiting answer
+  // -----------------------------------------------------------------------
+  if (currentAwaiting) {
+    const awaitResult = resolveAwaiting(input, currentAwaiting, facts);
+
+    if (awaitResult.resolved) {
+      facts = awaitResult.facts;
+      currentAwaiting = null;
+    } else {
+      facts = awaitResult.facts;
+
+      switch (awaitResult.reason) {
+        case "cancel": {
+          // Reset workflow-local state
+          const schema = getSlotSchema(currentAwaiting.originIntentKey as never);
+          currentAwaiting = null;
+          currentIntent = null;
+          currentWorkflow = null;
+          const text = "취소했습니다. 다른 작업을 말씀해 주세요.";
+          callbacks.onDelta?.(text);
+          return buildTurnResponse({
+            requestId,
+            text,
+            intent: null,
+            workflow: null,
+            facts,
+            awaiting: null,
+            decisionMode: "text",
+            decisionReason: "사용자 취소",
+            decisionTrace: null,
+            surfaceIntent: null,
+            toolResults: [],
+            factsPatch: {},
+          });
+        }
+
+        case "interrupt": {
+          // Fall through to intent resolution below with cleared awaiting
+          currentAwaiting = null;
+          break;
+        }
+
+        case "correction": {
+          // Awaiting cleared, slots invalidated — re-enter the flow
+          currentAwaiting = null;
+          // Will re-evaluate what's missing below
+          break;
+        }
+
+        case "ambiguous":
+        case "no_match": {
+          const retryAwaiting = awaitResult.awaiting!;
+          const text = retryAwaiting.prompt;
+          callbacks.onDelta?.(text);
+          return buildTurnResponse({
+            requestId,
+            text,
+            intent: currentIntent,
+            workflow: currentWorkflow,
+            facts,
+            awaiting: retryAwaiting,
+            decisionMode: "ask_followup",
+            decisionReason: awaitResult.reason === "ambiguous" ? "모호한 입력" : "일치하는 항목 없음",
+            decisionTrace: null,
+            surfaceIntent: null,
+            toolResults: [],
+            factsPatch: {},
+          });
+        }
+
+        case "no_awaiting":
+          break;
+      }
+    }
+  }
+
+  // -----------------------------------------------------------------------
+  // Step 3: Resolve intent / workflow
+  // -----------------------------------------------------------------------
+  const intentResult = resolveIntent(input, currentIntent, currentAwaiting, facts);
+  currentIntent = intentResult.intent;
+  facts = intentResult.facts;
+
+  if (intentResult.isSwitch) {
+    currentAwaiting = null;
+  }
+
+  // Update workflow based on intent
+  const workflowDef = getWorkflowForIntent(currentIntent.intentKey);
+  if (workflowDef) {
+    if (!currentWorkflow || currentWorkflow.flowKey !== workflowDef.flowKey) {
+      currentWorkflow = {
+        flowKey: workflowDef.flowKey,
+        stepKey: workflowDef.steps[0].stepKey,
+        status: "collecting",
+      };
+    }
+  } else {
+    currentWorkflow = null;
+  }
+
+  // -----------------------------------------------------------------------
+  // Steps 4-6: Tool planning + execution loop (max iterations)
+  // -----------------------------------------------------------------------
+  for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
+    const planned = planTools(currentIntent.intentKey, facts);
+    const deduped = deduplicateTools(planned, executedTools);
+
+    if (deduped.length === 0) break;
+
+    // Execute the first planned tool
+    const plan = deduped[0];
+    const toolDef = getTool(plan.toolName);
+    if (!toolDef) break;
+
+    callbacks.onToolStart?.(plan.toolName);
+
+    const toolContext: Record<string, unknown> = {
+      ...contextSnapshot,
+      serviceName: getFilledSlots(facts)["deploy.serviceName"] ?? getFilledSlots(facts)["rollback.serviceName"],
+    };
+
+    const execResult = await executeTool(toolDef, facts, toolContext);
+    const adapted = adaptToolResult(execResult.output);
+
+    executedTools.push(plan.toolName);
+    toolResults.push({ toolName: plan.toolName, summary: adapted.summary });
+
+    // Merge facts patch
+    facts = { ...facts, ...adapted.factsPatch };
+    factsPatch = { ...factsPatch, ...adapted.factsPatch };
+
+    // Merge slot patch
+    if (Object.keys(adapted.slotPatch).length > 0) {
+      facts = mergeSlotPatch(facts, adapted.slotPatch);
+    }
+
+    callbacks.onToolDone?.(plan.toolName, adapted.summary);
+  }
+
+  // -----------------------------------------------------------------------
+  // Step 7: Evaluate decision
+  // -----------------------------------------------------------------------
+  const filledSlots = getFilledSlots(facts);
+  const decision = evaluateDecision(currentIntent.intentKey, filledSlots, currentWorkflow);
+
+  // Update workflow status based on decision
+  if (currentWorkflow) {
+    if (decision.trace.mode === "render_surface") {
+      currentWorkflow = { ...currentWorkflow, status: "ready" };
+    } else if (decision.trace.mode === "ask_followup") {
+      currentWorkflow = { ...currentWorkflow, status: "collecting" };
+    }
+  }
+
+  // -----------------------------------------------------------------------
+  // Step 8: Build response
+  // -----------------------------------------------------------------------
+  let responseText: string;
+  let responseAwaiting: ConversationAwaiting = null;
+
+  if (decision.trace.mode === "ask_followup") {
+    // Find the missing slot and build awaiting
+    const missingSlot = getFirstMissingRequiredSlot(currentIntent.intentKey, filledSlots);
+    if (missingSlot) {
+      const awaitingOptions = buildAwaitingOptions(missingSlot.slotKey, facts);
+      responseAwaiting = {
+        kind: "slot",
+        slotKey: missingSlot.slotKey,
+        prompt: missingSlot.awaitingPrompt ?? `${missingSlot.label}을(를) 입력해 주세요.`,
+        expectedInput: missingSlot.awaitingInput ?? "free_text",
+        options: awaitingOptions,
+        allowFreeform: true,
+        retryCount: 0,
+        originIntentKey: currentIntent.intentKey,
+        originRequestId: requestId,
+      };
+      responseText = awaitingOptions.length > 0
+        ? `${responseAwaiting.prompt}\n\n선택 가능: ${awaitingOptions.map((o) => o.label).join(", ")}`
+        : responseAwaiting.prompt;
+    } else {
+      responseText = decision.trace.reason;
+    }
+  } else if (decision.trace.mode === "render_surface") {
+    responseText = "필요한 정보가 모두 준비되었습니다.";
+    // Enrich with tool summaries
+    if (toolResults.length > 0) {
+      const summaries = toolResults.map((t) => t.summary).join("\n");
+      responseText = `${summaries}\n\n${responseText}`;
+    }
+  } else {
+    // text mode
+    if (toolResults.length > 0) {
+      responseText = toolResults.map((t) => t.summary).join("\n");
+    } else {
+      responseText = await callLlmOrFallback(
+        contextSnapshot,
+        history,
+        input,
+        null,
+        callbacks,
+      );
+    }
+  }
+
+  // Try LLM for natural language polish if available and not a simple follow-up
+  if (decision.trace.mode === "text" && toolResults.length > 0) {
+    const llmText = await callLlmOrFallback(
+      contextSnapshot,
+      history,
+      input,
+      toolResults.map((t) => t.summary).join("\n"),
+      callbacks,
+    );
+    if (llmText !== responseText) {
+      responseText = llmText;
+    }
+  }
+
+  if (!callbacks.onDelta) {
+    // no streaming — just return
+  } else if (decision.trace.mode !== "text" || toolResults.length === 0) {
+    callbacks.onDelta(responseText);
+  }
+
+  // Include slot facts in the factsPatch
+  if (facts.slots && Object.keys(facts.slots).length > 0) {
+    factsPatch = { ...factsPatch, slots: facts.slots };
+  }
+
+  return buildTurnResponse({
+    requestId,
+    text: responseText,
+    intent: currentIntent,
+    workflow: currentWorkflow,
+    facts,
+    awaiting: responseAwaiting,
+    decisionMode: decision.trace.mode,
+    decisionReason: decision.trace.reason,
+    decisionTrace: decision.trace,
+    surfaceIntent: decision.surfaceIntent,
+    toolResults,
+    factsPatch,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Awaiting option builders
+// ---------------------------------------------------------------------------
+
+function buildAwaitingOptions(
+  slotKey: string,
+  facts: ConversationFacts,
+): Array<{ label: string; value: string; aliases?: string[] }> {
+  if (slotKey === "deploy.serviceName") {
+    const deployable = facts.deploy as Record<string, unknown> | undefined;
+    const data = deployable?.deployableServices as { services?: string[] } | undefined;
+    if (data?.services) {
+      return data.services.map((s) => ({ label: s, value: s }));
+    }
+  }
+
+  if (slotKey === "deploy.environment") {
+    return [
+      { label: "production", value: "production", aliases: ["프로덕션", "운영", "prod"] },
+      { label: "staging", value: "staging", aliases: ["스테이징", "stg"] },
+      { label: "development", value: "development", aliases: ["개발", "dev"] },
+    ];
+  }
+
+  return [];
+}
+
+// ---------------------------------------------------------------------------
+// LLM call (preserved from Phase 1)
+// ---------------------------------------------------------------------------
+
 function buildSystemPrompt(ctx: ContextSnapshot): string {
   return [
     "You are the embedded assistant inside an operations console for deploy, approval, and rollback workflows.",
@@ -37,20 +365,24 @@ function buildSystemPrompt(ctx: ContextSnapshot): string {
   ].join("\n");
 }
 
-/**
- * Try to call OpenAI for a natural language response.
- * Returns null if the API key is missing or the call fails.
- */
-async function callLlm(
-  systemPrompt: string,
-  contextJson: string,
+async function callLlmOrFallback(
+  ctx: ContextSnapshot,
   history: AssistantTurnHistoryItem[],
   userInput: string,
   toolSummary: string | null,
   callbacks: OrchestrateTurnCallbacks,
-): Promise<string | null> {
+): Promise<string> {
   const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) return null;
+  if (!apiKey) {
+    return toolSummary ?? buildContextualSummary(ctx) ?? "현재 요청을 처리할 수 없습니다. 잠시 후 다시 시도해 주세요.";
+  }
+
+  const systemPrompt = buildSystemPrompt(ctx);
+  const contextJson = JSON.stringify(
+    { pageKey: ctx.pageKey, selectedEntity: ctx.selectedEntity, extra: ctx.extra },
+    null,
+    2,
+  );
 
   const messages: Array<{ role: string; content: string }> = [
     { role: "system", content: systemPrompt },
@@ -58,17 +390,12 @@ async function callLlm(
   ];
 
   if (toolSummary) {
-    messages.push({
-      role: "system",
-      content: `Tool execution result:\n${toolSummary}`,
-    });
+    messages.push({ role: "system", content: `Tool execution result:\n${toolSummary}` });
   }
 
-  const trimmedHistory = history.slice(-8);
-  for (const h of trimmedHistory) {
+  for (const h of history.slice(-8)) {
     messages.push({ role: h.role, content: h.content });
   }
-
   messages.push({ role: "user", content: userInput });
 
   try {
@@ -85,7 +412,9 @@ async function callLlm(
       }),
     });
 
-    if (!response.ok || !response.body) return null;
+    if (!response.ok || !response.body) {
+      return toolSummary ?? buildContextualSummary(ctx) ?? "현재 요청을 처리할 수 없습니다.";
+    }
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
@@ -116,9 +445,9 @@ async function callLlm(
       if (done) break;
     }
 
-    return fullText || null;
+    return fullText || toolSummary || "현재 요청을 처리할 수 없습니다.";
   } catch {
-    return null;
+    return toolSummary ?? buildContextualSummary(ctx) ?? "현재 요청을 처리할 수 없습니다.";
   }
 }
 
@@ -142,26 +471,12 @@ function extractDeltaText(rawEvent: string): string {
           .join("");
       }
     } catch {
-      // ignore parse errors for individual lines
+      // ignore parse errors
     }
   }
-
   return "";
 }
 
-/**
- * Determine if user input suggests they need a follow-up question.
- */
-function needsFollowUp(input: string, ctx: ContextSnapshot): boolean {
-  const vague = /^(도움|help|뭐|무엇|어떻게)\s*$/i.test(input.trim());
-  return vague && !ctx.selectedEntity;
-}
-
-/**
- * Deterministic contextual summarizer.
- * Generates a text summary from the context snapshot when no tool matches
- * and no LLM is available — ensures the assistant always has something to say.
- */
 function buildContextualSummary(ctx: ContextSnapshot): string | null {
   const entity = ctx.selectedEntity;
   if (!entity) {
@@ -198,91 +513,4 @@ function buildContextualSummary(ctx: ContextSnapshot): string | null {
   }
 
   return parts.length > 0 ? parts.join("\n") : null;
-}
-
-/**
- * Main orchestration entry point.
- * Resolves tools, executes them, optionally calls LLM, and returns a structured turn response.
- */
-export async function orchestrateChatTurn(
-  turnInput: OrchestrateTurnInput,
-  callbacks: OrchestrateTurnCallbacks = {},
-): Promise<AssistantTurnResponse> {
-  ensureBuiltinToolsRegistered();
-
-  const { requestId, input, history, contextSnapshot, facts } = turnInput;
-
-  // Check for follow-up needed
-  if (needsFollowUp(input, contextSnapshot)) {
-    const text = contextSnapshot.selectedEntity
-      ? "어떤 작업을 도와드릴까요?"
-      : "먼저 항목을 선택하거나, 구체적인 질문을 입력해 주세요.";
-
-    callbacks.onDelta?.(text);
-
-    return {
-      requestId,
-      message: { role: "assistant", text },
-      surface: null,
-      awaiting: { kind: "free_text", prompt: text },
-      pendingTool: null,
-      decision: { mode: "ask_followup" },
-    };
-  }
-
-  // Resolve tool
-  const tool = resolveToolForInput(input, facts);
-  let toolSummary: string | null = null;
-  let factsPatch: Partial<ConversationFacts> | undefined;
-  const toolResults: Array<{ toolName: string; summary: string }> = [];
-
-  if (tool) {
-    callbacks.onToolStart?.(tool.name);
-
-    const result = await executeTool(tool, facts, contextSnapshot as unknown as Record<string, unknown>);
-    const adapted = adaptToolResult(result.output);
-
-    toolSummary = adapted.summary;
-    factsPatch = adapted.factsPatch;
-    toolResults.push({ toolName: tool.name, summary: adapted.summary });
-
-    callbacks.onToolDone?.(tool.name, adapted.summary);
-  }
-
-  // Build context JSON for LLM
-  const contextJson = JSON.stringify(
-    { pageKey: contextSnapshot.pageKey, selectedEntity: contextSnapshot.selectedEntity, extra: contextSnapshot.extra },
-    null,
-    2,
-  );
-
-  // Try LLM call
-  const systemPrompt = buildSystemPrompt(contextSnapshot);
-  const llmText = await callLlm(systemPrompt, contextJson, history, input, toolSummary, callbacks);
-
-  // Fallback chain: LLM → tool summary → contextual summary → generic message
-  const contextualFallback = !llmText && !toolSummary
-    ? buildContextualSummary(contextSnapshot)
-    : null;
-
-  const finalText = llmText
-    ?? toolSummary
-    ?? contextualFallback
-    ?? "현재 요청을 처리할 수 없습니다. 잠시 후 다시 시도해 주세요.";
-
-  // If no LLM was used, emit the fallback text as delta
-  if (!llmText && (toolSummary || contextualFallback)) {
-    callbacks.onDelta?.(toolSummary ?? contextualFallback!);
-  }
-
-  return {
-    requestId,
-    message: { role: "assistant", text: finalText },
-    surface: null,
-    awaiting: null,
-    pendingTool: null,
-    decision: { mode: "text" },
-    toolResults: toolResults.length > 0 ? toolResults : undefined,
-    factsPatch,
-  };
 }

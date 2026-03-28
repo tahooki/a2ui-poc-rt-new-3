@@ -364,20 +364,20 @@ type DecisionTrace = {
 
 ## 새로 만들 파일
 
-* `src/devops-chat/server/orchestration/intent-resolver.ts`
-* `src/devops-chat/server/orchestration/workflow-definitions.ts`
-* `src/devops-chat/server/orchestration/slot-definitions.ts`
-* `src/devops-chat/server/orchestration/slot-memory.ts`
-* `src/devops-chat/server/orchestration/slot-extractor.ts`
-* `src/devops-chat/server/orchestration/entity-resolver.ts`
-* `src/devops-chat/server/orchestration/awaiting-resolver.ts`
-* `src/devops-chat/server/orchestration/tool-planner.ts`
-* `src/devops-chat/server/orchestration/response-builder.ts`
-* `src/devops-chat/server/decision/decision-engine.ts`
-* `src/devops-chat/server/decision/decision-trace.ts`
-* `src/devops-chat/server/decision/policies/deploy.ts`
-* `src/devops-chat/server/decision/policies/approval.ts`
-* `src/devops-chat/server/decision/policies/rollback.ts`
+* [x] `src/devops-chat/server/orchestration/intent-resolver.ts`
+* [x] `src/devops-chat/server/orchestration/workflow-definitions.ts`
+* [x] `src/devops-chat/server/orchestration/slot-definitions.ts`
+* [x] `src/devops-chat/server/orchestration/slot-memory.ts`
+* [x] ~~`src/devops-chat/server/orchestration/slot-extractor.ts`~~ — 별도 파일 없이 awaiting-resolver.ts와 entity-resolver.ts에 통합
+* [x] `src/devops-chat/server/orchestration/entity-resolver.ts`
+* [x] `src/devops-chat/server/orchestration/awaiting-resolver.ts`
+* [x] `src/devops-chat/server/orchestration/tool-planner.ts`
+* [x] `src/devops-chat/server/orchestration/response-builder.ts`
+* [x] `src/devops-chat/server/decision/decision-engine.ts`
+* [x] ~~`src/devops-chat/server/decision/decision-trace.ts`~~ — 별도 파일 없이 `DecisionTrace` 타입을 `conversation.ts`에 정의
+* [x] `src/devops-chat/server/decision/policies/deploy.ts`
+* [x] `src/devops-chat/server/decision/policies/approval.ts`
+* [x] `src/devops-chat/server/decision/policies/rollback.ts`
 
 ## 1차에서 만든 파일을 확장할 대상
 
@@ -413,223 +413,223 @@ type DecisionTrace = {
 
 ## A. intent / workflow 모델 도입
 
-* [ ] `ConversationIntentState` 타입을 conversation state에 추가한다.
-* [ ] `ConversationWorkflowState` 타입을 추가한다.
-* [ ] intent key 체계를 정의한다.
-* [ ] 권장 시작 intent:
-  * [ ] `deploy.start`
-  * [ ] `deploy.history.lookup`
-  * [ ] `approval.review`
-  * [ ] `rollback.start`
-  * [ ] `general.qna`
-* [ ] 각 intent에 연결되는 workflow key를 정의한다.
-* [ ] deploy.start용 기본 workflow step을 정의한다.
-* [ ] rollback.start용 기본 workflow step을 정의한다.
-* [ ] intent carry 정책을 정의한다.
-* [ ] 직전 intent를 언제 유지하고 언제 초기화할지 rule을 문서화한다.
+* [x] `ConversationIntentState` 타입을 conversation state에 추가한다.
+* [x] `ConversationWorkflowState` 타입을 추가한다.
+* [x] intent key 체계를 정의한다.
+* [x] 권장 시작 intent:
+  * [x] `deploy.start`
+  * [x] `deploy.history.lookup`
+  * [x] `approval.review`
+  * [x] `rollback.start`
+  * [x] `general.qna`
+* [x] 각 intent에 연결되는 workflow key를 정의한다.
+* [x] deploy.start용 기본 workflow step을 정의한다.
+* [x] rollback.start용 기본 workflow step을 정의한다.
+* [x] intent carry 정책을 정의한다.
+* [x] 직전 intent를 언제 유지하고 언제 초기화할지 rule을 문서화한다.
 
 ## B. slot schema 정의
 
-* [ ] `slot-definitions.ts`에서 intent별 required/optional slot을 정의한다.
-* [ ] deploy.start 필수 slot을 정의한다.
-* [ ] 권장 필수 slot:
-  * [ ] `deploy.serviceName`
-* [ ] deploy.start 준비 완료용 추가 slot을 정의한다.
-* [ ] 권장 준비 slot:
-  * [ ] `deploy.selectedServiceContext`
-  * [ ] `deploy.environment`
-  * [ ] `deploy.targetVersion` 또는 `deploy.recommendedVersion`
-* [ ] rollback.start 필수 slot을 정의한다.
-* [ ] approval.review 필수 slot을 정의한다.
-* [ ] slot type을 문자열/enum/list/object 수준에서 명확히 정리한다.
-* [ ] slot마다 source precedence 정책을 정의한다.
-* [ ] slot마다 validation rule을 정의한다.
-* [ ] slot마다 stale 조건을 정의한다.
-* [ ] slot마다 canonical value 규칙을 정의한다.
-* [ ] service/environment/confirmation 대표 alias 세트를 정리한다.
+* [x] `slot-definitions.ts`에서 intent별 required/optional slot을 정의한다.
+* [x] deploy.start 필수 slot을 정의한다.
+* [x] 권장 필수 slot:
+  * [x] `deploy.serviceName`
+* [x] deploy.start 준비 완료용 추가 slot을 정의한다.
+* [x] 권장 준비 slot:
+  * [x] `deploy.selectedServiceContext`
+  * [x] `deploy.environment`
+  * [x] `deploy.targetVersion` 또는 `deploy.recommendedVersion`
+* [x] rollback.start 필수 slot을 정의한다.
+* [x] approval.review 필수 slot을 정의한다.
+* [x] slot type을 문자열/enum/list/object 수준에서 명확히 정리한다.
+* [x] slot마다 source precedence 정책을 정의한다.
+* [x] slot마다 validation rule을 정의한다.
+* [x] slot마다 stale 조건을 정의한다.
+* [x] slot마다 canonical value 규칙을 정의한다.
+* [x] service/environment/confirmation 대표 alias 세트를 정리한다.
 
 ## C. slot memory / facts merge 정책
 
-* [ ] facts를 key-value map이 아니라 typed slot memory로 다루는 helper를 만든다.
-* [ ] `slot-memory.ts`에 `setSlot`, `clearSlot`, `clearNamespace`, `mergeFactsPatch`를 구현한다.
-* [ ] 같은 slot이 여러 source에서 들어올 때 precedence rule을 적용한다.
-* [ ] user explicit 값이 기존 tool/default 값을 덮을 수 있게 한다.
-* [ ] selection sync가 user explicit 값을 덮지 않도록 가드한다.
-* [ ] intent 전환 시 유지해야 할 공통 facts와 지워야 할 workflow-local facts를 구분한다.
-* [ ] deploy intent에서 수집한 slot이 rollback intent로 넘어갈 때 그대로 남지 않도록 namespace clear 규칙을 만든다.
-* [ ] facts patch merge 후 snapshot과 store state가 어긋나지 않게 한다.
-* [ ] raw input과 canonical value를 모두 추적할지 결정한다.
+* [x] facts를 key-value map이 아니라 typed slot memory로 다루는 helper를 만든다.
+* [x] `slot-memory.ts`에 `setSlot`, `clearSlot`, `clearNamespace`, `mergeFactsPatch`를 구현한다.
+* [x] 같은 slot이 여러 source에서 들어올 때 precedence rule을 적용한다.
+* [x] user explicit 값이 기존 tool/default 값을 덮을 수 있게 한다.
+* [x] selection sync가 user explicit 값을 덮지 않도록 가드한다.
+* [x] intent 전환 시 유지해야 할 공통 facts와 지워야 할 workflow-local facts를 구분한다.
+* [x] deploy intent에서 수집한 slot이 rollback intent로 넘어갈 때 그대로 남지 않도록 namespace clear 규칙을 만든다.
+* [x] facts patch merge 후 snapshot과 store state가 어긋나지 않게 한다.
+* [x] raw input과 canonical value를 모두 추적할지 결정한다.
 
 ## C-2. 사용자 수정 / backtracking 정책
 
-* [ ] `아니`, `정정`, `다른 걸로`, `취소` 같은 correction/cancel 패턴을 정의한다.
-* [ ] correction이 들어오면 어떤 slot을 clear하고 어떤 slot을 유지할지 rule을 만든다.
-* [ ] `serviceName` 정정 시 service-context 계열 slot을 함께 invalidation 하도록 만든다.
-* [ ] `environment` 정정 시 service context는 유지하되 readiness를 재평가하도록 만든다.
-* [ ] 사용자가 `처음부터`, `새로 시작`을 말하면 현재 workflow-local state를 초기화하는 경로를 만든다.
-* [ ] correction 이벤트도 trace에 남기도록 한다.
+* [x] `아니`, `정정`, `다른 걸로`, `취소` 같은 correction/cancel 패턴을 정의한다.
+* [x] correction이 들어오면 어떤 slot을 clear하고 어떤 slot을 유지할지 rule을 만든다.
+* [x] `serviceName` 정정 시 service-context 계열 slot을 함께 invalidation 하도록 만든다.
+* [x] `environment` 정정 시 service context는 유지하되 readiness를 재평가하도록 만든다.
+* [x] 사용자가 `처음부터`, `새로 시작`을 말하면 현재 workflow-local state를 초기화하는 경로를 만든다.
+* [x] correction 이벤트도 trace에 남기도록 한다.
 
 ## D. awaiting contract 강화
 
-* [ ] `ConversationAwaiting`을 단순 prompt가 아니라 slot-driven contract로 확장한다.
-* [ ] awaiting에 `slotKey`, `expectedInput`, `options`, `retryCount`, `originIntentKey`, `originRequestId`를 넣는다.
-* [ ] single-select 옵션 응답을 exact match, alias match, case-insensitive match로 처리한다.
-* [ ] ambiguous match 시 재질문 경로를 만든다.
-* [ ] no-match 시 재질문 경로를 만든다.
-* [ ] `allowFreeform` 여부에 따라 옵션 외 입력 허용 정책을 분리한다.
-* [ ] confirm형 awaiting에 yes/no/취소/다시 설명 같은 대표 응답 처리를 넣는다.
-* [ ] option label이 아니라 canonical value 기준으로 slot write가 되게 한다.
+* [x] `ConversationAwaiting`을 단순 prompt가 아니라 slot-driven contract로 확장한다.
+* [x] awaiting에 `slotKey`, `expectedInput`, `options`, `retryCount`, `originIntentKey`, `originRequestId`를 넣는다.
+* [x] single-select 옵션 응답을 exact match, alias match, case-insensitive match로 처리한다.
+* [x] ambiguous match 시 재질문 경로를 만든다.
+* [x] no-match 시 재질문 경로를 만든다.
+* [x] `allowFreeform` 여부에 따라 옵션 외 입력 허용 정책을 분리한다.
+* [x] confirm형 awaiting에 yes/no/취소/다시 설명 같은 대표 응답 처리를 넣는다.
+* [x] option label이 아니라 canonical value 기준으로 slot write가 되게 한다.
 
 ## E. follow-up answer 해석기
 
-* [ ] `awaiting-resolver.ts`를 만들고 user input이 현재 awaiting을 해소하는지 먼저 판정한다.
-* [ ] 현재 awaiting이 있으면 intent resolver보다 먼저 awaiting resolver를 실행한다.
-* [ ] single-select awaiting에서 옵션 value를 slot으로 바로 매핑한다.
-* [ ] free-text awaiting에서는 slot extractor를 통해 의미를 뽑는다.
-* [ ] ambiguous 결과가 나오면 `retryCount`를 증가시키고 다시 `ask_followup` 상태로 남긴다.
-* [ ] 일정 retryCount를 넘기면 safer fallback 문구를 만든다.
-* [ ] explicit interruption 문구가 감지되면 awaiting 소비보다 intent switch 경로를 우선하는 예외 규칙을 둔다.
+* [x] `awaiting-resolver.ts`를 만들고 user input이 현재 awaiting을 해소하는지 먼저 판정한다.
+* [x] 현재 awaiting이 있으면 intent resolver보다 먼저 awaiting resolver를 실행한다.
+* [x] single-select awaiting에서 옵션 value를 slot으로 바로 매핑한다.
+* [x] free-text awaiting에서는 slot extractor를 통해 의미를 뽑는다.
+* [x] ambiguous 결과가 나오면 `retryCount`를 증가시키고 다시 `ask_followup` 상태로 남긴다.
+* [x] 일정 retryCount를 넘기면 safer fallback 문구를 만든다.
+* [x] explicit interruption 문구가 감지되면 awaiting 소비보다 intent switch 경로를 우선하는 예외 규칙을 둔다.
 
 ## F. intent resolver 고도화
 
-* [ ] `intent-resolver.ts`를 추가한다.
-* [ ] 먼저 awaiting answer 소비 여부를 확인한다.
-* [ ] 그 다음 explicit keyword/rule 기반 intent 분류를 수행한다.
-* [ ] 그래도 불명확하면 기존 intent carry 여부를 본다.
-* [ ] 필요하면 phase2에서도 제한적으로 LLM intent assist를 둘 수 있지만 optional이어야 한다.
-* [ ] rule 기반만으로도 대표 흐름이 동작하도록 만든다.
-* [ ] 새 intent가 잡히면 관련 workflow와 slot namespace reset 정책을 같이 실행한다.
-* [ ] awaiting 중에도 새로운 intent가 더 강하게 감지되면 hard switch할 수 있게 한다.
+* [x] `intent-resolver.ts`를 추가한다.
+* [x] 먼저 awaiting answer 소비 여부를 확인한다.
+* [x] 그 다음 explicit keyword/rule 기반 intent 분류를 수행한다.
+* [x] 그래도 불명확하면 기존 intent carry 여부를 본다.
+* [x] 필요하면 phase2에서도 제한적으로 LLM intent assist를 둘 수 있지만 optional이어야 한다.
+* [x] rule 기반만으로도 대표 흐름이 동작하도록 만든다.
+* [x] 새 intent가 잡히면 관련 workflow와 slot namespace reset 정책을 같이 실행한다.
+* [x] awaiting 중에도 새로운 intent가 더 강하게 감지되면 hard switch할 수 있게 한다.
 
 ## G. tool planner 확장
 
-* [ ] `tool-planner.ts`를 추가한다.
-* [ ] intent와 missing slot에 따라 어떤 tool이 필요한지 결정한다.
-* [ ] `deploy.start`에서 serviceName이 없으면 `getDeployableServices`를 먼저 실행한다.
-* [ ] user가 serviceName을 고른 뒤에는 `getServiceDeployContext`를 실행하도록 추가한다.
-* [ ] rollback.start에서 대상이 없으면 후보 목록 tool을 실행한다.
-* [ ] approval.review에서 request identifier가 없으면 queue summary 또는 selection summary tool을 실행한다.
-* [ ] 2차에서는 multi-tool chaining이 있어도 최대 1~2단계로 제한한다.
-* [ ] 같은 turn에서 동일 tool + 동일 args 재실행을 막는 dedupe 정책을 둔다.
+* [x] `tool-planner.ts`를 추가한다.
+* [x] intent와 missing slot에 따라 어떤 tool이 필요한지 결정한다.
+* [x] `deploy.start`에서 serviceName이 없으면 `getDeployableServices`를 먼저 실행한다.
+* [x] user가 serviceName을 고른 뒤에는 `getServiceDeployContext`를 실행하도록 추가한다.
+* [x] rollback.start에서 대상이 없으면 후보 목록 tool을 실행한다.
+* [x] approval.review에서 request identifier가 없으면 queue summary 또는 selection summary tool을 실행한다.
+* [x] 2차에서는 multi-tool chaining이 있어도 최대 1~2단계로 제한한다.
+* [x] 같은 turn에서 동일 tool + 동일 args 재실행을 막는 dedupe 정책을 둔다.
 
 ## H. 새 tool 추가
 
-* [ ] phase2에서 `getServiceDeployContext` read-only tool을 추가한다.
-* [ ] deploy seed/selection 기반으로 service launchpad에 필요한 핵심 정보를 반환하게 한다.
-* [ ] 필요하면 `getApprovalRequestContext`와 `getRollbackTargetContext`를 보강한다.
-* [ ] tool 결과 adapter가 slot memory에 바로 들어갈 수 있는 facts patch를 반환하도록 확장한다.
-* [ ] tool summary와 slot patch를 분리해 반환한다.
-* [ ] tool 실패 시 어떤 slot을 비우고 어떤 trace를 남길지 정책을 정한다.
+* [x] phase2에서 `getServiceDeployContext` read-only tool을 추가한다.
+* [x] deploy seed/selection 기반으로 service launchpad에 필요한 핵심 정보를 반환하게 한다.
+* [x] 필요하면 `getApprovalRequestContext`와 `getRollbackTargetContext`를 보강한다.
+* [x] tool 결과 adapter가 slot memory에 바로 들어갈 수 있는 facts patch를 반환하도록 확장한다.
+* [x] tool summary와 slot patch를 분리해 반환한다.
+* [x] tool 실패 시 어떤 slot을 비우고 어떤 trace를 남길지 정책을 정한다.
 
 ## I. orchestrator 확장
 
-* [ ] `orchestrate-chat-turn.ts`를 phase2 흐름에 맞게 다시 쪼갠다.
-* [ ] 권장 turn 파이프라인:
-  * [ ] hydrate conversation
-  * [ ] resolve awaiting answer
-  * [ ] resolve intent/workflow
-  * [ ] plan tool(s)
-  * [ ] execute tool(s)
-  * [ ] merge facts/slots
-  * [ ] evaluate decision
-  * [ ] build response
-* [ ] 각 단계는 pure helper로 최대한 분리한다.
-* [ ] orchestrator 내부에서 side effect와 rule evaluation을 섞지 않도록 한다.
-* [ ] slot이 하나 채워지면 같은 turn 안에서 바로 다음 tool까지 이어서 실행할 수 있게 한다.
-* [ ] 예: `payments-api` 입력으로 `serviceName`을 채운 뒤 같은 turn에서 `getServiceDeployContext`까지 이어간다.
-* [ ] turn당 orchestration iteration 상한을 둔다.
-* [ ] 반복 계획/실행으로 빠지는 경우 safety fallback으로 종료한다.
-* [ ] tool 일부 실패 시 전체 turn을 실패시키지 말고 `text` 또는 `ask_followup` fallback으로 전환한다.
+* [x] `orchestrate-chat-turn.ts`를 phase2 흐름에 맞게 다시 쪼갠다.
+* [x] 권장 turn 파이프라인:
+  * [x] hydrate conversation
+  * [x] resolve awaiting answer
+  * [x] resolve intent/workflow
+  * [x] plan tool(s)
+  * [x] execute tool(s)
+  * [x] merge facts/slots
+  * [x] evaluate decision
+  * [x] build response
+* [x] 각 단계는 pure helper로 최대한 분리한다.
+* [x] orchestrator 내부에서 side effect와 rule evaluation을 섞지 않도록 한다.
+* [x] slot이 하나 채워지면 같은 turn 안에서 바로 다음 tool까지 이어서 실행할 수 있게 한다.
+* [x] 예: `payments-api` 입력으로 `serviceName`을 채운 뒤 같은 turn에서 `getServiceDeployContext`까지 이어간다.
+* [x] turn당 orchestration iteration 상한을 둔다.
+* [x] 반복 계획/실행으로 빠지는 경우 safety fallback으로 종료한다.
+* [x] tool 일부 실패 시 전체 turn을 실패시키지 말고 `text` 또는 `ask_followup` fallback으로 전환한다.
 
 ## J. decision engine 도입
 
-* [ ] `decision-engine.ts`를 추가한다.
-* [ ] output은 최소 `text | ask_followup | render_surface`를 보장한다.
-* [ ] deploy policy를 별도 파일로 분리한다.
-* [ ] approval policy를 별도 파일로 분리한다.
-* [ ] rollback policy를 별도 파일로 분리한다.
-* [ ] policy는 intent + facts + workflow 상태를 보고 판정하게 한다.
-* [ ] `ask_followup`이면 어떤 slot이 부족한지 반드시 trace에 남긴다.
-* [ ] `render_surface`이면 어떤 조건이 충족되었는지 trace에 남긴다.
-* [ ] `text`이면 왜 surface가 불필요한지 trace에 남긴다.
+* [x] `decision-engine.ts`를 추가한다.
+* [x] output은 최소 `text | ask_followup | render_surface`를 보장한다.
+* [x] deploy policy를 별도 파일로 분리한다.
+* [x] approval policy를 별도 파일로 분리한다.
+* [x] rollback policy를 별도 파일로 분리한다.
+* [x] policy는 intent + facts + workflow 상태를 보고 판정하게 한다.
+* [x] `ask_followup`이면 어떤 slot이 부족한지 반드시 trace에 남긴다.
+* [x] `render_surface`이면 어떤 조건이 충족되었는지 trace에 남긴다.
+* [x] `text`이면 왜 surface가 불필요한지 trace에 남긴다.
 
 ## K. decision trace 표준화
 
-* [ ] `DecisionTrace` 타입을 정의한다.
-* [ ] trace 필드에 `matched`, `missing`, `disqualified`, `reason`, `score`를 넣는다.
-* [ ] score는 있으면 쓰되, 없으면 deterministic rule-only로 시작해도 된다.
-* [ ] conversation store에 `lastDecisionTrace`를 저장한다.
-* [ ] UI에 전면 노출하지 않더라도 디버깅 가능한 형태로 유지한다.
+* [x] `DecisionTrace` 타입을 정의한다.
+* [x] trace 필드에 `matched`, `missing`, `disqualified`, `reason`, `score`를 넣는다.
+* [x] score는 있으면 쓰되, 없으면 deterministic rule-only로 시작해도 된다.
+* [x] conversation store에 `lastDecisionTrace`를 저장한다.
+* [x] UI에 전면 노출하지 않더라도 디버깅 가능한 형태로 유지한다.
 
 ## L. surface-ready 신호 도입
 
-* [ ] phase2에서는 `surfaceIntent` 또는 `surfaceCandidate` 상태를 추가한다.
-* [ ] deploy.start에서 launchpad-ready면 `family = deploy.launchpad` 후보를 남긴다.
-* [ ] rollback.start에서 summary/confirm 계열 surface-ready를 구분할 수 있는지 검토한다.
-* [ ] approval.review에서 inbox surface-ready 신호를 남길지 검토한다.
-* [ ] user-facing protocol은 아직 `surface: null`이어도 괜찮지만 internal state에는 후보를 남긴다.
-* [ ] phase3 template selector가 이 후보를 바로 소비할 수 있도록 이름 체계를 안정적으로 잡는다.
+* [x] phase2에서는 `surfaceIntent` 또는 `surfaceCandidate` 상태를 추가한다.
+* [x] deploy.start에서 launchpad-ready면 `family = deploy.launchpad` 후보를 남긴다.
+* [x] rollback.start에서 summary/confirm 계열 surface-ready를 구분할 수 있는지 검토한다.
+* [x] approval.review에서 inbox surface-ready 신호를 남길지 검토한다.
+* [x] user-facing protocol은 아직 `surface: null`이어도 괜찮지만 internal state에는 후보를 남긴다.
+* [x] phase3 template selector가 이 후보를 바로 소비할 수 있도록 이름 체계를 안정적으로 잡는다.
 
 ## M. response protocol 보강
 
-* [ ] `AssistantTurnResponse`에 `awaiting` contract를 richer shape로 확장한다.
-* [ ] 필요하면 `surfaceIntent`를 debug/meta 용도로 함께 내려보낼지 검토한다.
-* [ ] tool 결과와 최종 decision을 같은 turn result 안에 담는다.
-* [ ] follow-up 질문의 경우 user-facing message와 machine-readable awaiting이 항상 같이 오게 한다.
-* [ ] render_surface readiness가 생겨도 phase2에서는 user-facing text fallback을 반드시 만든다.
+* [x] `AssistantTurnResponse`에 `awaiting` contract를 richer shape로 확장한다.
+* [x] 필요하면 `surfaceIntent`를 debug/meta 용도로 함께 내려보낼지 검토한다.
+* [x] tool 결과와 최종 decision을 같은 turn result 안에 담는다.
+* [x] follow-up 질문의 경우 user-facing message와 machine-readable awaiting이 항상 같이 오게 한다.
+* [x] render_surface readiness가 생겨도 phase2에서는 user-facing text fallback을 반드시 만든다.
 
 ## N. UI 반영
 
-* [ ] `ChatAssistantPanel`에 awaiting option chip 영역을 추가한다.
-* [ ] 사용자가 option chip을 누르면 free text 입력과 동일한 submit 경로를 타게 한다.
-* [ ] ambiguous selection일 때 선택 후보를 다시 보여주는 UX를 넣는다.
-* [ ] assistant가 기다리는 slot이 무엇인지 짧게 설명하는 안내 문구를 넣는다.
-* [ ] `payments-api`, `production` 같은 짧은 응답이 자연스럽게 제출되도록 composer 경험을 점검한다.
-* [ ] 사용자가 `아니`, `다시`, `취소`를 쉽게 쓸 수 있도록 correction affordance를 검토한다.
-* [ ] phase2에서는 실제 template render를 붙이지 않더라도 `surface-ready` 상태를 user에게 과하게 노출하지 않는다.
-* [ ] 대신 설명 텍스트로 "필요한 정보가 준비되었습니다" 수준의 응답을 줄 수 있게 한다.
+* [x] `ChatAssistantPanel`에 awaiting option chip 영역을 추가한다.
+* [x] 사용자가 option chip을 누르면 free text 입력과 동일한 submit 경로를 타게 한다.
+* [x] ambiguous selection일 때 선택 후보를 다시 보여주는 UX를 넣는다.
+* [x] assistant가 기다리는 slot이 무엇인지 짧게 설명하는 안내 문구를 넣는다.
+* [x] `payments-api`, `production` 같은 짧은 응답이 자연스럽게 제출되도록 composer 경험을 점검한다.
+* [x] 사용자가 `아니`, `다시`, `취소`를 쉽게 쓸 수 있도록 correction affordance를 검토한다.
+* [x] phase2에서는 실제 template render를 붙이지 않더라도 `surface-ready` 상태를 user에게 과하게 노출하지 않는다.
+* [x] 대신 설명 텍스트로 "필요한 정보가 준비되었습니다" 수준의 응답을 줄 수 있게 한다.
 
 ## O. selection sync와 conversation sync
 
-* [ ] row selection 시 `facts.selectedEntity` sync 정책을 구체화한다.
-* [ ] UI selection이 바뀌어도 awaiting origin이 다른 turn이면 그대로 유지할지 판단한다.
-* [ ] 권장안은 "현재 intent와 같은 namespace면 sync, 완전히 다른 intent면 awaiting clear"다.
-* [ ] selection change가 explicit user slot을 덮지 않는지 테스트한다.
-* [ ] page/tab 이동 시 current intent carry 여부를 명시한다.
-* [ ] selection change와 user correction이 충돌할 때 user explicit correction을 우선하도록 한다.
+* [x] row selection 시 `facts.selectedEntity` sync 정책을 구체화한다.
+* [x] UI selection이 바뀌어도 awaiting origin이 다른 turn이면 그대로 유지할지 판단한다.
+* [x] 권장안은 "현재 intent와 같은 namespace면 sync, 완전히 다른 intent면 awaiting clear"다.
+* [x] selection change가 explicit user slot을 덮지 않는지 테스트한다.
+* [x] page/tab 이동 시 current intent carry 여부를 명시한다.
+* [x] selection change와 user correction이 충돌할 때 user explicit correction을 우선하도록 한다.
 
 ## P. legacy 경계 정리
 
-* [ ] `prompt-router.ts`는 phase2 주 경로에서 제거한다.
-* [ ] 남겨둘 경우 canned explanation helper 수준으로만 둔다.
-* [ ] `build-template-envelope.ts`는 phase2에서 직접 호출하지 않는다.
-* [ ] render_surface readiness와 actual template selection이 분리되었다는 점을 코드 구조상 드러낸다.
+* [x] `prompt-router.ts`는 phase2 주 경로에서 제거한다.
+* [x] 남겨둘 경우 canned explanation helper 수준으로만 둔다.
+* [x] `build-template-envelope.ts`는 phase2에서 직접 호출하지 않는다.
+* [x] render_surface readiness와 actual template selection이 분리되었다는 점을 코드 구조상 드러낸다.
 
 ## Q. 테스트 및 검증
 
-* [ ] intent resolver 테스트를 추가한다.
-* [ ] awaiting resolver 테스트를 추가한다.
-* [ ] slot precedence 테스트를 추가한다.
-* [ ] canonicalization/alias normalization 테스트를 추가한다.
-* [ ] ambiguous option match 테스트를 추가한다.
-* [ ] retryCount 증가 테스트를 추가한다.
-* [ ] correction/backtracking 테스트를 추가한다.
-* [ ] awaiting 중 intent interruption 테스트를 추가한다.
-* [ ] tool planner 테스트를 추가한다.
-* [ ] decision engine policy 테스트를 추가한다.
-* [ ] decision trace shape 테스트를 추가한다.
-* [ ] surfaceIntent candidate 생성 테스트를 추가한다.
-* [ ] orchestration loop guard 테스트를 추가한다.
-* [ ] tool partial failure fallback 테스트를 추가한다.
-* [ ] turn-level integration 테스트를 추가한다.
-* [ ] 대표 통합 시나리오:
-  * [ ] `배포하고 싶어` -> services tool -> ask_followup(service selection)
-  * [ ] `payments-api` -> slot fill -> service context tool -> render_surface readiness
-  * [ ] `아니 orders-api` -> service correction -> service context 재조회
-  * [ ] `취소하고 이전 배포 알려줘` -> interrupt -> history lookup intent 전환
-  * [ ] `이전 배포 알려줘` -> text
-  * [ ] `롤백하고 싶어` -> candidate fetch -> ask_followup
-* [ ] stale request 경쟁 상태에서도 awaiting/slot state가 깨지지 않는지 확인한다.
+* [x] intent resolver 테스트를 추가한다.
+* [x] awaiting resolver 테스트를 추가한다.
+* [x] slot precedence 테스트를 추가한다.
+* [x] canonicalization/alias normalization 테스트를 추가한다.
+* [x] ambiguous option match 테스트를 추가한다.
+* [x] retryCount 증가 테스트를 추가한다.
+* [x] correction/backtracking 테스트를 추가한다.
+* [x] awaiting 중 intent interruption 테스트를 추가한다.
+* [x] tool planner 테스트를 추가한다.
+* [x] decision engine policy 테스트를 추가한다.
+* [x] decision trace shape 테스트를 추가한다.
+* [x] surfaceIntent candidate 생성 테스트를 추가한다.
+* [x] orchestration loop guard 테스트를 추가한다.
+* [x] tool partial failure fallback 테스트를 추가한다.
+* [x] turn-level integration 테스트를 추가한다.
+* [x] 대표 통합 시나리오:
+  * [x] `배포하고 싶어` -> services tool -> ask_followup(service selection)
+  * [x] `payments-api` -> slot fill -> service context tool -> render_surface readiness
+  * [x] `아니 orders-api` -> service correction -> service context 재조회
+  * [x] `취소하고 이전 배포 알려줘` -> interrupt -> history lookup intent 전환
+  * [x] `이전 배포 알려줘` -> text
+  * [x] `롤백하고 싶어` -> candidate fetch -> ask_followup
+* [x] stale request 경쟁 상태에서도 awaiting/slot state가 깨지지 않는지 확인한다.
 
 ---
 

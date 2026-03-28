@@ -19,11 +19,11 @@ describe("orchestrate-chat-turn", () => {
     delete process.env.OPENAI_API_KEY;
   });
 
-  it("returns follow-up for vague input without selection", async () => {
+  it("vague input resolves to general.qna text mode", async () => {
     const result = await orchestrateChatTurn(makeInput({ input: "도움" }));
-    expect(result.decision.mode).toBe("ask_followup");
-    expect(result.awaiting).not.toBeNull();
-    expect(result.awaiting?.kind).toBe("free_text");
+    // Phase 2: vague input → general.qna → text mode (no actionable intent)
+    expect(result.decision.mode).toBe("text");
+    expect(result.intent?.intentKey).toBe("general.qna");
   });
 
   it("resolves deploy tool for '최근 배포 이력'", async () => {
@@ -48,6 +48,7 @@ describe("orchestrate-chat-turn", () => {
       makeInput({ input: "승인 대기 현황을 보여줘" }),
     );
     expect(result.toolResults?.[0].toolName).toBe("getApprovalQueueSummary");
+    expect(result.intent?.intentKey).toBe("approval.review");
   });
 
   it("resolves rollback tool for '롤백 후보'", async () => {
@@ -55,13 +56,15 @@ describe("orchestrate-chat-turn", () => {
       makeInput({ input: "롤백 후보 버전 목록" }),
     );
     expect(result.toolResults?.[0].toolName).toBe("getRollbackCandidates");
+    expect(result.intent?.intentKey).toBe("rollback.start");
   });
 
-  it("resolves deployable services tool", async () => {
+  it("resolves deployable services tool for deploy intent", async () => {
     const result = await orchestrateChatTurn(
       makeInput({ input: "배포 가능한 서비스 목록" }),
     );
     expect(result.toolResults?.[0].toolName).toBe("getDeployableServices");
+    expect(result.intent?.intentKey).toBe("deploy.start");
   });
 
   it("falls back to contextual summary when no tool matches and no LLM", async () => {
@@ -121,5 +124,26 @@ describe("orchestrate-chat-turn", () => {
     );
     expect(result.factsPatch).toBeDefined();
     expect(result.factsPatch?.approval).toBeDefined();
+  });
+
+  // Phase 2 specific tests
+  it("deploy.start intent triggers ask_followup for missing service name", async () => {
+    const result = await orchestrateChatTurn(
+      makeInput({ input: "배포하고 싶어" }),
+    );
+    expect(result.intent?.intentKey).toBe("deploy.start");
+    expect(result.decision.mode).toBe("ask_followup");
+    expect(result.awaiting).not.toBeNull();
+    expect(result.awaiting?.slotKey).toBe("deploy.serviceName");
+  });
+
+  it("returns intent and decisionTrace in response", async () => {
+    const result = await orchestrateChatTurn(
+      makeInput({ input: "배포하고 싶어" }),
+    );
+    expect(result.intent).toBeDefined();
+    expect(result.decisionTrace).toBeDefined();
+    expect(result.decisionTrace?.mode).toBe("ask_followup");
+    expect(result.decisionTrace?.missing).toContain("deploy.serviceName");
   });
 });

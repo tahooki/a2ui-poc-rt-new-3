@@ -786,6 +786,31 @@
   background: rgba(96, 27, 31, 0.2);
 }
 
+.chatAwaitingChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 4px 16px 8px;
+}
+
+.chatAwaitingChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border: 1px solid rgba(76, 141, 255, 0.42);
+  border-radius: 999px;
+  background: rgba(76, 141, 255, 0.08);
+  color: rgba(160, 200, 255, 0.94);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.14s, border-color 0.14s;
+}
+
+.chatAwaitingChip:hover {
+  background: rgba(76, 141, 255, 0.18);
+  border-color: rgba(76, 141, 255, 0.62);
+}
+
 .chatAssistantComposer {
   display: grid;
   gap: 10px;

@@ -30,6 +30,9 @@ export async function POST(request: Request) {
             history: body.history ?? [],
             contextSnapshot: body.contextSnapshot,
             facts: body.facts ?? {},
+            intent: body.intent ?? null,
+            workflow: body.workflow ?? null,
+            awaiting: body.awaiting ?? null,
           },
           {
             onDelta(text) {

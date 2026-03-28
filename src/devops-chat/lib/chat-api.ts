@@ -6,7 +6,13 @@ import type {
   SseErrorPayload,
   SseToolPayload,
 } from "@/devops-chat/types/assistant-response";
-import type { ConversationFacts, ConversationId } from "@/devops-chat/types/conversation";
+import type {
+  ConversationAwaiting,
+  ConversationFacts,
+  ConversationId,
+  ConversationIntentState,
+  ConversationWorkflowState,
+} from "@/devops-chat/types/conversation";
 import type { ContextSnapshot } from "@/devops-chat/types/assistant-response";
 
 /** Protocol-level error from the server (e.g. orchestration failure). */
@@ -31,6 +37,9 @@ export type ChatStreamRequest = {
   contextSnapshot: ContextSnapshot;
   history: AssistantTurnHistoryItem[];
   facts: ConversationFacts;
+  intent?: ConversationIntentState | null;
+  workflow?: ConversationWorkflowState | null;
+  awaiting?: ConversationAwaiting;
 };
 
 function parseSseEvent(rawEvent: string) {
@@ -66,6 +75,9 @@ export async function streamAssistantChat(
     contextSnapshot: payload.contextSnapshot,
     history: payload.history,
     facts: payload.facts,
+    intent: payload.intent,
+    workflow: payload.workflow,
+    awaiting: payload.awaiting,
   };
 
   const response = await fetch("/api/chat", {

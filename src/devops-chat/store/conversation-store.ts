@@ -6,9 +6,13 @@ import type {
   ConversationDecision,
   ConversationFacts,
   ConversationId,
+  ConversationIntentState,
   ConversationMessage,
   ConversationState,
+  ConversationWorkflowState,
+  DecisionTrace,
   PendingToolState,
+  SurfaceIntentCandidate,
 } from "@/devops-chat/types/conversation";
 import type { AssistantTurnResponse } from "@/devops-chat/types/assistant-response";
 
@@ -18,6 +22,10 @@ type ConversationStoreState = {
 
 type ConversationStoreActions = {
   ensureConversation: (conversationId: ConversationId, seedFacts?: ConversationFacts) => void;
+  setIntent: (conversationId: ConversationId, intent: ConversationIntentState | null) => void;
+  setWorkflow: (conversationId: ConversationId, workflow: ConversationWorkflowState | null) => void;
+  setLastDecisionTrace: (conversationId: ConversationId, trace: DecisionTrace | null) => void;
+  setSurfaceIntent: (conversationId: ConversationId, surfaceIntent: SurfaceIntentCandidate | null) => void;
   setComposerText: (conversationId: ConversationId, value: string) => void;
   startUserTurn: (conversationId: ConversationId, input: string, requestId: string) => void;
   appendAssistantDelta: (conversationId: ConversationId, requestId: string, text: string) => void;
@@ -44,10 +52,14 @@ function createEmptyConversation(id: ConversationId, seedFacts?: ConversationFac
   return {
     id,
     messages: [],
+    intent: null,
+    workflow: null,
     facts: seedFacts ?? {},
     awaiting: null,
     pendingTool: null,
     decision: null,
+    lastDecisionTrace: null,
+    surfaceIntent: null,
     activeSurface: null,
     activeRequestId: null,
     composerText: "",
@@ -91,6 +103,22 @@ export const useConversationStore = create<ConversationStore>((set) => ({
         },
       };
     });
+  },
+
+  setIntent: (conversationId, intent) => {
+    set((state) => updateConversation(state, conversationId, () => ({ intent })));
+  },
+
+  setWorkflow: (conversationId, workflow) => {
+    set((state) => updateConversation(state, conversationId, () => ({ workflow })));
+  },
+
+  setLastDecisionTrace: (conversationId, trace) => {
+    set((state) => updateConversation(state, conversationId, () => ({ lastDecisionTrace: trace })));
+  },
+
+  setSurfaceIntent: (conversationId, surfaceIntent) => {
+    set((state) => updateConversation(state, conversationId, () => ({ surfaceIntent })));
   },
 
   setComposerText: (conversationId, value) => {
@@ -180,10 +208,14 @@ export const useConversationStore = create<ConversationStore>((set) => ({
           [conversationId]: {
             ...conv,
             messages,
+            intent: result.intent ?? conv.intent,
+            workflow: result.workflow ?? conv.workflow,
             facts: mergedFacts,
             awaiting: result.awaiting,
             pendingTool: null,
             decision: result.decision,
+            lastDecisionTrace: result.decisionTrace ?? conv.lastDecisionTrace,
+            surfaceIntent: result.surfaceIntent ?? null,
             activeSurface: result.surface,
             activeRequestId: null,
             error: null,
