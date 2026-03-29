@@ -34,23 +34,16 @@ export function DevopsConsolePage({ pageKey }: { pageKey: PageKey }) {
   const selectRow = useDevopsConsoleStore((state) => state.selectRow);
   const viewModel = buildConsoleViewModel(pageKey, pages);
   const selectedItem = findSelectedItem(pageKey, pages);
-  const assistantEnabled = pageKey === "deploy";
 
   const assistant = <ChatAssistantPanel onClose={() => setAssistantOpen(false)} pageKey={pageKey} selectedItem={selectedItem} />;
 
   return (
     <AppFrame
       activePage={pageKey}
-      assistant={assistantEnabled ? assistant : undefined}
-      assistantOpen={assistantEnabled ? assistantOpen : false}
-      hideAssistantTrigger={!assistantEnabled}
+      assistant={assistant}
+      assistantOpen={assistantOpen}
       lastUpdated={viewModel.lastUpdated}
-      onToggleAssistant={() => {
-        if (!assistantEnabled) {
-          return;
-        }
-        setAssistantOpen((value) => !value);
-      }}
+      onToggleAssistant={() => setAssistantOpen((value) => !value)}
       onToggleSidebar={() => setSidebarOpen((value) => !value)}
       pageScope={viewModel.pageScope}
       pageTitle={viewModel.pageTitle}
@@ -75,14 +68,8 @@ export function DevopsConsolePage({ pageKey }: { pageKey: PageKey }) {
 
       <FilterBar
         filters={viewModel.filters}
-        onPrimaryAction={
-          assistantEnabled
-            ? () => {
-                setAssistantOpen(true);
-              }
-            : undefined
-        }
-        primaryActionLabel={assistantEnabled ? viewModel.primaryActionLabel : undefined}
+        onPrimaryAction={() => setAssistantOpen(true)}
+        primaryActionLabel={viewModel.primaryActionLabel}
       />
 
       {pageKey === "deploy" ? (
