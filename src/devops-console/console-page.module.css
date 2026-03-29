@@ -1262,3 +1262,45 @@
   opacity: 0.55;
   font-family: var(--console-font-mono, monospace);
 }
+
+/* --- Rollback-specific animations --- */
+
+@keyframes rollbackProgress {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+
+@keyframes rollbackPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+.rollbackProgressFill {
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #f0ad4e 0%, #34c38f 50%, #f0ad4e 100%);
+  background-size: 200% 100%;
+  transition: width 0.5s ease;
+  animation: rollbackProgress 1.5s linear infinite;
+}
+
+.rollbackStepPulse {
+  animation: rollbackPulse 1s ease-in-out infinite;
+}
+
+.rollbackDoneCard {
+  border-color: rgba(52, 195, 143, 0.5);
+  background: rgba(21, 87, 64, 0.2);
+  text-align: center;
+  font-weight: 600;
+}
+
+.rollbackMttr {
+  text-align: center;
+  font-size: 12px;
+  opacity: 0.6;
+  font-family: var(--console-font-mono, monospace);
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
