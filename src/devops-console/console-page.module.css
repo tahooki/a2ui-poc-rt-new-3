@@ -1173,3 +1173,76 @@
     gap: 12px;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Deploy flow animations
+   --------------------------------------------------------------------------- */
+
+@keyframes deployFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes deployPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.15); }
+}
+
+@keyframes deployBounce {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes deployProgress {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+.deployFadeIn {
+  animation: deployFadeIn 0.3s ease both;
+}
+
+.deployStepPulse {
+  animation: deployPulse 1.5s ease-in-out infinite;
+}
+
+.deployStepBounce {
+  animation: deployBounce 0.35s ease both;
+}
+
+.deployProgressBar {
+  height: 8px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(37, 50, 68, 0.76);
+  background: rgba(15, 23, 34, 0.6);
+}
+
+.deployProgressFill {
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #4c8dff 0%, #34c38f 50%, #4c8dff 100%);
+  background-size: 200% 100%;
+  transition: width 0.5s ease;
+}
+
+.deployProgressFillAnimated {
+  composes: deployProgressFill;
+  animation: deployProgress 2s linear infinite;
+}
+
+.deployDoneCard {
+  border-color: rgba(52, 195, 143, 0.5);
+  background: rgba(21, 87, 64, 0.2);
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.deployElapsed {
+  text-align: center;
+  font-size: 12px;
+  opacity: 0.55;
+  font-family: var(--console-font-mono, monospace);
+}
