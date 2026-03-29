@@ -24,6 +24,7 @@ import {
 import { buildContextSnapshot } from "@/devops-chat/lib/context-snapshot";
 import type { ApprovalItem, DeployItem, PageKey, RollbackItem } from "@/devops-chat/types/domain";
 import type { ConversationMessage } from "@/devops-chat/types/conversation";
+import { TemplateSurface } from "@/devops-console/assistant/template-surface";
 
 type ChatAssistantPanelProps = {
   onClose: () => void;
@@ -57,6 +58,7 @@ export function ChatAssistantPanel({
   const awaiting = conversation?.awaiting ?? null;
   const intent = conversation?.intent ?? null;
   const workflow = conversation?.workflow ?? null;
+  const activeSurface = conversation?.activeSurface ?? null;
   const error = conversation?.error ?? null;
 
   const endRef = useRef<HTMLDivElement | null>(null);
@@ -216,7 +218,22 @@ export function ChatAssistantPanel({
           </>
         ) : null}
 
-        {messages.length === 0 && !pendingTool && !awaiting ? <div className={styles.chatThreadEmpty} /> : null}
+        {activeSurface ? (
+          <div style={{ padding: "8px 0" }}>
+            <TemplateSurface
+              activeSurface={activeSurface}
+              onAction={(actionId, payload) => {
+                // TODO: wire to action bridge
+                console.log("surface action:", actionId, payload);
+              }}
+              onDismiss={() => {
+                useConversationStore.getState().dismissSurface(conversationId);
+              }}
+            />
+          </div>
+        ) : null}
+
+        {messages.length === 0 && !pendingTool && !awaiting && !activeSurface ? <div className={styles.chatThreadEmpty} /> : null}
         <div ref={endRef} />
       </div>
 
