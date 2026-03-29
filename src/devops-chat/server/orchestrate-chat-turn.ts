@@ -414,6 +414,22 @@ function buildAwaitingOptions(
     ];
   }
 
+  if (slotKey === "rollback.serviceName") {
+    const rollbackData = facts.rollback as Record<string, unknown> | undefined;
+    const candidates = rollbackData?.candidates as { candidates?: Array<{ service: string }> } | undefined;
+    if (candidates?.candidates) {
+      return candidates.candidates.map((c) => ({ label: c.service, value: c.service }));
+    }
+  }
+
+  if (slotKey === "approval.requestId") {
+    const approvalData = facts.approval as Record<string, unknown> | undefined;
+    const queueItems = approvalData?.queueItems as Array<{ id: string; title?: string }> | undefined;
+    if (queueItems) {
+      return queueItems.map((item) => ({ label: item.title ?? item.id, value: item.id }));
+    }
+  }
+
   return [];
 }
 

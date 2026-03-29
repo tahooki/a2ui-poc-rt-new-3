@@ -166,24 +166,37 @@ export function ChatAssistantPanel({
       </div>
 
       <div className={styles.chatAssistantThread}>
-        {messages.map((message: ConversationMessage) => (
-          <div
-            className={`${styles.chatMessageRow} ${
-              message.role === "user" ? styles.chatMessageRowUser : styles.chatMessageRowAssistant
-            }`}
-            key={message.id}
-          >
+        {messages.map((message: ConversationMessage, idx: number) => {
+          // Skip the last assistant message if it duplicates the awaiting prompt
+          if (
+            awaiting &&
+            message.role === "assistant" &&
+            message.status === "complete" &&
+            idx === messages.length - 1 &&
+            message.text.includes(awaiting.prompt)
+          ) {
+            return null;
+          }
+
+          return (
             <div
-              className={`${styles.chatMessageBubble} ${
-                message.role === "user" ? styles.chatMessageBubbleUser : styles.chatMessageBubbleAssistant
-              } ${
-                message.status === "error" ? styles.chatMessageBubbleError : ""
+              className={`${styles.chatMessageRow} ${
+                message.role === "user" ? styles.chatMessageRowUser : styles.chatMessageRowAssistant
               }`}
+              key={message.id}
             >
-              {message.text || "응답을 생성하고 있습니다..."}
+              <div
+                className={`${styles.chatMessageBubble} ${
+                  message.role === "user" ? styles.chatMessageBubbleUser : styles.chatMessageBubbleAssistant
+                } ${
+                  message.status === "error" ? styles.chatMessageBubbleError : ""
+                }`}
+              >
+                {message.text || "응답을 생성하고 있습니다..."}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
 
         {pendingTool ? (
           <div className={`${styles.chatMessageRow} ${styles.chatMessageRowAssistant}`}>
