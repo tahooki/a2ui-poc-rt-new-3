@@ -27,6 +27,7 @@ const ACTION_DEFINITIONS: ActionDefinition[] = [
   { actionId: APPROVAL_ACTION_IDS.APPROVE_ALL, domain: "approval", confirmationRequired: true, handler: runApprovalAction },
 
   // Rollback actions
+  { actionId: ROLLBACK_ACTION_IDS.SELECT_TARGET, domain: "rollback", confirmationRequired: false, handler: runRollbackAction },
   { actionId: ROLLBACK_ACTION_IDS.START_DRY_RUN, domain: "rollback", confirmationRequired: false, handler: runRollbackAction },
   { actionId: ROLLBACK_ACTION_IDS.COMPLETE_DRY_RUN, domain: "rollback", confirmationRequired: false, handler: runRollbackAction },
   { actionId: ROLLBACK_ACTION_IDS.OPEN_CONFIRM, domain: "rollback", confirmationRequired: false, handler: runRollbackAction },

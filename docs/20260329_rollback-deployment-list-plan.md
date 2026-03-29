@@ -86,98 +86,98 @@
 
 ### A. 타입 정의
 
-* [ ] `types/templates.ts`에 `RollbackTargetListTemplateData` 타입 추가
-  * [ ] `templateId: "rollback_target_list"`
-  * [ ] `service: string` — 선택된 서비스명
-  * [ ] `environment: string`
-  * [ ] `currentVersion: string`
-  * [ ] `incidentSummary: string`
-  * [ ] `severity: string`
-  * [ ] `targets: RollbackTargetItem[]` — 배포 인스턴스 목록
-  * [ ] `recommendedTargetId: string | null` — 추천 인스턴스 ID
-* [ ] `RollbackTargetItem` 타입 추가
-  * [ ] `id, version, deployedAt, strategy, status`
-  * [ ] `rollbackRisk, rollbackEligible`
-  * [ ] `whyThisTarget, evidence[]`
-  * [ ] `isRecommended: boolean`
-  * [ ] `actions: SurfaceActionDescriptor[]`
-* [ ] `TemplateEnvelope` union에 추가
+* [x] `types/templates.ts`에 `RollbackTargetListTemplateData` 타입 추가
+  * [x] `templateId: "rollback_target_list"`
+  * [x] `service: string` — 선택된 서비스명
+  * [x] `environment: string`
+  * [x] `currentVersion: string`
+  * [x] `incidentSummary: string`
+  * [x] `severity: string`
+  * [x] `targets: RollbackTargetItem[]` — 배포 인스턴스 목록
+  * [x] `recommendedTargetId: string | null` — 추천 인스턴스 ID
+* [x] `RollbackTargetItem` 타입 추가
+  * [x] `id, version, deployedAt, strategy, status`
+  * [x] `rollbackRisk, rollbackEligible`
+  * [x] `whyThisTarget, evidence[]`
+  * [x] `isRecommended: boolean`
+  * [x] `actions: SurfaceActionDescriptor[]`
+* [x] `TemplateEnvelope` union에 추가
 
 ### B. Decision policy 변경
 
-* [ ] `rollback.ts`에서 serviceName + candidates 있으면 → `render_surface` (target_list)
-* [ ] surfaceIntent family를 `"rollback.target_list"` vs `"rollback.summary"` 분리
-* [ ] 기존 `rollback.summary`는 특정 인스턴스 선택 후 사용
+* [x] `rollback.ts`에서 serviceName + candidates 있으면 → `render_surface` (target_list)
+* [x] surfaceIntent family를 `"rollback.target_list"` vs `"rollback.summary"` 분리
+* [x] 기존 `rollback.summary`는 특정 인스턴스 선택 후 사용
 
 ### C. Slot definitions 변경
 
-* [ ] `rollback.candidates` slot 추가 (type: array, source: tool)
-* [ ] `rollback.selectedTargetId` slot 추가 (type: string, 인스턴스 선택 시 채움)
-* [ ] candidates가 있으면 서비스별 인스턴스 목록 사용 가능
+* [x] `rollback.candidates` slot 추가 (type: array, source: tool)
+* [x] `rollback.selectedTargetId` slot 추가 (type: string, 인스턴스 선택 시 채움)
+* [x] candidates가 있으면 서비스별 인스턴스 목록 사용 가능
 
 ### D. Tool result adapter 변경
 
-* [ ] `getRollbackCandidates` 결과에서 candidates를 slot으로 매핑
-* [ ] `rollback.candidates` slot patch 추가
+* [x] `getRollbackCandidates` 결과에서 candidates를 slot으로 매핑
+* [x] `rollback.candidates` slot patch 추가
 
 ### E. Template definition + selector
 
-* [ ] `template-definitions.ts`에 `rollback_target_list` 추가
-  * [ ] `family: "rollback.target_list"`
-  * [ ] `requiredFacts: ["rollback.serviceName", "rollback.candidates"]`
-  * [ ] `intentKeys: ["rollback.start"]`
-* [ ] 기존 rollback_summary는 `rollback.selectedTargetId` 필요하도록 조정
+* [x] `template-definitions.ts`에 `rollback_target_list` 추가
+  * [x] `family: "rollback.target_list"`
+  * [x] `requiredFacts: ["rollback.serviceName", "rollback.candidates"]`
+  * [x] `intentKeys: ["rollback.start"]`
+* [x] 기존 rollback_summary는 `rollback.selectedTargetId` 필요하도록 조정
 
 ### F. Binder 작성
 
-* [ ] `bind-rollback-target-list.ts` 새 binder 작성
-  * [ ] 입력: serviceName + candidates 배열
-  * [ ] 해당 서비스의 배포 이력 필터링
-  * [ ] eligible / not-eligible 분리
-  * [ ] 추천 인스턴스 표시
-  * [ ] 각 eligible 인스턴스에 `rollback.select_target` 액션 부여
-* [ ] binders/index.ts에 등록
+* [x] `bind-rollback-target-list.ts` 새 binder 작성
+  * [x] 입력: serviceName + candidates 배열
+  * [x] 해당 서비스의 배포 이력 필터링
+  * [x] eligible / not-eligible 분리
+  * [x] 추천 인스턴스 표시
+  * [x] 각 eligible 인스턴스에 `rollback.select_target` 액션 부여
+* [x] binders/index.ts에 등록
 
 ### G. Action 확장
 
-* [ ] `action-types.ts`에 `SELECT_TARGET: "rollback.select_target"` 추가
-* [ ] `run-rollback-action.ts`에 select_target 핸들러 추가
-  * [ ] 선택한 인스턴스 정보를 facts에 반영
-  * [ ] `rollback.selectedTargetId`, `rollback.context` slot 채움
-  * [ ] 이후 rollback_summary로 자연스럽게 전환
-* [ ] `action-registry.ts`에 등록
+* [x] `action-types.ts`에 `SELECT_TARGET: "rollback.select_target"` 추가
+* [x] `run-rollback-action.ts`에 select_target 핸들러 추가
+  * [x] 선택한 인스턴스 정보를 facts에 반영
+  * [x] `rollback.selectedTargetId`, `rollback.context` slot 채움
+  * [x] 이후 rollback_summary로 자연스럽게 전환
+* [x] `action-registry.ts`에 등록
 
 ### H. Template UI 작성
 
-* [ ] `rollback-target-list.tsx` 새 컴포넌트
-  * [ ] 서비스 헤더: service, environment, currentVersion, incident
-  * [ ] eligible 인스턴스 카드 목록
+* [x] `rollback-target-list.tsx` 새 컴포넌트
+  * [x] 서비스 헤더: service, environment, currentVersion, incident
+  * [x] eligible 인스턴스 카드 목록
     * [ ] version, deployedAt, strategy, status, risk
     * [ ] whyThisTarget 설명
     * [ ] evidence 목록
     * [ ] 추천 인스턴스 표시 (⭐)
     * [ ] [이 버전으로 롤백] 버튼
-  * [ ] not-eligible 인스턴스 접기 목록
-* [ ] `template-renderer.tsx`에 연결
+  * [x] not-eligible 인스턴스 접기 목록
+* [x] `template-renderer.tsx`에 연결
 
 ### I. Validation
 
-* [ ] `validate-surface-envelope.ts`에 `rollback_target_list` 필수 필드 추가
-  * [ ] required: `service`, `targets`, `state`
+* [x] `validate-surface-envelope.ts`에 `rollback_target_list` 필수 필드 추가
+  * [x] required: `service`, `targets`, `state`
 
 ### J. Registry
 
-* [ ] `rollback-target-list.ts` registry definition 추가
-* [ ] `template-registry.ts`에 등록
-* [ ] preview case 추가
+* [x] `rollback-target-list.ts` registry definition 추가
+* [x] `template-registry.ts`에 등록
+* [x] preview case 추가
 
 ### K. 테스트
 
-* [ ] target list binder 테스트 (서비스별 필터, eligible/not-eligible 분리)
-* [ ] decision policy 테스트 (candidates 있으면 target_list)
-* [ ] select_target 액션 테스트
-* [ ] validation 테스트
-* [ ] 통합 시나리오:
-  * [ ] "롤백하고 싶어" → 서비스 선택 → target list surface
-  * [ ] target list에서 인스턴스 선택 → rollback_summary 전환
-  * [ ] 추천 인스턴스 표시 확인
+* [x] target list binder 테스트 (서비스별 필터, eligible/not-eligible 분리)
+* [x] decision policy 테스트 (candidates 있으면 target_list)
+* [x] select_target 액션 테스트
+* [x] validation 테스트
+* [x] 통합 시나리오:
+  * [x] "롤백하고 싶어" → 서비스 선택 → target list surface
+  * [x] target list에서 인스턴스 선택 → rollback_summary 전환
+  * [x] 추천 인스턴스 표시 확인

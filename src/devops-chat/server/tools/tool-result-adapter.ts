@@ -74,12 +74,17 @@ export function adaptToolResult(output: ToolOutput): AdaptedToolResult {
       };
     }
 
-    case "getRollbackCandidates":
+    case "getRollbackCandidates": {
+      const rbData = output.data as { candidates?: unknown[] } | null;
+      const rbCandidates = rbData?.candidates ?? [];
       return {
         factsPatch: { rollback: { candidates: output.data } },
-        slotPatch: {},
+        slotPatch: rbCandidates.length > 0
+          ? { "rollback.candidates": { value: rbCandidates, source: "tool" } }
+          : {},
         summary: output.summary,
       };
+    }
 
     default:
       return {

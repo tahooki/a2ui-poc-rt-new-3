@@ -13,7 +13,7 @@ import { getTemplateDefinition } from "@/devops-chat/templates/template-definiti
 
 describe("template-registry", () => {
   it("has 6 definitions", () => {
-    expect(getAllRegistryDefinitions()).toHaveLength(6);
+    expect(getAllRegistryDefinitions()).toHaveLength(7);
   });
 
   it("looks up by templateId", () => {
@@ -23,7 +23,7 @@ describe("template-registry", () => {
   });
 
   it("all definitions are active", () => {
-    expect(getActiveDefinitions()).toHaveLength(6);
+    expect(getActiveDefinitions()).toHaveLength(7);
   });
 
   it("each definition has contract fields", () => {
@@ -50,7 +50,7 @@ describe("template-registry", () => {
 describe("build-template-list-view-model", () => {
   it("returns list items for all templates", () => {
     const items = buildTemplateListViewModel();
-    expect(items).toHaveLength(6);
+    expect(items).toHaveLength(7);
     expect(items[0].title).toBeDefined();
     expect(items[0].fieldCount).toBeGreaterThan(0);
   });

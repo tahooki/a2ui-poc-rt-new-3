@@ -124,10 +124,52 @@ export type ApprovalQueueTemplateData = {
   secondaryActionLabel: string;
 };
 
+// ---------------------------------------------------------------------------
+// Rollback target list (multi-instance)
+// ---------------------------------------------------------------------------
+
+export type RollbackTargetItem = {
+  id: string;
+  version: string;
+  deployedAt: string;
+  strategy: string;
+  status: string;
+  rollbackRisk: string;
+  rollbackEligible: boolean;
+  whyThisTarget: string;
+  evidence: string[];
+  isRecommended: boolean;
+  actions: Array<{
+    actionId: string;
+    label: string;
+    variant: "primary" | "secondary" | "danger" | "ghost";
+    disabled?: boolean;
+    confirmationRequired?: boolean;
+    confirmationMessage?: string;
+    targetRef?: { entityType: string; entityId: string };
+    payload?: Record<string, unknown>;
+  }>;
+};
+
+export type RollbackTargetListTemplateData = {
+  templateId: "rollback_target_list";
+  state: "active" | "selected";
+  service: string;
+  environment: string;
+  currentVersion: string;
+  incidentSummary: string;
+  severity: string;
+  targets: RollbackTargetItem[];
+  recommendedTargetId: string | null;
+  primaryActionLabel: string;
+  secondaryActionLabel: string;
+};
+
 export type TemplateEnvelope =
   | QuickDeployTemplateData
   | DeploymentApprovalTemplateData
   | ApprovalQueueTemplateData
+  | RollbackTargetListTemplateData
   | RollbackSummaryTemplateData
   | DryRunStepperTemplateData
   | ConfirmActionTemplateData;

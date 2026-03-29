@@ -11,6 +11,29 @@ export function runRollbackAction(context: ActionExecutionContext): ActionExecut
   const now = new Date().toISOString();
 
   switch (actionId) {
+    case ROLLBACK_ACTION_IDS.SELECT_TARGET: {
+      const deploymentId = targetRef?.entityId ?? "unknown";
+      return {
+        ok: true,
+        actionId,
+        outcome: "succeeded",
+        summary: `배포 인스턴스 ${deploymentId}을 롤백 대상으로 선택했습니다.`,
+        userFacingMessage: `${deploymentId}을 롤백 대상으로 선택했습니다. 요약을 확인해 주세요.`,
+        factsPatch: {
+          rollback: {
+            selectedTargetId: deploymentId,
+            context: { targetId: deploymentId },
+          },
+        },
+        activityEvent: {
+          kind: "action",
+          status: "succeeded",
+          title: `롤백 대상 선택: ${deploymentId}`,
+          timestamp: now,
+        },
+      };
+    }
+
     case ROLLBACK_ACTION_IDS.START_DRY_RUN:
       return {
         ok: true,

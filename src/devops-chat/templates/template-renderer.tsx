@@ -3,6 +3,7 @@ import { ConfirmAction } from "@/devops-console/templates/confirm-action";
 import { DeploymentApprovalInbox } from "@/devops-console/templates/deployment-approval-inbox";
 import { DryRunStepper } from "@/devops-console/templates/dry-run-stepper";
 import { QuickDeployLaunchpad } from "@/devops-console/templates/quick-deploy-launchpad";
+import { RollbackTargetList } from "@/devops-console/templates/rollback-target-list";
 import { RollbackSummary } from "@/devops-console/templates/rollback-summary";
 import type { TemplateEnvelope } from "@/devops-chat/types/templates";
 import type { SurfaceActionDescriptor } from "@/devops-chat/actions/action-types";
@@ -68,6 +69,13 @@ export function TemplateRenderer({
           template={template}
           onPrimaryAction={primaryHandler}
           onSecondaryAction={secondaryHandler}
+        />
+      );
+    case "rollback_target_list":
+      return (
+        <RollbackTargetList
+          template={template}
+          onAction={onAction}
         />
       );
     case "rollback_summary":

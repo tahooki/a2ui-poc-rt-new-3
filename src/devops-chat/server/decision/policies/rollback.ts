@@ -1,47 +1,44 @@
 import type { ConversationWorkflowState } from "@/devops-chat/types/conversation";
 import type { DecisionResult } from "../decision-engine";
 
-const REQUIRED = ["rollback.serviceName"];
-const READY_SET = ["rollback.serviceName", "rollback.context"];
-
 export function evaluateRollbackPolicy(
   filledSlots: Record<string, unknown>,
   _workflow: ConversationWorkflowState | null,
 ): DecisionResult {
+  const hasServiceName = filledSlots["rollback.serviceName"] != null;
+  const hasCandidates = filledSlots["rollback.candidates"] != null;
+  const hasContext = filledSlots["rollback.context"] != null;
+  const hasSelectedTarget = filledSlots["rollback.selectedTargetId"] != null;
+
   const matched: string[] = [];
-  const missing: string[] = [];
+  if (hasServiceName) matched.push("rollback.serviceName");
+  if (hasCandidates) matched.push("rollback.candidates");
+  if (hasContext) matched.push("rollback.context");
+  if (hasSelectedTarget) matched.push("rollback.selectedTargetId");
 
-  for (const key of [...new Set([...REQUIRED, ...READY_SET])]) {
-    if (filledSlots[key] != null) {
-      matched.push(key);
-    } else {
-      missing.push(key);
-    }
-  }
-
-  const requiredMissing = REQUIRED.filter((k) => filledSlots[k] == null);
-  if (requiredMissing.length > 0) {
+  // No serviceName → ask_followup
+  if (!hasServiceName) {
     return {
       trace: {
         mode: "ask_followup",
         matched,
-        missing,
+        missing: ["rollback.serviceName"],
         disqualified: [],
-        reason: `롤백 대상 지정 필요: ${requiredMissing.join(", ")}`,
+        reason: "롤백 대상 서비스 지정 필요",
       },
       surfaceIntent: null,
     };
   }
 
-  const readyMissing = READY_SET.filter((k) => filledSlots[k] == null);
-  if (readyMissing.length === 0) {
+  // serviceName + context (target already selected) → rollback_summary
+  if (hasServiceName && hasContext) {
     return {
       trace: {
         mode: "render_surface",
         matched,
         missing: [],
         disqualified: [],
-        reason: "롤백 summary surface-ready",
+        reason: "롤백 summary surface-ready (인스턴스 선택 완료)",
       },
       surfaceIntent: {
         family: "rollback.summary",
@@ -51,16 +48,35 @@ export function evaluateRollbackPolicy(
     };
   }
 
+  // serviceName + candidates (show target list)
+  if (hasServiceName && hasCandidates) {
+    return {
+      trace: {
+        mode: "render_surface",
+        matched,
+        missing: [],
+        disqualified: [],
+        reason: "롤백 대상 인스턴스 목록 surface-ready",
+      },
+      surfaceIntent: {
+        family: "rollback.target_list",
+        intentKey: "rollback.start",
+        readiness: "ready",
+      },
+    };
+  }
+
+  // serviceName only → ask_followup (tool will fetch candidates)
   return {
     trace: {
       mode: "ask_followup",
       matched,
-      missing: readyMissing,
+      missing: ["rollback.candidates"],
       disqualified: [],
-      reason: `롤백 컨텍스트 필요: ${readyMissing.join(", ")}`,
+      reason: "롤백 후보 조회 필요",
     },
     surfaceIntent: {
-      family: "rollback.summary",
+      family: "rollback.target_list",
       intentKey: "rollback.start",
       readiness: "candidate",
     },

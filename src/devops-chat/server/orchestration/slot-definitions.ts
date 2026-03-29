@@ -128,6 +128,20 @@ export const INTENT_SLOT_SCHEMAS: Record<string, IntentSlotSchema> = {
         awaitingPrompt: "어떤 서비스를 롤백할까요?",
       },
       {
+        slotKey: "rollback.candidates",
+        label: "롤백 후보 목록",
+        type: "array",
+        required: false,
+        sourcePrecedence: ["tool", "system"],
+      },
+      {
+        slotKey: "rollback.selectedTargetId",
+        label: "선택된 롤백 대상 ID",
+        type: "string",
+        required: false,
+        sourcePrecedence: ["user", "system"],
+      },
+      {
         slotKey: "rollback.targetVersion",
         label: "롤백 버전",
         type: "string",

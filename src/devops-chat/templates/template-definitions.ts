@@ -37,6 +37,13 @@ export const TEMPLATE_DEFINITIONS: TemplateDefinition[] = [
     rendererKey: "deployment_approval_inbox",
   },
   {
+    templateId: "rollback_target_list",
+    family: "rollback.target_list",
+    intentKeys: ["rollback.start"],
+    requiredFacts: ["rollback.serviceName", "rollback.candidates"],
+    rendererKey: "rollback_target_list",
+  },
+  {
     templateId: "rollback_summary",
     family: "rollback.summary",
     intentKeys: ["rollback.start"],

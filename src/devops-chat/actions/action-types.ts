@@ -95,6 +95,7 @@ export const APPROVAL_ACTION_IDS = {
 } as const;
 
 export const ROLLBACK_ACTION_IDS = {
+  SELECT_TARGET: "rollback.select_target",
   START_DRY_RUN: "rollback.start_dry_run",
   COMPLETE_DRY_RUN: "rollback.complete_dry_run",
   OPEN_CONFIRM: "rollback.open_confirm",
