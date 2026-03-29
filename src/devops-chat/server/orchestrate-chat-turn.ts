@@ -15,13 +15,17 @@ import { resolveIntent } from "./orchestration/intent-resolver";
 import { planTools, deduplicateTools } from "./orchestration/tool-planner";
 import { getFilledSlots, mergeSlotPatch, setSlot } from "./orchestration/slot-memory";
 import { getWorkflowForIntent } from "./orchestration/workflow-definitions";
-import { getFirstMissingRequiredSlot, getSlotSchema } from "./orchestration/slot-definitions";
+import { getFirstMissingRequiredSlot, getSlotSchema, canonicalizeValue } from "./orchestration/slot-definitions";
 import { evaluateDecision } from "./decision/decision-engine";
 import { buildTurnResponse } from "./orchestration/response-builder";
 import { getTool } from "./tools/tool-registry";
 import { executeTool } from "./tools/tool-executor";
 import { adaptToolResult } from "./tools/tool-result-adapter";
 import { ensureBuiltinToolsRegistered } from "./tools/register-builtin-tools";
+import { isLlmAvailable } from "./ai/llm-client";
+import { resolveIntentWithAi } from "./ai/ai-intent-resolver";
+import { resolveAwaitingWithAi } from "./ai/ai-awaiting-resolver";
+import { clearSlot, invalidateDependentSlots } from "./orchestration/slot-memory";
 
 export type OrchestrateTurnInput = {
   requestId: string;
@@ -78,91 +82,153 @@ export async function orchestrateChatTurn(
   let factsPatch: Partial<ConversationFacts> = {};
 
   // -----------------------------------------------------------------------
-  // Step 2: Resolve awaiting answer
+  // Step 2: Resolve awaiting answer (AI-first, rule-based fallback)
   // -----------------------------------------------------------------------
   if (currentAwaiting) {
-    const awaitResult = resolveAwaiting(input, currentAwaiting, facts);
+    let awaitHandled = false;
 
-    if (awaitResult.resolved) {
-      facts = awaitResult.facts;
-      currentAwaiting = null;
-    } else {
-      facts = awaitResult.facts;
-
-      switch (awaitResult.reason) {
-        case "cancel": {
-          // Reset workflow-local state
-          const schema = getSlotSchema(currentAwaiting.originIntentKey as never);
-          currentAwaiting = null;
-          currentIntent = null;
-          currentWorkflow = null;
-          const text = "취소했습니다. 다른 작업을 말씀해 주세요.";
-          callbacks.onDelta?.(text);
-          return buildTurnResponse({
-            requestId,
-            text,
-            intent: null,
-            workflow: null,
-            facts,
-            awaiting: null,
-            decisionMode: "text",
-            decisionReason: "사용자 취소",
-            decisionTrace: null,
-            surfaceIntent: null,
-            toolResults: [],
-            factsPatch: {},
-          });
+    // --- AI path ---
+    if (isLlmAvailable()) {
+      const aiResult = await resolveAwaitingWithAi(input, currentAwaiting);
+      if (aiResult) {
+        switch (aiResult.action) {
+          case "fill_slot": {
+            if (aiResult.value) {
+              facts = setSlot(facts, currentAwaiting.slotKey, aiResult.value, "user");
+              const staleMap = buildStaleMapForIntent(currentAwaiting.originIntentKey);
+              facts = invalidateDependentSlots(facts, currentAwaiting.slotKey, staleMap);
+              currentAwaiting = null;
+              awaitHandled = true;
+            }
+            break;
+          }
+          case "cancel": {
+            currentAwaiting = null;
+            currentIntent = null;
+            currentWorkflow = null;
+            const text = "취소했습니다. 다른 작업을 말씀해 주세요.";
+            callbacks.onDelta?.(text);
+            return buildTurnResponse({
+              requestId, text, intent: null, workflow: null, facts,
+              awaiting: null, decisionMode: "text", decisionReason: "사용자 취소 (AI)",
+              decisionTrace: null, surfaceIntent: null, toolResults: [], factsPatch: {},
+            });
+          }
+          case "correction": {
+            facts = clearSlot(facts, currentAwaiting.slotKey);
+            const staleMap = buildStaleMapForIntent(currentAwaiting.originIntentKey);
+            facts = invalidateDependentSlots(facts, currentAwaiting.slotKey, staleMap);
+            currentAwaiting = null;
+            awaitHandled = true;
+            break;
+          }
+          case "interrupt": {
+            currentAwaiting = null;
+            awaitHandled = true;
+            break;
+          }
+          // "unclear" → fall through to rule-based
         }
+      }
+    }
 
-        case "interrupt": {
-          // Fall through to intent resolution below with cleared awaiting
-          currentAwaiting = null;
-          break;
+    // --- Rule-based fallback ---
+    if (!awaitHandled) {
+      const awaitResult = resolveAwaiting(input, currentAwaiting, facts);
+
+      if (awaitResult.resolved) {
+        facts = awaitResult.facts;
+        currentAwaiting = null;
+      } else {
+        facts = awaitResult.facts;
+
+        switch (awaitResult.reason) {
+          case "cancel": {
+            currentAwaiting = null;
+            currentIntent = null;
+            currentWorkflow = null;
+            const text = "취소했습니다. 다른 작업을 말씀해 주세요.";
+            callbacks.onDelta?.(text);
+            return buildTurnResponse({
+              requestId, text, intent: null, workflow: null, facts,
+              awaiting: null, decisionMode: "text", decisionReason: "사용자 취소",
+              decisionTrace: null, surfaceIntent: null, toolResults: [], factsPatch: {},
+            });
+          }
+          case "interrupt": {
+            currentAwaiting = null;
+            break;
+          }
+          case "correction": {
+            currentAwaiting = null;
+            break;
+          }
+          case "ambiguous":
+          case "no_match": {
+            const retryAwaiting = awaitResult.awaiting!;
+            const text = retryAwaiting.prompt;
+            callbacks.onDelta?.(text);
+            return buildTurnResponse({
+              requestId, text, intent: currentIntent, workflow: currentWorkflow, facts,
+              awaiting: retryAwaiting, decisionMode: "ask_followup",
+              decisionReason: awaitResult.reason === "ambiguous" ? "모호한 입력" : "일치하는 항목 없음",
+              decisionTrace: null, surfaceIntent: null, toolResults: [], factsPatch: {},
+            });
+          }
+          case "no_awaiting":
+            break;
         }
-
-        case "correction": {
-          // Awaiting cleared, slots invalidated — re-enter the flow
-          currentAwaiting = null;
-          // Will re-evaluate what's missing below
-          break;
-        }
-
-        case "ambiguous":
-        case "no_match": {
-          const retryAwaiting = awaitResult.awaiting!;
-          const text = retryAwaiting.prompt;
-          callbacks.onDelta?.(text);
-          return buildTurnResponse({
-            requestId,
-            text,
-            intent: currentIntent,
-            workflow: currentWorkflow,
-            facts,
-            awaiting: retryAwaiting,
-            decisionMode: "ask_followup",
-            decisionReason: awaitResult.reason === "ambiguous" ? "모호한 입력" : "일치하는 항목 없음",
-            decisionTrace: null,
-            surfaceIntent: null,
-            toolResults: [],
-            factsPatch: {},
-          });
-        }
-
-        case "no_awaiting":
-          break;
       }
     }
   }
 
   // -----------------------------------------------------------------------
-  // Step 3: Resolve intent / workflow
+  // Step 3: Resolve intent / workflow (AI-first, rule-based fallback)
   // -----------------------------------------------------------------------
-  const intentResult = resolveIntent(input, currentIntent, currentAwaiting, facts);
-  currentIntent = intentResult.intent;
-  facts = intentResult.facts;
+  let aiSlots: Record<string, string> = {};
 
-  if (intentResult.isSwitch) {
-    currentAwaiting = null;
+  if (isLlmAvailable()) {
+    const aiResult = await resolveIntentWithAi(
+      input,
+      currentIntent?.intentKey ?? null,
+      history,
+    );
+
+    if (aiResult && aiResult.confidence >= 0.5) {
+      const isSwitch = currentIntent && currentIntent.intentKey !== aiResult.intentKey;
+
+      currentIntent = {
+        intentKey: aiResult.intentKey,
+        confidence: aiResult.confidence,
+        source: "llm",
+        startedAt: isSwitch ? new Date().toISOString() : (currentIntent?.startedAt ?? new Date().toISOString()),
+      };
+
+      if (isSwitch) {
+        currentAwaiting = null;
+      }
+
+      // Collect AI-extracted slots for merging after intent is set
+      aiSlots = aiResult.slots ?? {};
+    }
+  }
+
+  // Rule-based fallback if AI didn't resolve
+  if (!currentIntent || currentIntent.source !== "llm") {
+    const intentResult = resolveIntent(input, currentIntent, currentAwaiting, facts);
+    currentIntent = intentResult.intent;
+    facts = intentResult.facts;
+
+    if (intentResult.isSwitch) {
+      currentAwaiting = null;
+    }
+  }
+
+  // Merge AI-extracted slots into facts
+  for (const [slotKey, value] of Object.entries(aiSlots)) {
+    if (value) {
+      facts = setSlot(facts, slotKey, value, "user");
+    }
   }
 
   // Update workflow based on intent
@@ -475,6 +541,18 @@ function extractDeltaText(rawEvent: string): string {
     }
   }
   return "";
+}
+
+function buildStaleMapForIntent(intentKey: string): Record<string, string[]> {
+  const schema = getSlotSchema(intentKey as never);
+  if (!schema) return {};
+  const map: Record<string, string[]> = {};
+  for (const slot of schema.slots) {
+    if (slot.staleWhen) {
+      map[slot.slotKey] = slot.staleWhen;
+    }
+  }
+  return map;
 }
 
 function buildContextualSummary(ctx: ContextSnapshot): string | null {
