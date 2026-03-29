@@ -3,6 +3,7 @@
 import { useState } from "react";
 import styles from "@/devops-console/console-page.module.css";
 import { StatusChip } from "@/devops-console/foundation/status-chip";
+import { Icon, type IconName } from "@/devops-console/foundation/icon-registry";
 import type { ApprovalQueueTemplateData, ApprovalQueueItem } from "@/devops-chat/types/templates";
 
 type ApprovalQueueInboxProps = {
@@ -11,6 +12,26 @@ type ApprovalQueueInboxProps = {
   onPrimaryAction?: () => void;
   onSecondaryAction?: () => void;
 };
+
+// ---------------------------------------------------------------------------
+// Category config
+// ---------------------------------------------------------------------------
+
+type CategoryInfo = {
+  label: string;
+  icon: IconName;
+  color: string;
+};
+
+const CATEGORY_MAP: Record<string, CategoryInfo> = {
+  temporary_access: { label: "임시 접근 권한", icon: "key", color: "#f0ad4e" },
+  config_change: { label: "설정 변경", icon: "settings", color: "#4c8dff" },
+  data_operation: { label: "데이터 작업", icon: "database", color: "#9b59b6" },
+};
+
+function getCategoryInfo(type: string): CategoryInfo {
+  return CATEGORY_MAP[type] ?? { label: type, icon: "approve", color: "#888" };
+}
 
 function riskTone(tone: string): "warning" | "danger" | "success" {
   if (tone === "danger") return "danger";
@@ -77,11 +98,27 @@ function QueueItemCard({
   }
 
   // Normal card
+  const cat = getCategoryInfo(item.type);
+
   return (
     <div className={`${styles.templateCard} ${styles.deployFadeIn}`} style={{ marginBottom: 8 }}>
+      {/* Category badge */}
+      <div style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 6,
+        padding: "0 12px",
+        fontSize: 11,
+        fontWeight: 600,
+        color: cat.color,
+        letterSpacing: "0.02em",
+      }}>
+        <Icon name={cat.icon} size={14} style={{ color: cat.color }} />
+        {cat.label}
+      </div>
+
       <div className={styles.templateHeaderRow}>
         <div>
-          <div className={styles.sectionEyebrow}>{item.typeLabel}</div>
           <h4 className={styles.templateTitle}>{item.id}</h4>
           <p className={styles.templateDescription}>
             {item.title} / {item.environment}
@@ -119,6 +156,7 @@ function QueueItemCard({
 // Already processed card (for approved/held sections)
 function ProcessedItemCard({ item }: { item: ApprovalQueueItem }) {
   const isApproved = item.status === "approved";
+  const cat = getCategoryInfo(item.type);
   return (
     <div
       className={styles.templateCard}
@@ -128,9 +166,12 @@ function ProcessedItemCard({ item }: { item: ApprovalQueueItem }) {
         borderColor: isApproved ? "rgba(52, 195, 143, 0.3)" : "rgba(228, 106, 106, 0.3)",
       }}
     >
+      <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "0 12px", fontSize: 11, fontWeight: 600, color: cat.color }}>
+        <Icon name={cat.icon} size={12} style={{ color: cat.color }} />
+        {cat.label}
+      </div>
       <div className={styles.templateHeaderRow}>
         <div>
-          <div className={styles.sectionEyebrow}>{item.typeLabel}</div>
           <h4 className={styles.templateTitle}>{item.id}</h4>
           <p className={styles.templateDescription}>{item.title} / {item.environment}</p>
         </div>
