@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import styles from "@/devops-console/console-page.module.css";
 import { StatusChip } from "@/devops-console/foundation/status-chip";
 import type { ApprovalQueueTemplateData, ApprovalQueueItem } from "@/devops-chat/types/templates";
@@ -15,11 +18,7 @@ function riskTone(tone: string): "warning" | "danger" | "success" {
   return "warning";
 }
 
-function statusTone(status: string): "warning" | "danger" | "success" {
-  if (status === "approved") return "success";
-  if (status === "held") return "danger";
-  return "warning";
-}
+type CardState = "idle" | "approved" | "held";
 
 function QueueItemCard({
   item,
@@ -28,8 +27,58 @@ function QueueItemCard({
   item: ApprovalQueueItem;
   onAction?: (actionId: string, payload?: Record<string, unknown>) => void;
 }) {
+  const [cardState, setCardState] = useState<CardState>("idle");
+
+  function handleAction(actionId: string) {
+    const isApprove = actionId.includes("approve");
+    setCardState(isApprove ? "approved" : "held");
+    // Delay the actual action call so animation plays first
+    setTimeout(() => {
+      onAction?.(actionId, { requestId: item.id });
+    }, 600);
+  }
+
+  // Completed overlay
+  if (cardState !== "idle") {
+    const isApproved = cardState === "approved";
+    return (
+      <div
+        className={styles.templateCard}
+        style={{
+          marginBottom: 8,
+          overflow: "hidden",
+          animation: "deployFadeIn 0.3s ease",
+          borderColor: isApproved ? "rgba(52, 195, 143, 0.5)" : "rgba(228, 106, 106, 0.5)",
+          transition: "border-color 0.3s, opacity 0.5s",
+        }}
+      >
+        <div style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "24px 12px",
+          gap: 8,
+        }}>
+          <span className={styles.deployStepBounce} style={{ fontSize: 32 }}>
+            {isApproved ? "✅" : "⏸️"}
+          </span>
+          <span style={{
+            fontSize: 14,
+            fontWeight: 600,
+            color: isApproved ? "rgba(52, 195, 143, 0.9)" : "rgba(228, 176, 106, 0.9)",
+          }}>
+            {isApproved ? "승인 완료" : "보류 처리됨"}
+          </span>
+          <span style={{ fontSize: 12, opacity: 0.5 }}>{item.id}</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Normal card
   return (
-    <div className={styles.templateCard} style={{ marginBottom: 8 }}>
+    <div className={`${styles.templateCard} ${styles.deployFadeIn}`} style={{ marginBottom: 8 }}>
       <div className={styles.templateHeaderRow}>
         <div>
           <div className={styles.sectionEyebrow}>{item.typeLabel}</div>
@@ -40,7 +89,7 @@ function QueueItemCard({
         </div>
         <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
           <StatusChip label={item.riskSummary || item.riskTone} tone={riskTone(item.riskTone)} />
-          <StatusChip label={item.status} tone={statusTone(item.status)} />
+          <StatusChip label={item.status} tone="warning" />
         </div>
       </div>
 
@@ -55,7 +104,7 @@ function QueueItemCard({
               className={action.variant === "primary" ? styles.primaryButton : styles.secondaryButton}
               disabled={action.disabled}
               key={action.actionId}
-              onClick={() => onAction?.(action.actionId, { requestId: item.id })}
+              onClick={() => handleAction(action.actionId)}
               type="button"
             >
               {action.label}
@@ -63,6 +112,30 @@ function QueueItemCard({
           ))}
         </div>
       ) : null}
+    </div>
+  );
+}
+
+// Already processed card (for approved/held sections)
+function ProcessedItemCard({ item }: { item: ApprovalQueueItem }) {
+  const isApproved = item.status === "approved";
+  return (
+    <div
+      className={styles.templateCard}
+      style={{
+        marginBottom: 8,
+        opacity: 0.6,
+        borderColor: isApproved ? "rgba(52, 195, 143, 0.3)" : "rgba(228, 106, 106, 0.3)",
+      }}
+    >
+      <div className={styles.templateHeaderRow}>
+        <div>
+          <div className={styles.sectionEyebrow}>{item.typeLabel}</div>
+          <h4 className={styles.templateTitle}>{item.id}</h4>
+          <p className={styles.templateDescription}>{item.title} / {item.environment}</p>
+        </div>
+        <StatusChip label={item.status} tone={isApproved ? "success" : "danger"} />
+      </div>
     </div>
   );
 }
@@ -112,8 +185,16 @@ export function ApprovalQueueInbox({
           ))}
         </div>
       ) : (
-        <div style={{ padding: 16, textAlign: "center", opacity: 0.5 }}>
-          모든 요청이 처리되었습니다.
+        <div className={styles.deployFadeIn} style={{
+          padding: 24,
+          textAlign: "center",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 8,
+        }}>
+          <span className={styles.deployStepBounce} style={{ fontSize: 36 }}>🎉</span>
+          <span style={{ fontWeight: 600 }}>모든 요청이 처리되었습니다</span>
         </div>
       )}
 
@@ -124,7 +205,7 @@ export function ApprovalQueueInbox({
             승인됨 ({approved.length})
           </summary>
           {approved.map((item) => (
-            <QueueItemCard item={item} key={item.id} onAction={onAction} />
+            <ProcessedItemCard item={item} key={item.id} />
           ))}
         </details>
       ) : null}
@@ -136,7 +217,7 @@ export function ApprovalQueueInbox({
             보류 ({held.length})
           </summary>
           {held.map((item) => (
-            <QueueItemCard item={item} key={item.id} onAction={onAction} />
+            <ProcessedItemCard item={item} key={item.id} />
           ))}
         </details>
       ) : null}
