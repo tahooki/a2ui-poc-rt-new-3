@@ -166,6 +166,11 @@ export const INTENT_SLOT_SCHEMAS: Record<string, IntentSlotSchema> = {
       },
     ],
   },
+  "approval.status.check": {
+    intentKey: "approval.status.check",
+    namespace: "approval",
+    slots: [],
+  },
   "deploy.history.lookup": {
     intentKey: "deploy.history.lookup",
     namespace: "deploy",

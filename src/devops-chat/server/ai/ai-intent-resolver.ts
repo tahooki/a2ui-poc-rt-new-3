@@ -25,6 +25,7 @@ Given user input, classify the intent and extract any mentioned slots.
 Available intents:
 - "deploy.start": User wants to deploy a service (배포, deploy)
 - "deploy.history.lookup": User asks about past deployments (이전 배포, 배포 이력, 마지막 배포)
+- "approval.status.check": User asks about approval status/counts/summary without wanting to take action (승인 몇 건, 건수, 현황 요약, 상태 알려줘)
 - "approval.review": User wants to review/manage approval requests (승인, approve)
 - "rollback.start": User wants to rollback a service (롤백, rollback)
 - "general.qna": General question not related to specific workflow
@@ -87,6 +88,7 @@ export async function resolveIntentWithAi(
     "deploy.start",
     "deploy.history.lookup",
     "approval.review",
+    "approval.status.check",
     "rollback.start",
     "general.qna",
   ];

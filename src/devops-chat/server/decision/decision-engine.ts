@@ -37,6 +37,18 @@ export function evaluateDecision(
     case "approval.review":
       return evaluateApprovalPolicy(filledSlots, workflow);
 
+    case "approval.status.check":
+      return {
+        trace: {
+          mode: "text",
+          matched: ["approval.status.check"],
+          missing: [],
+          disqualified: [],
+          reason: "승인 현황 조회는 text로 응답한다",
+        },
+        surfaceIntent: null,
+      };
+
     case "rollback.start":
       return evaluateRollbackPolicy(filledSlots, workflow);
 

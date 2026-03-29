@@ -23,6 +23,8 @@ export function planTools(
       return planRollbackTools(facts);
     case "approval.review":
       return planApprovalTools(facts);
+    case "approval.status.check":
+      return [{ toolName: "getApprovalQueueSummary", reason: "승인 현황 조회" }];
     default:
       return [];
   }

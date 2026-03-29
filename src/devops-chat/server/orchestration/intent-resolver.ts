@@ -50,14 +50,29 @@ const INTENT_RULES: IntentRule[] = [
     intentKey: "approval.review",
     patterns: [
       /승인\s*검토/,
-      /승인\s*요청/,
-      /승인\s*확인/,
-      /승인\s*대기/,
-      /승인\s*현황/,
+      /승인\s*확인해/,
+      /승인.*보여/,
+      /승인\s*처리/,
+      /승인\s*요청\s*확인/,
       /approve/i,
-      /approval/i,
     ],
     priority: 1,
+  },
+  {
+    intentKey: "approval.status.check",
+    patterns: [
+      /승인.*몇\s*건/,
+      /승인.*건수/,
+      /승인.*현황.*요약/,
+      /승인.*상태.*알려/,
+      /승인.*요약/,
+      /승인\s*대기/,
+      /승인\s*현황/,
+      /승인\s*요청\s*있/,
+      /approval\s*status/i,
+      /approval\s*summary/i,
+    ],
+    priority: 2,
   },
   {
     intentKey: "deploy.history.lookup",
@@ -88,7 +103,7 @@ type IntentCarryPolicy = {
 
 const CARRY_POLICY: IntentCarryPolicy = {
   carryable: ["deploy.start", "rollback.start", "approval.review"],
-  nonCarryable: ["general.qna", "deploy.history.lookup"],
+  nonCarryable: ["general.qna", "deploy.history.lookup", "approval.status.check"],
 };
 
 // ---------------------------------------------------------------------------

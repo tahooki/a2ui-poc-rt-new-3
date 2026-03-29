@@ -47,6 +47,7 @@ export type IntentKey =
   | "deploy.start"
   | "deploy.history.lookup"
   | "approval.review"
+  | "approval.status.check"
   | "rollback.start"
   | "general.qna";
 
