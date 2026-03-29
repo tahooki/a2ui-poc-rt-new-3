@@ -25,7 +25,7 @@ function resolveActions(template: TemplateEnvelope): SurfaceActionDescriptor[] {
 
 function makeActionHandler(
   actions: SurfaceActionDescriptor[],
-  variant: "primary" | "secondary" | "danger",
+  variant: "primary" | "secondary" | "danger" | "ghost",
   onAction?: (actionId: string, payload?: Record<string, unknown>) => void,
   fallback?: () => void,
 ): () => void {

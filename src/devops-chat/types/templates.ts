@@ -21,6 +21,7 @@ export type QuickDeployTemplateData = {
   helperText: string;
   primaryActionLabel: string;
   secondaryActionLabel: string;
+  actions?: unknown[];
 };
 
 export type DeploymentApprovalTemplateData = {
@@ -38,6 +39,7 @@ export type DeploymentApprovalTemplateData = {
   keyFacts: Array<{ label: string; value: string; mono?: boolean }>;
   primaryActionLabel: string;
   secondaryActionLabel: string;
+  actions?: unknown[];
 };
 
 export type RollbackSummaryTemplateData = {
@@ -52,6 +54,7 @@ export type RollbackSummaryTemplateData = {
   blastRadius: string;
   primaryActionLabel: string;
   secondaryActionLabel: string;
+  actions?: unknown[];
 };
 
 export type DryRunStepperTemplateData = {
@@ -64,6 +67,7 @@ export type DryRunStepperTemplateData = {
   helperText: string;
   primaryActionLabel: string;
   secondaryActionLabel: string;
+  actions?: unknown[];
 };
 
 export type ConfirmActionTemplateData = {
@@ -76,6 +80,7 @@ export type ConfirmActionTemplateData = {
   checklist: string[];
   primaryActionLabel: string;
   secondaryActionLabel: string;
+  actions?: unknown[];
 };
 
 // ---------------------------------------------------------------------------

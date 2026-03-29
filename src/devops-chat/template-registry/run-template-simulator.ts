@@ -5,7 +5,7 @@
  * Reuses the actual runtime path so results are identical to production.
  */
 
-import type { ConversationFacts, TemplateCandidateScore } from "@/devops-chat/types/conversation";
+import type { ConversationFacts, IntentKey, TemplateCandidateScore } from "@/devops-chat/types/conversation";
 import { evaluateDecision } from "@/devops-chat/server/decision/decision-engine";
 import { selectTemplate, type TemplateSelectionResult } from "@/devops-chat/templates/template-selector";
 import { getFilledSlots } from "@/devops-chat/server/orchestration/slot-memory";
@@ -28,7 +28,7 @@ export function runTemplateSimulator(input: SimulatorInput): SimulatorResult {
   // Step 1: Run decision engine (convert facts to filledSlots flat map)
   const filledSlots = getFilledSlots(input.facts);
   const decisionResult = evaluateDecision(
-    input.intentKey,
+    input.intentKey as IntentKey,
     filledSlots,
     null, // workflow
   );

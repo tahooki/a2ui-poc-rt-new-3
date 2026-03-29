@@ -130,7 +130,7 @@ export const INTENT_SLOT_SCHEMAS: Record<string, IntentSlotSchema> = {
       {
         slotKey: "rollback.candidates",
         label: "롤백 후보 목록",
-        type: "array",
+        type: "list",
         required: false,
         sourcePrecedence: ["tool", "system"],
       },
@@ -165,7 +165,7 @@ export const INTENT_SLOT_SCHEMAS: Record<string, IntentSlotSchema> = {
       {
         slotKey: "approval.queueItems",
         label: "승인 큐 목록",
-        type: "array",
+        type: "list",
         required: false,
         sourcePrecedence: ["tool", "system"],
       },

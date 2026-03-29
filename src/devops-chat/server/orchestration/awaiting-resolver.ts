@@ -75,12 +75,18 @@ export function resolveAwaiting(
 
   // Priority 1: explicit interruption (new intent detected)
   if (isIntentInterruption(input)) {
-    return { resolved: false, reason: "interrupt", facts };
+    return {
+      resolved: false, reason: "interrupt", facts,
+      correctionEvent: { type: "interrupt", slotKey: awaiting.slotKey, clearedSlots: [], input, timestamp: new Date().toISOString() },
+    };
   }
 
   // Priority 2: cancel
   if (isCancel(input)) {
-    return { resolved: false, reason: "cancel", facts };
+    return {
+      resolved: false, reason: "cancel", facts,
+      correctionEvent: { type: "cancel", slotKey: awaiting.slotKey, clearedSlots: [], input, timestamp: new Date().toISOString() },
+    };
   }
 
   // Priority 3: correction
@@ -89,7 +95,10 @@ export function resolveAwaiting(
     let newFacts = clearSlot(facts, awaiting.slotKey);
     const staleMap = buildStaleMap(awaiting.originIntentKey);
     newFacts = invalidateDependentSlots(newFacts, awaiting.slotKey, staleMap);
-    return { resolved: false, reason: "correction", facts: newFacts };
+    return {
+      resolved: false, reason: "correction", facts: newFacts,
+      correctionEvent: { type: "correction", slotKey: awaiting.slotKey, clearedSlots: [awaiting.slotKey], input, timestamp: new Date().toISOString() },
+    };
   }
 
   // Priority 4: resolve based on expectedInput type
