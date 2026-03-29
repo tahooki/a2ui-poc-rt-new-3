@@ -30,19 +30,22 @@ function findSelectedItem(pageKey: PageKey, pages: RuntimePageMap) {
 export function DevopsConsolePage({ pageKey }: { pageKey: PageKey }) {
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [aiEnabled, setAiEnabled] = useState(false);
   const pages = useDevopsConsoleStore((state) => state.pages);
   const selectRow = useDevopsConsoleStore((state) => state.selectRow);
   const viewModel = buildConsoleViewModel(pageKey, pages);
   const selectedItem = findSelectedItem(pageKey, pages);
 
-  const assistant = <ChatAssistantPanel onClose={() => setAssistantOpen(false)} pageKey={pageKey} selectedItem={selectedItem} />;
+  const assistant = <ChatAssistantPanel aiEnabled={aiEnabled} onClose={() => setAssistantOpen(false)} pageKey={pageKey} selectedItem={selectedItem} />;
 
   return (
     <AppFrame
       activePage={pageKey}
+      aiEnabled={aiEnabled}
       assistant={assistant}
       assistantOpen={assistantOpen}
       lastUpdated={viewModel.lastUpdated}
+      onToggleAi={() => setAiEnabled((v) => !v)}
       onToggleAssistant={() => setAssistantOpen((value) => !value)}
       onToggleSidebar={() => setSidebarOpen((value) => !value)}
       pageScope={viewModel.pageScope}

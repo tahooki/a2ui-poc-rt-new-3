@@ -30,12 +30,14 @@ type ChatAssistantPanelProps = {
   onClose: () => void;
   pageKey: PageKey;
   selectedItem: DeployItem | ApprovalItem | RollbackItem | null;
+  aiEnabled?: boolean;
 };
 
 export function ChatAssistantPanel({
   onClose,
   pageKey,
   selectedItem,
+  aiEnabled,
 }: ChatAssistantPanelProps) {
   const conversationId = pageConversationId(pageKey);
 
@@ -117,6 +119,7 @@ export function ChatAssistantPanel({
       intent,
       workflow,
       awaiting,
+      useAi: aiEnabled,
     };
 
     try {

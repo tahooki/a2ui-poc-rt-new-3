@@ -221,6 +221,34 @@
   background: rgba(76, 141, 255, 0.4);
 }
 
+.aiToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(76, 141, 255, 0.4);
+  background: rgba(27, 47, 71, 0.6);
+  color: var(--console-text-primary);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.aiToggle:hover {
+  background: rgba(76, 141, 255, 0.2);
+  border-color: rgba(76, 141, 255, 0.7);
+}
+
+.aiToggleIcon {
+  font-size: 14px;
+}
+
+.aiToggleLabel {
+  letter-spacing: 0.03em;
+}
+
 .noticeStrip {
   display: flex;
   align-items: center;

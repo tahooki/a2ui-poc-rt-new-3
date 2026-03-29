@@ -9,8 +9,10 @@ export function TopHeader({
   assistantOpen,
   assistantHref,
   hideAssistantTrigger,
+  aiEnabled,
   onToggleAssistant,
   onToggleSidebar,
+  onToggleAi,
 }: {
   lastUpdated: string;
   pageScope: string;
@@ -18,8 +20,10 @@ export function TopHeader({
   assistantOpen: boolean;
   assistantHref?: string;
   hideAssistantTrigger?: boolean;
+  aiEnabled?: boolean;
   onToggleAssistant: () => void;
   onToggleSidebar: () => void;
+  onToggleAi?: () => void;
 }) {
   return (
     <header className={styles.topHeader}>
@@ -42,6 +46,17 @@ export function TopHeader({
           <Icon name="history" size={14} />
           {lastUpdated}
         </span>
+        {onToggleAi ? (
+          <button
+            className={styles.aiToggle}
+            onClick={onToggleAi}
+            type="button"
+            title={aiEnabled ? "AI 모드 (클릭하면 Mock 모드)" : "Mock 모드 (클릭하면 AI 모드)"}
+          >
+            <span className={styles.aiToggleIcon}>{aiEnabled ? "🤖" : "📋"}</span>
+            <span className={styles.aiToggleLabel}>{aiEnabled ? "AI" : "Mock"}</span>
+          </button>
+        ) : null}
         {hideAssistantTrigger ? null : assistantHref ? (
           <Link className={styles.iconButton} href={assistantHref}>
             <Icon name="robot" size={16} />

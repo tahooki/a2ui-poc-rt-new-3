@@ -33,6 +33,7 @@ export async function POST(request: Request) {
             intent: body.intent ?? null,
             workflow: body.workflow ?? null,
             awaiting: body.awaiting ?? null,
+            useAi: (body as Record<string, unknown>).useAi as boolean | undefined,
           },
           {
             onDelta(text) {

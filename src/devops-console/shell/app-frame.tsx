@@ -9,6 +9,7 @@ type AppFrameProps = {
   assistantOpen: boolean;
   assistantHref?: string;
   hideAssistantTrigger?: boolean;
+  aiEnabled?: boolean;
   children: React.ReactNode;
   lastUpdated: string;
   pageScope: string;
@@ -16,6 +17,7 @@ type AppFrameProps = {
   sidebarOpen: boolean;
   onToggleAssistant: () => void;
   onToggleSidebar: () => void;
+  onToggleAi?: () => void;
 };
 
 export function AppFrame({
@@ -24,6 +26,7 @@ export function AppFrame({
   assistantOpen,
   assistantHref,
   hideAssistantTrigger,
+  aiEnabled,
   children,
   lastUpdated,
   pageScope,
@@ -31,16 +34,19 @@ export function AppFrame({
   sidebarOpen,
   onToggleAssistant,
   onToggleSidebar,
+  onToggleAi,
 }: AppFrameProps) {
   return (
     <div className={styles.frame}>
       <SidebarNav activePage={activePage} isOpen={sidebarOpen} />
       <div className={styles.contentShell}>
         <TopHeader
+          aiEnabled={aiEnabled}
           assistantOpen={assistantOpen}
           assistantHref={assistantHref}
           hideAssistantTrigger={hideAssistantTrigger}
           lastUpdated={lastUpdated}
+          onToggleAi={onToggleAi}
           onToggleAssistant={onToggleAssistant}
           onToggleSidebar={onToggleSidebar}
           pageScope={pageScope}

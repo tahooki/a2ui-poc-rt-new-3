@@ -40,6 +40,8 @@ export type OrchestrateTurnInput = {
   intent?: ConversationIntentState | null;
   workflow?: ConversationWorkflowState | null;
   awaiting?: ConversationAwaiting;
+  /** When false, force mock responses even if API key exists */
+  useAi?: boolean;
 };
 
 export type OrchestrateTurnCallbacks = {
@@ -73,7 +75,11 @@ export async function orchestrateChatTurn(
     input,
     history,
     contextSnapshot,
+    useAi: useAiParam,
   } = turnInput;
+
+  // useAi=false forces mock mode; useAi=true or undefined uses API key check
+  const forceMock = useAiParam === false;
 
   let facts: ConversationFacts = { ...turnInput.facts };
   let currentIntent = turnInput.intent ?? null;
@@ -91,7 +97,7 @@ export async function orchestrateChatTurn(
     let awaitHandled = false;
 
     // --- AI path ---
-    if (isLlmAvailable()) {
+    if (isLlmAvailable() && !forceMock) {
       const aiResult = await resolveAwaitingWithAi(input, currentAwaiting);
       if (aiResult) {
         switch (aiResult.action) {
@@ -190,7 +196,7 @@ export async function orchestrateChatTurn(
   // -----------------------------------------------------------------------
   let aiSlots: Record<string, string> = {};
 
-  if (isLlmAvailable()) {
+  if (isLlmAvailable() && !forceMock) {
     const aiResult = await resolveIntentWithAi(
       input,
       currentIntent?.intentKey ?? null,
@@ -348,6 +354,7 @@ export async function orchestrateChatTurn(
         input,
         null,
         callbacks,
+        forceMock,
       );
     }
   }
@@ -360,6 +367,7 @@ export async function orchestrateChatTurn(
       input,
       toolResults.map((t) => t.summary).join("\n"),
       callbacks,
+      forceMock,
     );
     if (llmText !== responseText) {
       responseText = llmText;
@@ -456,9 +464,10 @@ async function callLlmOrFallback(
   userInput: string,
   toolSummary: string | null,
   callbacks: OrchestrateTurnCallbacks,
+  forceMockMode = false,
 ): Promise<string> {
   const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
+  if (!apiKey || forceMockMode) {
     // Mock AI path: pattern-matched responses + tool narration + typing simulation
     let mockText: string;
     if (toolSummary) {

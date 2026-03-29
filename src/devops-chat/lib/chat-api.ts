@@ -40,6 +40,7 @@ export type ChatStreamRequest = {
   intent?: ConversationIntentState | null;
   workflow?: ConversationWorkflowState | null;
   awaiting?: ConversationAwaiting;
+  useAi?: boolean;
 };
 
 function parseSseEvent(rawEvent: string) {
@@ -69,7 +70,7 @@ export async function streamAssistantChat(
   handlers: ChatStreamHandlers,
   signal?: AbortSignal,
 ): Promise<AssistantTurnResponse | null> {
-  const requestBody: AssistantTurnRequest = {
+  const requestBody: AssistantTurnRequest & { useAi?: boolean } = {
     conversationId: payload.conversationId,
     input: payload.input,
     contextSnapshot: payload.contextSnapshot,
@@ -78,6 +79,7 @@ export async function streamAssistantChat(
     intent: payload.intent,
     workflow: payload.workflow,
     awaiting: payload.awaiting,
+    useAi: payload.useAi,
   };
 
   const response = await fetch("/api/chat", {
