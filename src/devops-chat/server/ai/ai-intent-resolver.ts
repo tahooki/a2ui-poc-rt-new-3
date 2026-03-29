@@ -27,7 +27,8 @@ Available intents:
 - "deploy.history.lookup": User asks about past deployments (이전 배포, 배포 이력, 마지막 배포)
 - "approval.status.check": User asks about approval status/counts/summary without wanting to take action (승인 몇 건, 건수, 현황 요약, 상태 알려줘)
 - "approval.review": User wants to review/manage approval requests (승인, approve)
-- "rollback.start": User wants to rollback a service (롤백, rollback)
+- "rollback.start": User wants to rollback a service (롤백하고 싶어, 롤백 시작, 롤백해줘)
+- "rollback.status.check": User asks about rollback status/candidates without wanting to take action (롤백 후보 몇 개, 롤백 상태, 인시던트 있어?)
 - "general.qna": General question not related to specific workflow
 
 Available slots to extract:
@@ -90,6 +91,7 @@ export async function resolveIntentWithAi(
     "approval.review",
     "approval.status.check",
     "rollback.start",
+    "rollback.status.check",
     "general.qna",
   ];
 

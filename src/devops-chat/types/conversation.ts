@@ -49,6 +49,7 @@ export type IntentKey =
   | "approval.review"
   | "approval.status.check"
   | "rollback.start"
+  | "rollback.status.check"
   | "general.qna";
 
 export type ConversationIntentState = {

@@ -52,6 +52,18 @@ export function evaluateDecision(
     case "rollback.start":
       return evaluateRollbackPolicy(filledSlots, workflow);
 
+    case "rollback.status.check":
+      return {
+        trace: {
+          mode: "text",
+          matched: ["rollback.status.check"],
+          missing: [],
+          disqualified: [],
+          reason: "롤백 현황 조회는 text로 응답한다",
+        },
+        surfaceIntent: null,
+      };
+
     case "general.qna":
     default:
       return {

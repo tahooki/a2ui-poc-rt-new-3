@@ -56,7 +56,8 @@ describe("orchestrate-chat-turn", () => {
       makeInput({ input: "롤백 후보 버전 목록" }),
     );
     expect(result.toolResults?.[0].toolName).toBe("getRollbackCandidates");
-    expect(result.intent?.intentKey).toBe("rollback.start");
+    // "롤백 후보" now maps to status.check (informational query)
+    expect(result.intent?.intentKey).toBe("rollback.status.check");
   });
 
   it("resolves deployable services tool for deploy intent", async () => {

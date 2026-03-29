@@ -40,11 +40,25 @@ const INTENT_RULES: IntentRule[] = [
       /롤백\s*시작/,
       /롤백해\s*줘/,
       /롤백\s*진행/,
-      /롤백\s*후보/,
-      /롤백\s*대상/,
-      /rollback/i,
+      /롤백\s*처리/,
+      /rollback\s*start/i,
     ],
     priority: 1,
+  },
+  {
+    intentKey: "rollback.status.check",
+    patterns: [
+      /롤백.*몇\s*개/,
+      /롤백.*상태.*알려/,
+      /롤백.*후보.*요약/,
+      /롤백.*현황/,
+      /롤백\s*후보/,
+      /롤백\s*대상/,
+      /인시던트\s*있/,
+      /rollback\s*status/i,
+      /rollback\s*candidate/i,
+    ],
+    priority: 2,
   },
   {
     intentKey: "approval.review",
@@ -103,7 +117,7 @@ type IntentCarryPolicy = {
 
 const CARRY_POLICY: IntentCarryPolicy = {
   carryable: ["deploy.start", "rollback.start", "approval.review"],
-  nonCarryable: ["general.qna", "deploy.history.lookup", "approval.status.check"],
+  nonCarryable: ["general.qna", "deploy.history.lookup", "approval.status.check", "rollback.status.check"],
 };
 
 // ---------------------------------------------------------------------------

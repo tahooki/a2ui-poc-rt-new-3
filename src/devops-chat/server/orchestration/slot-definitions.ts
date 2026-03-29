@@ -180,6 +180,11 @@ export const INTENT_SLOT_SCHEMAS: Record<string, IntentSlotSchema> = {
       },
     ],
   },
+  "rollback.status.check": {
+    intentKey: "rollback.status.check",
+    namespace: "rollback",
+    slots: [],
+  },
   "approval.status.check": {
     intentKey: "approval.status.check",
     namespace: "approval",
