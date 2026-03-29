@@ -25,6 +25,9 @@ import { ensureBuiltinToolsRegistered } from "./tools/register-builtin-tools";
 import { isLlmAvailable } from "./ai/llm-client";
 import { resolveIntentWithAi } from "./ai/ai-intent-resolver";
 import { resolveAwaitingWithAi } from "./ai/ai-awaiting-resolver";
+import { findMockResponse } from "./ai/mock-responses";
+import { narrateToolResult } from "./ai/tool-narrator";
+import { simulateStreaming } from "./ai/simulate-streaming";
 import { clearSlot, invalidateDependentSlots } from "./orchestration/slot-memory";
 
 export type OrchestrateTurnInput = {
@@ -456,7 +459,25 @@ async function callLlmOrFallback(
 ): Promise<string> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
-    return toolSummary ?? buildContextualSummary(ctx) ?? "현재 요청을 처리할 수 없습니다. 잠시 후 다시 시도해 주세요.";
+    // Mock AI path: pattern-matched responses + tool narration + typing simulation
+    let mockText: string;
+    if (toolSummary) {
+      // Try to extract tool name from summary for better narration
+      const toolHint = toolSummary.includes("배포") ? "getPreviousDeployments"
+        : toolSummary.includes("승인") || toolSummary.includes("approval") ? "getApprovalQueueSummary"
+        : toolSummary.includes("롤백") || toolSummary.includes("rollback") ? "getRollbackCandidates"
+        : toolSummary.includes("컨텍스트") || toolSummary.includes("이미지") ? "getServiceDeployContext"
+        : toolSummary.includes("서비스") ? "getDeployableServices"
+        : "unknown";
+      mockText = narrateToolResult(toolHint, toolSummary, ctx.pageKey);
+    } else {
+      mockText = findMockResponse(userInput, ctx.pageKey);
+    }
+
+    if (callbacks.onDelta) {
+      await simulateStreaming(mockText, callbacks.onDelta);
+    }
+    return mockText;
   }
 
   const systemPrompt = buildSystemPrompt(ctx);

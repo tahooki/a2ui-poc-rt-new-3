@@ -100,41 +100,41 @@ callLlmOrFallback()에서:
 
 ### A. Mock 응답 DB 작성
 
-* [ ] `src/devops-chat/server/ai/mock-responses.ts` 생성
-* [ ] Deploy 텍스트 응답 6개 등록
-* [ ] Approval 텍스트 응답 4개 등록
-* [ ] Rollback 텍스트 응답 4개 등록
-* [ ] 공통 응답 2개 등록
-* [ ] 패턴 매칭 함수 `findMockResponse(input, pageKey)` 구현
+* [x] `src/devops-chat/server/ai/mock-responses.ts` 생성
+* [x] Deploy 텍스트 응답 6개 등록
+* [x] Approval 텍스트 응답 4개 등록
+* [x] Rollback 텍스트 응답 4개 등록
+* [x] 공통 응답 2개 등록
+* [x] 패턴 매칭 함수 `findMockResponse(input, pageKey)` 구현
 
 ### B. Tool 결과 해석 (narration)
 
-* [ ] `src/devops-chat/server/ai/tool-narrator.ts` 생성
-* [ ] `getPreviousDeployments` 결과 → 배포 이력 자연어 요약
-* [ ] `getDeployableServices` 결과 → 서비스 목록 안내 문구
-* [ ] `getServiceDeployContext` 결과 → 배포 컨텍스트 설명
-* [ ] `getApprovalQueueSummary` 결과 → 승인 큐 현황 설명
-* [ ] `getRollbackCandidates` 결과 → 롤백 후보 현황 설명
+* [x] `src/devops-chat/server/ai/tool-narrator.ts` 생성
+* [x] `getPreviousDeployments` 결과 → 배포 이력 자연어 요약
+* [x] `getDeployableServices` 결과 → 서비스 목록 안내 문구
+* [x] `getServiceDeployContext` 결과 → 배포 컨텍스트 설명
+* [x] `getApprovalQueueSummary` 결과 → 승인 큐 현황 설명
+* [x] `getRollbackCandidates` 결과 → 롤백 후보 현황 설명
 
 ### C. 타이핑 시뮬레이션
 
-* [ ] `src/devops-chat/server/ai/simulate-streaming.ts` 생성
-* [ ] 글자 단위 스트리밍 (20~40ms 랜덤 간격)
-* [ ] 문장 끝(마침표, 쉼표)에서 약간 더 긴 pause
-* [ ] `onDelta` 콜백 호출로 실시간 타이핑 효과
+* [x] `src/devops-chat/server/ai/simulate-streaming.ts` 생성
+* [x] 글자 단위 스트리밍 (20~40ms 랜덤 간격)
+* [x] 문장 끝(마침표, 쉼표)에서 약간 더 긴 pause
+* [x] `onDelta` 콜백 호출로 실시간 타이핑 효과
 
 ### D. orchestrator 통합
 
-* [ ] `callLlmOrFallback`에서 API key 없을 때 mock 경로 사용
-* [ ] mock 응답 + 타이핑 시뮬레이션 연결
-* [ ] tool summary가 있으면 narration으로 자연어 변환
-* [ ] narration도 타이핑 시뮬레이션 적용
-* [ ] 기존 `buildContextualSummary` 제거 또는 최후 fallback으로 유지
+* [x] `callLlmOrFallback`에서 API key 없을 때 mock 경로 사용
+* [x] mock 응답 + 타이핑 시뮬레이션 연결
+* [x] tool summary가 있으면 narration으로 자연어 변환
+* [x] narration도 타이핑 시뮬레이션 적용
+* [x] 기존 `buildContextualSummary` 제거 또는 최후 fallback으로 유지
 
 ### E. 테스트
 
-* [ ] mock 패턴 매칭 테스트 (각 도메인 × 입력)
-* [ ] tool narrator 테스트
-* [ ] 타이핑 시뮬레이션이 onDelta를 호출하는지 테스트
-* [ ] API key 없을 때 전체 흐름 통합 테스트
-* [ ] 기존 265개 테스트 깨지지 않는지 확인
+* [x] mock 패턴 매칭 테스트 (각 도메인 × 입력)
+* [x] tool narrator 테스트
+* [x] 타이핑 시뮬레이션이 onDelta를 호출하는지 테스트
+* [x] API key 없을 때 전체 흐름 통합 테스트
+* [x] 기존 265개 테스트 깨지지 않는지 확인
