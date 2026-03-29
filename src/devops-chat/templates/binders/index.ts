@@ -5,6 +5,7 @@
 import type { ConversationFacts, BindingResult } from "@/devops-chat/types/conversation";
 import { bindDeployLaunchpad } from "./bind-deploy-launchpad";
 import { bindApprovalInbox } from "./bind-approval-inbox";
+import { bindApprovalQueue } from "./bind-approval-queue";
 import { bindRollbackSummary } from "./bind-rollback-summary";
 import { bindDryRunStepper } from "./bind-dry-run-stepper";
 import { bindConfirmAction } from "./bind-confirm-action";
@@ -13,6 +14,7 @@ export type BinderFn = (facts: ConversationFacts, intentKey: string) => BindingR
 
 const BINDER_MAP: Record<string, BinderFn> = {
   quick_deploy_launchpad: bindDeployLaunchpad,
+  approval_queue_inbox: bindApprovalQueue,
   deployment_approval_inbox: bindApprovalInbox,
   rollback_summary: bindRollbackSummary,
   dry_run_stepper: bindDryRunStepper,
@@ -25,6 +27,7 @@ export function getBinder(templateId: string): BinderFn | undefined {
 
 export {
   bindDeployLaunchpad,
+  bindApprovalQueue,
   bindApprovalInbox,
   bindRollbackSummary,
   bindDryRunStepper,

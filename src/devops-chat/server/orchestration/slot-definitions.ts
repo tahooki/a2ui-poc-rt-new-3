@@ -149,10 +149,17 @@ export const INTENT_SLOT_SCHEMAS: Record<string, IntentSlotSchema> = {
     namespace: "approval",
     slots: [
       {
+        slotKey: "approval.queueItems",
+        label: "승인 큐 목록",
+        type: "array",
+        required: false,
+        sourcePrecedence: ["tool", "system"],
+      },
+      {
         slotKey: "approval.requestId",
         label: "승인 요청 ID",
         type: "string",
-        required: true,
+        required: false,
         sourcePrecedence: ["user", "selection", "tool", "system"],
         awaitingInput: "single_select",
         awaitingPrompt: "어떤 승인 요청을 검토할까요?",

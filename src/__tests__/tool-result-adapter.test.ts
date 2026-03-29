@@ -25,7 +25,7 @@ describe("tool-result-adapter", () => {
     });
 
     expect(result.factsPatch).toEqual({
-      approval: { queueSummary: { items: [], byStatus: {}, byType: {} } },
+      approval: { queueSummary: { items: [], byStatus: {}, byType: {} }, queueItems: [] },
     });
   });
 

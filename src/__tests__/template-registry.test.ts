@@ -12,8 +12,8 @@ import { validateSurfaceEnvelope } from "@/devops-chat/templates/validate-surfac
 import { getTemplateDefinition } from "@/devops-chat/templates/template-definitions";
 
 describe("template-registry", () => {
-  it("has 5 definitions", () => {
-    expect(getAllRegistryDefinitions()).toHaveLength(5);
+  it("has 6 definitions", () => {
+    expect(getAllRegistryDefinitions()).toHaveLength(6);
   });
 
   it("looks up by templateId", () => {
@@ -23,7 +23,7 @@ describe("template-registry", () => {
   });
 
   it("all definitions are active", () => {
-    expect(getActiveDefinitions()).toHaveLength(5);
+    expect(getActiveDefinitions()).toHaveLength(6);
   });
 
   it("each definition has contract fields", () => {
@@ -50,7 +50,7 @@ describe("template-registry", () => {
 describe("build-template-list-view-model", () => {
   it("returns list items for all templates", () => {
     const items = buildTemplateListViewModel();
-    expect(items).toHaveLength(5);
+    expect(items).toHaveLength(6);
     expect(items[0].title).toBeDefined();
     expect(items[0].fieldCount).toBeGreaterThan(0);
   });

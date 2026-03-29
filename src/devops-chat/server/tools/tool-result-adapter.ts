@@ -62,12 +62,17 @@ export function adaptToolResult(output: ToolOutput): AdaptedToolResult {
       };
     }
 
-    case "getApprovalQueueSummary":
+    case "getApprovalQueueSummary": {
+      const queueData = output.data as { items?: Array<Record<string, unknown>> } | null;
+      const queueItems = queueData?.items ?? [];
       return {
-        factsPatch: { approval: { queueSummary: output.data } },
-        slotPatch: {},
+        factsPatch: { approval: { queueSummary: output.data, queueItems } },
+        slotPatch: queueItems.length > 0
+          ? { "approval.queueItems": { value: queueItems, source: "tool" } }
+          : {},
         summary: output.summary,
       };
+    }
 
     case "getRollbackCandidates":
       return {

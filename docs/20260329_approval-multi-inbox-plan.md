@@ -91,102 +91,102 @@
 
 ### A. 타입 정의
 
-* [ ] `types/templates.ts`에 `ApprovalQueueTemplateData` 타입 추가
-  * [ ] `templateId: "approval_queue_inbox"`
-  * [ ] `items: ApprovalQueueItem[]` — 각 요청의 요약 정보
-  * [ ] `summary: { pending: number; approved: number; held: number; highRisk: number }`
-  * [ ] `groupBy: "status" | "type" | "risk"`
-  * [ ] `expandedItemId: string | null`
-* [ ] `ApprovalQueueItem` 타입 추가
-  * [ ] `id, type, title, environment, requestedBy, riskSummary, riskTone, status`
-  * [ ] `keyFacts: Array<{ label: string; value: string }>`
-  * [ ] `actions: SurfaceActionDescriptor[]`
-* [ ] 기존 `DeploymentApprovalTemplateData`는 상세 보기 전용으로 유지
+* [x] `types/templates.ts`에 `ApprovalQueueTemplateData` 타입 추가
+  * [x] `templateId: "approval_queue_inbox"`
+  * [x] `items: ApprovalQueueItem[]` — 각 요청의 요약 정보
+  * [x] `summary: { pending: number; approved: number; held: number; highRisk: number }`
+  * [x] `groupBy: "status" | "type" | "risk"`
+  * [x] `expandedItemId: string | null`
+* [x] `ApprovalQueueItem` 타입 추가
+  * [x] `id, type, title, environment, requestedBy, riskSummary, riskTone, status`
+  * [x] `keyFacts: Array<{ label: string; value: string }>`
+  * [x] `actions: SurfaceActionDescriptor[]`
+* [x] 기존 `DeploymentApprovalTemplateData`는 상세 보기 전용으로 유지
 
 ### B. Decision policy 변경
 
-* [ ] `approval.ts` policy에서 requestId 없이도 큐 데이터가 있으면 `render_surface` 판정
-  * [ ] 새 조건: `facts.approval.queueItems`가 있으면 → `render_surface`
-  * [ ] requestId가 있으면 → 기존처럼 단일건 surface (상세 보기)
-  * [ ] 둘 다 없으면 → `ask_followup`
-* [ ] `surfaceIntent.family`를 `"approval.queue"` (큐) vs `"approval.detail"` (단일건)으로 분리
+* [x] `approval.ts` policy에서 requestId 없이도 큐 데이터가 있으면 `render_surface` 판정
+  * [x] 새 조건: `facts.approval.queueItems`가 있으면 → `render_surface`
+  * [x] requestId가 있으면 → 기존처럼 단일건 surface (상세 보기)
+  * [x] 둘 다 없으면 → `ask_followup`
+* [x] `surfaceIntent.family`를 `"approval.queue"` (큐) vs `"approval.detail"` (단일건)으로 분리
 
 ### C. Slot definitions 변경
 
-* [ ] `approval.requestId` slot을 `required: false`로 변경
-* [ ] 큐 흐름에서는 requestId 없이도 진행 가능하게 수정
+* [x] `approval.requestId` slot을 `required: false`로 변경
+* [x] 큐 흐름에서는 requestId 없이도 진행 가능하게 수정
 
 ### D. Template definitions + selector 변경
 
-* [ ] `template-definitions.ts`에 `approval_queue_inbox` 추가
-  * [ ] `family: "approval.queue"`
-  * [ ] `requiredFacts: ["approval.queueItems"]`
-  * [ ] `intentKeys: ["approval.review"]`
-* [ ] 기존 `deployment_approval_inbox`는 `family: "approval.detail"` 로 유지
-* [ ] selector에서 큐 데이터 있으면 큐 템플릿 우선 선택
+* [x] `template-definitions.ts`에 `approval_queue_inbox` 추가
+  * [x] `family: "approval.queue"`
+  * [x] `requiredFacts: ["approval.queueItems"]`
+  * [x] `intentKeys: ["approval.review"]`
+* [x] 기존 `deployment_approval_inbox`는 `family: "approval.detail"` 로 유지
+* [x] selector에서 큐 데이터 있으면 큐 템플릿 우선 선택
 
 ### E. Tool result adapter 변경
 
-* [ ] `getApprovalQueueSummary` tool result → `facts.approval.queueItems` 배열로 매핑
-* [ ] 각 item을 `ApprovalQueueItem` shape으로 변환
-* [ ] slot patch에 `approval.queueItems` 추가
+* [x] `getApprovalQueueSummary` tool result → `facts.approval.queueItems` 배열로 매핑
+* [x] 각 item을 `ApprovalQueueItem` shape으로 변환
+* [x] slot patch에 `approval.queueItems` 추가
 
 ### F. Binder 변경
 
-* [ ] `bind-approval-inbox.ts`를 큐 바인딩 로직으로 확장 또는 새 binder 작성
-* [ ] 입력: `facts.approval.queueItems` 배열
-* [ ] 각 item에 개별 `actions` (승인/보류) 생성
-* [ ] `targetRef`에 각 item의 id를 개별 설정
-* [ ] summary 계산 (pending/approved/held/highRisk 카운트)
+* [x] `bind-approval-inbox.ts`를 큐 바인딩 로직으로 확장 또는 새 binder 작성
+* [x] 입력: `facts.approval.queueItems` 배열
+* [x] 각 item에 개별 `actions` (승인/보류) 생성
+* [x] `targetRef`에 각 item의 id를 개별 설정
+* [x] summary 계산 (pending/approved/held/highRisk 카운트)
 
 ### G. Template UI 재작성
 
-* [ ] `deployment-approval-inbox.tsx`를 큐 목록 레이아웃으로 변경
-  * [ ] pending 그룹: 카드 목록, 각 카드에 승인/보류 버튼
-  * [ ] approved/held 그룹: 축소 가능한 완료 목록
-  * [ ] 각 카드: type badge, title, environment, risk tone, requestedBy
-  * [ ] 카드 클릭 시 상세 펼침 (expandedItemId)
-  * [ ] 상단: 요약 카운터 (대기 N건, 고위험 N건)
-* [ ] `onAction(actionId, payload)` 패턴으로 개별 건 처리
-  * [ ] payload에 `{ requestId: item.id }` 전달
+* [x] `deployment-approval-inbox.tsx`를 큐 목록 레이아웃으로 변경
+  * [x] pending 그룹: 카드 목록, 각 카드에 승인/보류 버튼
+  * [x] approved/held 그룹: 축소 가능한 완료 목록
+  * [x] 각 카드: type badge, title, environment, risk tone, requestedBy
+  * [x] 카드 클릭 시 상세 펼침 (expandedItemId)
+  * [x] 상단: 요약 카운터 (대기 N건, 고위험 N건)
+* [x] `onAction(actionId, payload)` 패턴으로 개별 건 처리
+  * [x] payload에 `{ requestId: item.id }` 전달
 
 ### H. Action 확장
 
-* [ ] `action-types.ts`에 큐 전용 액션 추가
-  * [ ] `APPROVE_ITEM: "approval.approve_item"` — 개별 건 승인
-  * [ ] `HOLD_ITEM: "approval.hold_item"` — 개별 건 보류
-  * [ ] `APPROVE_ALL: "approval.approve_all"` — 전체 일괄 승인 (고위험 제외)
-* [ ] `run-approval-action.ts`에 개별 건 핸들러 추가
-  * [ ] 승인 후 `queueItems`에서 해당 건 상태 업데이트
-  * [ ] `factsPatch`로 갱신된 큐 반환
-* [ ] `action-registry.ts`에 새 액션 등록
+* [x] `action-types.ts`에 큐 전용 액션 추가
+  * [x] `APPROVE_ITEM: "approval.approve_item"` — 개별 건 승인
+  * [x] `HOLD_ITEM: "approval.hold_item"` — 개별 건 보류
+  * [x] `APPROVE_ALL: "approval.approve_all"` — 전체 일괄 승인 (고위험 제외)
+* [x] `run-approval-action.ts`에 개별 건 핸들러 추가
+  * [x] 승인 후 `queueItems`에서 해당 건 상태 업데이트
+  * [x] `factsPatch`로 갱신된 큐 반환
+* [x] `action-registry.ts`에 새 액션 등록
 
 ### I. Validation 추가
 
-* [ ] `validate-surface-envelope.ts`에 `approval_queue_inbox` 필수 필드 추가
-  * [ ] required: `items`, `summary`, `state`
+* [x] `validate-surface-envelope.ts`에 `approval_queue_inbox` 필수 필드 추가
+  * [x] required: `items`, `summary`, `state`
 
 ### J. Registry 업데이트
 
-* [ ] `deployment-approval-inbox.ts` registry definition 업데이트
-* [ ] 또는 새 `approval-queue-inbox.ts` registry definition 추가
-* [ ] preview case에 큐 데이터 예시 추가
+* [x] `deployment-approval-inbox.ts` registry definition 업데이트
+* [x] 또는 새 `approval-queue-inbox.ts` registry definition 추가
+* [x] preview case에 큐 데이터 예시 추가
 
 ### K. Post-action refresh
 
-* [ ] 개별 건 승인 후 큐 surface 자동 갱신
-  * [ ] action result의 factsPatch로 queueItems 업데이트
-  * [ ] surface re-bind → 목록에서 승인된 건이 approved 그룹으로 이동
-* [ ] 모든 pending 건 처리 완료 시 "모든 요청이 처리되었습니다" 상태 표시
+* [x] 개별 건 승인 후 큐 surface 자동 갱신
+  * [x] action result의 factsPatch로 queueItems 업데이트
+  * [x] surface re-bind → 목록에서 승인된 건이 approved 그룹으로 이동
+* [x] 모든 pending 건 처리 완료 시 "모든 요청이 처리되었습니다" 상태 표시
 
 ### L. 테스트
 
-* [ ] 큐 바인딩 테스트 (여러 건 → 목록 payload)
-* [ ] 개별 건 승인 → 큐 상태 갱신 테스트
-* [ ] decision policy 테스트 (큐 데이터만으로 render_surface)
-* [ ] validation 테스트 (큐 템플릿 필수 필드)
-* [ ] 통합 시나리오:
-  * [ ] "승인 요청 확인" → 큐 조회 → 큐 surface 렌더
-  * [ ] 개별 건 승인 → 목록 갱신
-  * [ ] 전체 승인 → 모두 처리 완료 상태
-  * [ ] 특정 건 상세 보기 전환
+* [x] 큐 바인딩 테스트 (여러 건 → 목록 payload)
+* [x] 개별 건 승인 → 큐 상태 갱신 테스트
+* [x] decision policy 테스트 (큐 데이터만으로 render_surface)
+* [x] validation 테스트 (큐 템플릿 필수 필드)
+* [x] 통합 시나리오:
+  * [x] "승인 요청 확인" → 큐 조회 → 큐 surface 렌더
+  * [x] 개별 건 승인 → 목록 갱신
+  * [x] 전체 승인 → 모두 처리 완료 상태
+  * [x] 특정 건 상세 보기 전환

@@ -89,6 +89,9 @@ export const DEPLOY_ACTION_IDS = {
 export const APPROVAL_ACTION_IDS = {
   APPROVE: "approval.approve",
   HOLD: "approval.hold",
+  APPROVE_ITEM: "approval.approve_item",
+  HOLD_ITEM: "approval.hold_item",
+  APPROVE_ALL: "approval.approve_all",
 } as const;
 
 export const ROLLBACK_ACTION_IDS = {

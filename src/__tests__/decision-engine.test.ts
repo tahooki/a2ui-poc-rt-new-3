@@ -47,20 +47,30 @@ describe("decision-engine", () => {
   });
 
   describe("approval.review policy", () => {
-    it("returns ask_followup when requestId missing", () => {
+    it("returns ask_followup when no queue data and no requestId", () => {
       const result = evaluateDecision("approval.review", {}, null);
       expect(result.trace.mode).toBe("ask_followup");
-      expect(result.trace.missing).toContain("approval.requestId");
+      expect(result.trace.missing).toContain("approval.queueItems");
     });
 
-    it("returns render_surface when requestId present", () => {
+    it("returns render_surface (queue) when queueItems present", () => {
+      const result = evaluateDecision(
+        "approval.review",
+        { "approval.queueItems": [{ id: "req-1" }] },
+        null,
+      );
+      expect(result.trace.mode).toBe("render_surface");
+      expect(result.surfaceIntent?.family).toBe("approval.queue");
+    });
+
+    it("returns render_surface (detail) when requestId present", () => {
       const result = evaluateDecision(
         "approval.review",
         { "approval.requestId": "req-123" },
         null,
       );
       expect(result.trace.mode).toBe("render_surface");
-      expect(result.surfaceIntent?.family).toBe("approval.inbox");
+      expect(result.surfaceIntent?.family).toBe("approval.detail");
     });
   });
 

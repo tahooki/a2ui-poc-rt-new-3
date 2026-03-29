@@ -1,3 +1,4 @@
+import { ApprovalQueueInbox } from "@/devops-console/templates/approval-queue-inbox";
 import { ConfirmAction } from "@/devops-console/templates/confirm-action";
 import { DeploymentApprovalInbox } from "@/devops-console/templates/deployment-approval-inbox";
 import { DryRunStepper } from "@/devops-console/templates/dry-run-stepper";
@@ -52,6 +53,13 @@ export function TemplateRenderer({
           template={template}
           onPrimaryAction={primaryHandler}
           onSecondaryAction={secondaryHandler}
+        />
+      );
+    case "approval_queue_inbox":
+      return (
+        <ApprovalQueueInbox
+          template={template}
+          onAction={onAction}
         />
       );
     case "deployment_approval_inbox":

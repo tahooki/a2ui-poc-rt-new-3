@@ -23,8 +23,15 @@ export const TEMPLATE_DEFINITIONS: TemplateDefinition[] = [
     rendererKey: "quick_deploy_launchpad",
   },
   {
+    templateId: "approval_queue_inbox",
+    family: "approval.queue",
+    intentKeys: ["approval.review"],
+    requiredFacts: ["approval.queueItems"],
+    rendererKey: "approval_queue_inbox",
+  },
+  {
     templateId: "deployment_approval_inbox",
-    family: "approval.inbox",
+    family: "approval.detail",
     intentKeys: ["approval.review"],
     requiredFacts: ["approval.requestId"],
     rendererKey: "deployment_approval_inbox",

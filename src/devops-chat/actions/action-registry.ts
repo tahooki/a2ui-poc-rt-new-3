@@ -18,9 +18,13 @@ const ACTION_DEFINITIONS: ActionDefinition[] = [
   { actionId: DEPLOY_ACTION_IDS.COMPLETE, domain: "deploy", confirmationRequired: false, handler: runDeployAction },
   { actionId: DEPLOY_ACTION_IDS.REFRESH_DRAFT, domain: "deploy", confirmationRequired: false, handler: runDeployAction },
 
-  // Approval actions
+  // Approval actions (legacy single-item)
   { actionId: APPROVAL_ACTION_IDS.APPROVE, domain: "approval", confirmationRequired: true, handler: runApprovalAction },
   { actionId: APPROVAL_ACTION_IDS.HOLD, domain: "approval", confirmationRequired: false, handler: runApprovalAction },
+  // Approval actions (queue multi-item)
+  { actionId: APPROVAL_ACTION_IDS.APPROVE_ITEM, domain: "approval", confirmationRequired: true, handler: runApprovalAction },
+  { actionId: APPROVAL_ACTION_IDS.HOLD_ITEM, domain: "approval", confirmationRequired: false, handler: runApprovalAction },
+  { actionId: APPROVAL_ACTION_IDS.APPROVE_ALL, domain: "approval", confirmationRequired: true, handler: runApprovalAction },
 
   // Rollback actions
   { actionId: ROLLBACK_ACTION_IDS.START_DRY_RUN, domain: "rollback", confirmationRequired: false, handler: runRollbackAction },

@@ -78,9 +78,56 @@ export type ConfirmActionTemplateData = {
   secondaryActionLabel: string;
 };
 
+// ---------------------------------------------------------------------------
+// Approval queue inbox (multi-item)
+// ---------------------------------------------------------------------------
+
+export type ApprovalQueueItemStatus = "pending" | "approved" | "held";
+
+export type ApprovalQueueItem = {
+  id: string;
+  type: string;
+  typeLabel: string;
+  title: string;
+  environment: string;
+  requestedBy: string;
+  riskSummary: string;
+  riskTone: "warning" | "danger" | "success";
+  status: ApprovalQueueItemStatus;
+  keyFacts: Array<{ label: string; value: string }>;
+  actions: Array<{
+    actionId: string;
+    label: string;
+    variant: "primary" | "secondary" | "danger" | "ghost";
+    disabled?: boolean;
+    confirmationRequired?: boolean;
+    confirmationMessage?: string;
+    targetRef?: { entityType: string; entityId: string };
+    payload?: Record<string, unknown>;
+  }>;
+};
+
+export type ApprovalQueueSummary = {
+  pending: number;
+  approved: number;
+  held: number;
+  highRisk: number;
+};
+
+export type ApprovalQueueTemplateData = {
+  templateId: "approval_queue_inbox";
+  state: "active" | "all_done";
+  items: ApprovalQueueItem[];
+  summary: ApprovalQueueSummary;
+  expandedItemId: string | null;
+  primaryActionLabel: string;
+  secondaryActionLabel: string;
+};
+
 export type TemplateEnvelope =
   | QuickDeployTemplateData
   | DeploymentApprovalTemplateData
+  | ApprovalQueueTemplateData
   | RollbackSummaryTemplateData
   | DryRunStepperTemplateData
   | ConfirmActionTemplateData;

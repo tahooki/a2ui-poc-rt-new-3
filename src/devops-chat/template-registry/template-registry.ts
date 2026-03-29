@@ -9,6 +9,7 @@
 
 import type { TemplateRegistryDefinition } from "./registry-types";
 import { quickDeployLaunchpadDef } from "./definitions/quick-deploy-launchpad";
+import { approvalQueueInboxDef } from "./definitions/approval-queue-inbox";
 import { deploymentApprovalInboxDef } from "./definitions/deployment-approval-inbox";
 import { rollbackSummaryDef } from "./definitions/rollback-summary";
 import { dryRunStepperDef } from "./definitions/dry-run-stepper";
@@ -16,6 +17,7 @@ import { confirmActionDef } from "./definitions/confirm-action";
 
 export const ALL_TEMPLATE_DEFINITIONS: TemplateRegistryDefinition[] = [
   quickDeployLaunchpadDef,
+  approvalQueueInboxDef,
   deploymentApprovalInboxDef,
   rollbackSummaryDef,
   dryRunStepperDef,
