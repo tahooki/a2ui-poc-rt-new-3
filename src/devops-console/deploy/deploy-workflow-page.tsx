@@ -418,7 +418,7 @@ export function DeployWorkflowPage({ stage }: { stage: DeployStage }) {
           )}
         </>
       ) : stage === "request" ? (
-        <div className={styles.workspaceGrid}>
+        <div className={styles.workspaceGridSingle}>
           <div className={styles.mainColumn}>
             {deployPage.images.length > 0 ? (
               <DataTable
@@ -573,55 +573,6 @@ export function DeployWorkflowPage({ stage }: { stage: DeployStage }) {
                   </button>
                 </div>
               </fieldset>
-            </section>
-          </div>
-
-          <div className={styles.detailColumn}>
-            <section className={styles.panel}>
-              <div className={styles.panelHeader}>
-                <div>
-                  <h2 className={styles.panelTitle}>Preflight and summary</h2>
-                  <p className={styles.panelDescription}>요청 생성 전 gating과 reviewer-facing 요약을 보여줍니다.</p>
-                </div>
-              </div>
-              <div className={styles.checkList}>
-                <div className={styles.checkItem}>
-                  <StatusChip label={deployPage.images.length > 0 ? "ready" : "blocked"} tone={deployPage.images.length > 0 ? "success" : "danger"} />
-                  <span className={styles.propertyValue}>등록된 image가 있어야 request 생성이 가능합니다.</span>
-                </div>
-                <div className={styles.checkItem}>
-                  <StatusChip label={requestDraft.selectedImageId ? "selected" : "required"} tone={requestDraft.selectedImageId ? "success" : "warning"} />
-                  <span className={styles.propertyValue}>request 페이지에서 직접 image를 선택해야 합니다.</span>
-                </div>
-                <div className={styles.checkItem}>
-                  <StatusChip label={requestDraftReady ? "complete" : "missing"} tone={requestDraftReady ? "success" : "warning"} />
-                  <span className={styles.propertyValue}>필수 request 필드가 모두 채워져야 생성 버튼이 활성화됩니다.</span>
-                </div>
-              </div>
-              <div className={styles.propertyList}>
-                <div className={styles.propertyItem}>
-                  <div className={styles.metaLabel}>Selected image</div>
-                  <div className={`${styles.propertyValue} ${styles.mono}`}>{selectedRequestImage?.imageUri ?? "미선택"}</div>
-                </div>
-                <div className={styles.propertyItem}>
-                  <div className={styles.metaLabel}>Service / Env</div>
-                  <div className={`${styles.propertyValue} ${styles.mono}`}>{requestDraft.service || "-"} / {requestDraft.environment}</div>
-                </div>
-                <div className={styles.propertyItem}>
-                  <div className={styles.metaLabel}>CPU / Memory</div>
-                  <div className={`${styles.propertyValue} ${styles.mono}`}>
-                    {requestDraft.cpu ? getCpuLabel(requestDraft.cpu) : "-"} / {requestDraft.memory ? getMemoryLabel(requestDraft.memory) : "-"}
-                  </div>
-                </div>
-                <div className={styles.propertyItem}>
-                  <div className={styles.metaLabel}>Strategy</div>
-                  <div className={`${styles.propertyValue} ${styles.mono}`}>{requestDraft.deploymentStrategy}</div>
-                </div>
-                <div className={styles.propertyItem}>
-                  <div className={styles.metaLabel}>Requested by</div>
-                  <div className={`${styles.propertyValue} ${styles.mono}`}>{requestDraft.requestedBy || "-"}</div>
-                </div>
-              </div>
             </section>
           </div>
         </div>
