@@ -85,6 +85,7 @@ export function DeployWorkflowPage({ stage }: { stage: DeployStage }) {
   const router = useRouter();
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [aiEnabled, setAiEnabled] = useState(false);
   const pages = useDevopsConsoleStore((state) => state.pages);
   const setDeployWorkflowField = useDevopsConsoleStore((state) => state.setDeployWorkflowField);
   const registerDeployImage = useDevopsConsoleStore((state) => state.registerDeployImage);
@@ -225,14 +226,16 @@ export function DeployWorkflowPage({ stage }: { stage: DeployStage }) {
   const selectedRunLabel =
     selectedRequest ? viewModel.tableRows.find((row) => row.id === selectedRequest.id)?.statusLabel ?? "not started" : "not selected";
 
-  const assistant = <ChatAssistantPanel onClose={() => setAssistantOpen(false)} pageKey="deploy" selectedItem={selectedRequest} />;
+  const assistant = <ChatAssistantPanel aiEnabled={aiEnabled} onClose={() => setAssistantOpen(false)} pageKey="deploy" selectedItem={selectedRequest} />;
 
   return (
     <AppFrame
       activePage="deploy"
+      aiEnabled={aiEnabled}
       assistant={assistant}
       assistantOpen={assistantOpen}
       lastUpdated={viewModel.lastUpdated}
+      onToggleAi={() => setAiEnabled((v) => !v)}
       onToggleAssistant={() => setAssistantOpen((value) => !value)}
       onToggleSidebar={() => setSidebarOpen((value) => !value)}
       pageScope={viewModel.pageScope}

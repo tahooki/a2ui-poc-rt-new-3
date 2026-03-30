@@ -511,7 +511,8 @@ async function callLlmOrFallback(
   messages.push({ role: "user", content: userInput });
 
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const baseUrl = process.env.OPENAI_BASE_URL ?? "https://api.openai.com/v1";
+    const response = await fetch(`${baseUrl}/chat/completions`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
