@@ -70,6 +70,27 @@ export function buildDeployTemplate(item: DeployItem): TemplateEnvelope {
     primaryActionLabel:
       state === "ready" ? "배포 시작" : state === "deploying" ? "완료 반영" : "완료됨",
     secondaryActionLabel: state === "done" ? "새 초안 생성" : "초안 새로 고침",
+    imageDetail: {
+      repository: item.service,
+      imageTag: item.targetVersion,
+      imageUri: item.artifact,
+      gitRef: "",
+      commitSha: "",
+      imageDigest: "",
+      buildStatus: "push_verified",
+      pushedAt: item.requestedAt,
+    },
+    requestDetail: {
+      cpu: item.cpu,
+      memory: item.memory,
+      containerPort: item.containerPort,
+      desiredCount: item.desiredCount,
+      minimumHealthyPercent: item.minimumHealthyPercent,
+      maximumPercent: item.maximumPercent,
+      deploymentStrategy: item.strategy,
+      rollbackBaseline: item.rollbackBaseline,
+      requestedBy: item.requestedBy,
+    },
   };
 }
 

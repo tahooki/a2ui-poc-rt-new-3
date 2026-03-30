@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import styles from "@/devops-console/console-page.module.css";
 import { StatusChip } from "@/devops-console/foundation/status-chip";
-import type { QuickDeployTemplateData } from "@/devops-chat/types/templates";
+import type { QuickDeployTemplateData, DeployImageDetail, DeployRequestDetail } from "@/devops-chat/types/templates";
 
 // ---------------------------------------------------------------------------
 // Deploy step definitions (simulated durations)
@@ -39,6 +39,8 @@ export function QuickDeployLaunchpad({
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [stepTimes, setStepTimes] = useState<Record<number, number>>({});
   const [elapsed, setElapsed] = useState(0);
+  const [imageDetail, setImageDetail] = useState<DeployImageDetail | undefined>(template.imageDetail);
+  const [requestDetail, setRequestDetail] = useState<DeployRequestDetail | undefined>(template.requestDetail);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const stepTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -131,14 +133,13 @@ export function QuickDeployLaunchpad({
 
         <div className={styles.calloutCard}>{template.impactSummary}</div>
 
-        <div className={styles.checkList}>
-          {template.preflightChecks.map((c) => (
-            <div className={styles.checkItem} key={c}>
-              <StatusChip label="preflight" tone="info" />
-              <span className={styles.propertyValue}>{c}</span>
-            </div>
-          ))}
-        </div>
+        {imageDetail && (
+          <CollapsibleImageDetail data={imageDetail} onChange={setImageDetail} />
+        )}
+
+        {requestDetail && (
+          <CollapsibleRequestDetail data={requestDetail} onChange={setRequestDetail} />
+        )}
 
         <div className={styles.templateActions}>
           <button className={styles.primaryButton} onClick={handleStart} type="button">배포 시작</button>
@@ -246,6 +247,193 @@ function MetaCard({ label, value }: { label: string; value: string }) {
     <div className={styles.templateMetaCard}>
       <div className={styles.metaLabel}>{label}</div>
       <div className={`${styles.detailPrimaryValue} ${styles.mono}`}>{value}</div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Collapsible editable detail sections
+// ---------------------------------------------------------------------------
+
+const buildStatusOptions = ["registered", "push_verified", "build_failed"];
+const strategyOptions = ["rolling", "canary_10_50_100", "blue_green"];
+const cpuOptions = [
+  { value: "256", label: "0.25 vCPU" },
+  { value: "512", label: "0.5 vCPU" },
+  { value: "1024", label: "1 vCPU" },
+  { value: "2048", label: "2 vCPU" },
+];
+const memoryOptions = [
+  { value: "512", label: "512 MiB" },
+  { value: "1024", label: "1 GiB" },
+  { value: "2048", label: "2 GiB" },
+  { value: "4096", label: "4 GiB" },
+];
+
+function CollapsibleImageDetail({
+  data,
+  onChange,
+}: {
+  data: DeployImageDetail;
+  onChange: (d: DeployImageDetail) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const update = (field: keyof DeployImageDetail, value: string) =>
+    onChange({ ...data, [field]: value });
+
+  return (
+    <div className={styles.collapsibleSection}>
+      <div
+        className={styles.collapsibleHeader}
+        onClick={() => setOpen((v) => !v)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setOpen((v) => !v); }}
+      >
+        <div className={styles.collapsibleHeaderLeft}>
+          <span className={`${styles.collapsibleArrow} ${open ? styles.collapsibleArrowOpen : ""}`}>▶</span>
+          <span className={styles.collapsibleTitle}>Image 정보</span>
+          <span className={styles.collapsibleBadge}>AI 자동 선택</span>
+        </div>
+        <span style={{ fontSize: 10, opacity: 0.45 }}>8개 항목</span>
+      </div>
+      <div className={`${styles.collapsibleBody} ${open ? styles.collapsibleBodyOpen : ""}`}>
+        <div className={styles.fieldGrid}>
+          <label className={styles.fieldCard}>
+            <span className={styles.metaLabel}>Repository</span>
+            <input className={styles.textInput} value={data.repository} onChange={(e) => update("repository", e.target.value)} />
+          </label>
+          <label className={styles.fieldCard}>
+            <span className={styles.metaLabel}>Image Tag</span>
+            <input className={styles.textInput} value={data.imageTag} onChange={(e) => update("imageTag", e.target.value)} />
+          </label>
+          <label className={styles.fieldCard}>
+            <span className={styles.metaLabel}>Image URI</span>
+            <input className={styles.textInput} value={data.imageUri} onChange={(e) => update("imageUri", e.target.value)} />
+          </label>
+          <label className={styles.fieldCard}>
+            <span className={styles.metaLabel}>Git Ref</span>
+            <input className={styles.textInput} value={data.gitRef} onChange={(e) => update("gitRef", e.target.value)} />
+          </label>
+          <label className={styles.fieldCard}>
+            <span className={styles.metaLabel}>Commit SHA</span>
+            <input className={styles.textInput} value={data.commitSha} onChange={(e) => update("commitSha", e.target.value)} />
+          </label>
+          <label className={styles.fieldCard}>
+            <span className={styles.metaLabel}>Image Digest</span>
+            <input className={styles.textInput} value={data.imageDigest} onChange={(e) => update("imageDigest", e.target.value)} />
+          </label>
+          <label className={styles.fieldCard}>
+            <span className={styles.metaLabel}>Build Status</span>
+            <div className={styles.choiceGrid}>
+              {buildStatusOptions.map((opt) => (
+                <button
+                  className={`${styles.choiceButton} ${data.buildStatus === opt ? styles.choiceButtonActive : ""}`}
+                  key={opt}
+                  onClick={(e) => { e.stopPropagation(); update("buildStatus", opt); }}
+                  type="button"
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+          </label>
+          <label className={styles.fieldCard}>
+            <span className={styles.metaLabel}>Pushed At</span>
+            <input className={styles.textInput} value={data.pushedAt} onChange={(e) => update("pushedAt", e.target.value)} />
+          </label>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CollapsibleRequestDetail({
+  data,
+  onChange,
+}: {
+  data: DeployRequestDetail;
+  onChange: (d: DeployRequestDetail) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const update = (field: keyof DeployRequestDetail, value: string) =>
+    onChange({ ...data, [field]: value });
+
+  return (
+    <div className={styles.collapsibleSection}>
+      <div
+        className={styles.collapsibleHeader}
+        onClick={() => setOpen((v) => !v)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setOpen((v) => !v); }}
+      >
+        <div className={styles.collapsibleHeaderLeft}>
+          <span className={`${styles.collapsibleArrow} ${open ? styles.collapsibleArrowOpen : ""}`}>▶</span>
+          <span className={styles.collapsibleTitle}>Request 설정</span>
+          <span className={styles.collapsibleBadge}>AI 추천 구성</span>
+        </div>
+        <span style={{ fontSize: 10, opacity: 0.45 }}>9개 항목</span>
+      </div>
+      <div className={`${styles.collapsibleBody} ${open ? styles.collapsibleBodyOpen : ""}`}>
+        <div className={styles.fieldGrid}>
+          <label className={styles.fieldCard}>
+            <span className={styles.metaLabel}>Deployment Strategy</span>
+            <div className={styles.choiceGrid}>
+              {strategyOptions.map((opt) => (
+                <button
+                  className={`${styles.choiceButton} ${data.deploymentStrategy === opt ? styles.choiceButtonActive : ""}`}
+                  key={opt}
+                  onClick={(e) => { e.stopPropagation(); update("deploymentStrategy", opt); }}
+                  type="button"
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+          </label>
+          <label className={styles.fieldCard}>
+            <span className={styles.metaLabel}>CPU</span>
+            <select className={styles.textInput} value={data.cpu} onChange={(e) => update("cpu", e.target.value)}>
+              {cpuOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </label>
+          <label className={styles.fieldCard}>
+            <span className={styles.metaLabel}>Memory</span>
+            <select className={styles.textInput} value={data.memory} onChange={(e) => update("memory", e.target.value)}>
+              {memoryOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </label>
+          <label className={styles.fieldCard}>
+            <span className={styles.metaLabel}>Container Port</span>
+            <input className={styles.textInput} value={data.containerPort} onChange={(e) => update("containerPort", e.target.value)} />
+          </label>
+          <label className={styles.fieldCard}>
+            <span className={styles.metaLabel}>Desired Count</span>
+            <input className={styles.textInput} value={data.desiredCount} onChange={(e) => update("desiredCount", e.target.value)} />
+          </label>
+          <label className={styles.fieldCard}>
+            <span className={styles.metaLabel}>Minimum Healthy %</span>
+            <input className={styles.textInput} value={data.minimumHealthyPercent} onChange={(e) => update("minimumHealthyPercent", e.target.value)} />
+          </label>
+          <label className={styles.fieldCard}>
+            <span className={styles.metaLabel}>Maximum %</span>
+            <input className={styles.textInput} value={data.maximumPercent} onChange={(e) => update("maximumPercent", e.target.value)} />
+          </label>
+          <label className={styles.fieldCard}>
+            <span className={styles.metaLabel}>Rollback Baseline</span>
+            <input className={styles.textInput} value={data.rollbackBaseline} onChange={(e) => update("rollbackBaseline", e.target.value)} />
+          </label>
+          <label className={styles.fieldCard}>
+            <span className={styles.metaLabel}>Requested By</span>
+            <input className={styles.textInput} value={data.requestedBy} onChange={(e) => update("requestedBy", e.target.value)} />
+          </label>
+        </div>
+      </div>
     </div>
   );
 }

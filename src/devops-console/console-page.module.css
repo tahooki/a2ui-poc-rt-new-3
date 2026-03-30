@@ -478,6 +478,38 @@
   color: var(--console-text);
 }
 
+.subTabNav {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--console-border);
+  padding-bottom: 0;
+}
+
+.subTabButton {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 16px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--console-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.subTabButton:hover {
+  color: var(--console-text);
+}
+
+.subTabButtonActive {
+  color: var(--console-text);
+  border-bottom-color: rgba(76, 141, 255, 0.82);
+}
+
 .fieldGrid,
 .heroSplit {
   display: grid;
@@ -1086,6 +1118,74 @@
 .stepItemComplete {
   border-color: rgba(52, 195, 143, 0.44);
 }
+
+/* ---- Collapsible detail sections inside templates ---- */
+
+.collapsibleSection {
+  border: 1px solid rgba(37, 50, 68, 0.76);
+  border-radius: var(--console-radius);
+  background: rgba(15, 23, 34, 0.38);
+  overflow: hidden;
+}
+
+.collapsibleHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s;
+}
+
+.collapsibleHeader:hover {
+  background: rgba(37, 50, 68, 0.5);
+}
+
+.collapsibleHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.collapsibleArrow {
+  font-size: 10px;
+  opacity: 0.55;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+
+.collapsibleArrowOpen {
+  transform: rotate(90deg);
+}
+
+.collapsibleTitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--console-text-primary);
+  white-space: nowrap;
+}
+
+.collapsibleBadge {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(86, 130, 233, 0.18);
+  color: rgba(147, 180, 255, 0.88);
+  white-space: nowrap;
+}
+
+.collapsibleBody {
+  display: none;
+  padding: 0 12px 12px;
+}
+
+.collapsibleBodyOpen {
+  display: block;
+}
+
 
 .warningCard,
 .calloutCard {

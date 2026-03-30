@@ -36,7 +36,35 @@ export function bindDeployLaunchpad(
   if (getSlotValue(facts, "deploy.targetVersion")) usedFacts.push("deploy.targetVersion");
 
   const environments = (context!.environments as string[]) ?? [];
-  const availableImages = (context!.availableImages as Array<{ tag: string }>) ?? [];
+  const availableImages = (context!.availableImages as Array<Record<string, unknown>>) ?? [];
+
+  // Pick the best matching image for the target version
+  const matchedImage = availableImages.find((img) => img.tag === targetVersion || img.imageTag === targetVersion) ?? availableImages[0];
+
+  const imageDetail = matchedImage
+    ? {
+        repository: (matchedImage.repository as string) ?? serviceName!,
+        imageTag: (matchedImage.imageTag as string) ?? (matchedImage.tag as string) ?? targetVersion,
+        imageUri: (matchedImage.imageUri as string) ?? "",
+        gitRef: (matchedImage.gitRef as string) ?? "",
+        commitSha: (matchedImage.commitSha as string) ?? "",
+        imageDigest: (matchedImage.imageDigest as string) ?? "",
+        buildStatus: (matchedImage.buildStatus as string) ?? "registered",
+        pushedAt: (matchedImage.pushedAt as string) ?? "",
+      }
+    : undefined;
+
+  const requestDetail = {
+    cpu: "1024",
+    memory: "2048",
+    containerPort: "8080",
+    desiredCount: "4",
+    minimumHealthyPercent: "100",
+    maximumPercent: "200",
+    deploymentStrategy: "rolling",
+    rollbackBaseline: recommendedVersion !== targetVersion ? recommendedVersion : "이전 안정 버전",
+    requestedBy: "AI Assistant",
+  };
 
   const payload: QuickDeployTemplateData = {
     templateId: "quick_deploy_launchpad",
@@ -53,6 +81,8 @@ export function bindDeployLaunchpad(
     helperText: "배포 준비 완료",
     primaryActionLabel: "배포 시작",
     secondaryActionLabel: "초안 새로 고침",
+    imageDetail,
+    requestDetail,
     actions: [
       {
         actionId: DEPLOY_ACTION_IDS.START,

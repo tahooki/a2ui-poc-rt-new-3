@@ -86,6 +86,7 @@ export function DeployWorkflowPage({ stage }: { stage: DeployStage }) {
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [aiEnabled, setAiEnabled] = useState(false);
+  const [imageSubTab, setImageSubTab] = useState<"list" | "register">("list");
   const pages = useDevopsConsoleStore((state) => state.pages);
   const setDeployWorkflowField = useDevopsConsoleStore((state) => state.setDeployWorkflowField);
   const registerDeployImage = useDevopsConsoleStore((state) => state.registerDeployImage);
@@ -270,8 +271,87 @@ export function DeployWorkflowPage({ stage }: { stage: DeployStage }) {
       <SummaryBand metrics={summaryMetrics} />
 
       {stage === "image" ? (
-        <div className={styles.workspaceGrid}>
-          <div className={styles.mainColumn}>
+        <>
+          <nav className={styles.subTabNav}>
+            <button
+              className={`${styles.subTabButton} ${imageSubTab === "list" ? styles.subTabButtonActive : ""}`}
+              onClick={() => setImageSubTab("list")}
+              type="button"
+            >
+              목록
+            </button>
+            <button
+              className={`${styles.subTabButton} ${imageSubTab === "register" ? styles.subTabButtonActive : ""}`}
+              onClick={() => setImageSubTab("register")}
+              type="button"
+            >
+              등록
+            </button>
+          </nav>
+
+          {imageSubTab === "list" ? (
+            <div className={styles.workspaceGrid}>
+              <div className={styles.mainColumn}>
+                <DataTable
+                  columns={["Repository", "Image tag", "Image URI", "Git ref / SHA", "Pushed at", "Status"]}
+                  description="등록된 이미지 목록을 관리하고, request 단계에서 사용할 artifact를 검토합니다."
+                  onSelectRow={selectDeployImage}
+                  rows={imageRows}
+                  title="Registered images"
+                />
+              </div>
+
+              <div className={styles.detailColumn}>
+                {selectedImage ? (
+                  <section className={styles.panel}>
+                    <div className={styles.panelHeader}>
+                      <div>
+                        <h2 className={styles.panelTitle}>Selected image detail</h2>
+                        <p className={styles.panelDescription}>현재 등록 목록에서 선택한 이미지의 registry metadata입니다.</p>
+                      </div>
+                      <StatusChip
+                        label={selectedImage.buildStatus}
+                        tone={selectedImage.buildStatus === "push_verified" ? "success" : "info"}
+                      />
+                    </div>
+                    <div className={styles.propertyList}>
+                      <div className={styles.propertyItem}>
+                        <div className={styles.metaLabel}>Repository</div>
+                        <div className={`${styles.propertyValue} ${styles.mono}`}>{selectedImage.repository}</div>
+                      </div>
+                      <div className={styles.propertyItem}>
+                        <div className={styles.metaLabel}>Image tag</div>
+                        <div className={`${styles.propertyValue} ${styles.mono}`}>{selectedImage.imageTag}</div>
+                      </div>
+                      <div className={styles.propertyItem}>
+                        <div className={styles.metaLabel}>Image URI</div>
+                        <div className={`${styles.propertyValue} ${styles.mono}`}>{selectedImage.imageUri}</div>
+                      </div>
+                      <div className={styles.propertyItem}>
+                        <div className={styles.metaLabel}>Image digest</div>
+                        <div className={`${styles.propertyValue} ${styles.mono}`}>{selectedImage.imageDigest}</div>
+                      </div>
+                      <div className={styles.propertyItem}>
+                        <div className={styles.metaLabel}>Notes</div>
+                        <div className={styles.stackList}>
+                          {selectedImage.notes.map((note) => (
+                            <div className={styles.propertyValue} key={note}>
+                              {note}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                ) : (
+                  <EmptyState
+                    description="등록된 이미지를 선택하면 registry metadata와 운영 메모가 표시됩니다."
+                    title="선택된 이미지 없음"
+                  />
+                )}
+              </div>
+            </div>
+          ) : (
             <section className={styles.panel}>
               <div className={styles.panelHeader}>
                 <div>
@@ -330,71 +410,13 @@ export function DeployWorkflowPage({ stage }: { stage: DeployStage }) {
               </div>
 
               <div className={styles.inlineActions}>
-                <button className={styles.primaryButton} onClick={registerDeployImage} type="button">
+                <button className={styles.primaryButton} onClick={() => { registerDeployImage(); setImageSubTab("list"); }} type="button">
                   이미지 등록
                 </button>
               </div>
             </section>
-
-            <DataTable
-              columns={["Repository", "Image tag", "Image URI", "Git ref / SHA", "Pushed at", "Status"]}
-              description="등록된 이미지 목록을 관리하고, request 단계에서 사용할 artifact를 검토합니다."
-              onSelectRow={selectDeployImage}
-              rows={imageRows}
-              title="Registered images"
-            />
-          </div>
-
-          <div className={styles.detailColumn}>
-            {selectedImage ? (
-              <section className={styles.panel}>
-                <div className={styles.panelHeader}>
-                  <div>
-                    <h2 className={styles.panelTitle}>Selected image detail</h2>
-                    <p className={styles.panelDescription}>현재 등록 목록에서 선택한 이미지의 registry metadata입니다.</p>
-                  </div>
-                  <StatusChip
-                    label={selectedImage.buildStatus}
-                    tone={selectedImage.buildStatus === "push_verified" ? "success" : "info"}
-                  />
-                </div>
-                <div className={styles.propertyList}>
-                  <div className={styles.propertyItem}>
-                    <div className={styles.metaLabel}>Repository</div>
-                    <div className={`${styles.propertyValue} ${styles.mono}`}>{selectedImage.repository}</div>
-                  </div>
-                  <div className={styles.propertyItem}>
-                    <div className={styles.metaLabel}>Image tag</div>
-                    <div className={`${styles.propertyValue} ${styles.mono}`}>{selectedImage.imageTag}</div>
-                  </div>
-                  <div className={styles.propertyItem}>
-                    <div className={styles.metaLabel}>Image URI</div>
-                    <div className={`${styles.propertyValue} ${styles.mono}`}>{selectedImage.imageUri}</div>
-                  </div>
-                  <div className={styles.propertyItem}>
-                    <div className={styles.metaLabel}>Image digest</div>
-                    <div className={`${styles.propertyValue} ${styles.mono}`}>{selectedImage.imageDigest}</div>
-                  </div>
-                  <div className={styles.propertyItem}>
-                    <div className={styles.metaLabel}>Notes</div>
-                    <div className={styles.stackList}>
-                      {selectedImage.notes.map((note) => (
-                        <div className={styles.propertyValue} key={note}>
-                          {note}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </section>
-            ) : (
-              <EmptyState
-                description="등록된 이미지를 선택하면 registry metadata와 운영 메모가 표시됩니다."
-                title="선택된 이미지 없음"
-              />
-            )}
-          </div>
-        </div>
+          )}
+        </>
       ) : stage === "request" ? (
         <div className={styles.workspaceGrid}>
           <div className={styles.mainColumn}>

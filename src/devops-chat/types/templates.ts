@@ -8,6 +8,29 @@ export type DryRunStepperState = "not_started" | "running" | "completed";
 
 export type ConfirmActionState = "confirm_ready" | "executed";
 
+export type DeployImageDetail = {
+  repository: string;
+  imageTag: string;
+  imageUri: string;
+  gitRef: string;
+  commitSha: string;
+  imageDigest: string;
+  buildStatus: string;
+  pushedAt: string;
+};
+
+export type DeployRequestDetail = {
+  cpu: string;
+  memory: string;
+  containerPort: string;
+  desiredCount: string;
+  minimumHealthyPercent: string;
+  maximumPercent: string;
+  deploymentStrategy: string;
+  rollbackBaseline: string;
+  requestedBy: string;
+};
+
 export type QuickDeployTemplateData = {
   templateId: "quick_deploy_launchpad";
   state: QuickDeployTemplateState;
@@ -22,6 +45,8 @@ export type QuickDeployTemplateData = {
   primaryActionLabel: string;
   secondaryActionLabel: string;
   actions?: unknown[];
+  imageDetail?: DeployImageDetail;
+  requestDetail?: DeployRequestDetail;
 };
 
 export type DeploymentApprovalTemplateData = {

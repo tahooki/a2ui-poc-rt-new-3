@@ -26,6 +26,9 @@ export const getServiceDeployContext: ToolDefinition = {
         repository: string;
         imageTag: string;
         imageUri: string;
+        gitRef: string;
+        commitSha: string;
+        imageDigest: string;
         buildStatus: string;
         services: string[];
         notes: string[];
@@ -62,7 +65,12 @@ export const getServiceDeployContext: ToolDefinition = {
         serviceName,
         availableImages: sorted.map((img) => ({
           id: img.id,
+          repository: img.repository,
           imageTag: img.imageTag,
+          imageUri: img.imageUri,
+          gitRef: img.gitRef,
+          commitSha: img.commitSha,
+          imageDigest: img.imageDigest,
           buildStatus: img.buildStatus,
           pushedAt: img.pushedAt,
         })),
