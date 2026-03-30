@@ -121,11 +121,11 @@ rollback.json에 서비스별 health 데이터 추가:
 
 ## 5. 작업 목록
 
-- [ ] rollback.json seed에 serviceHealth 데이터 추가
-- [ ] 도메인 타입에 ServiceHealth 타입 정의
-- [ ] 롤백 페이지에 서브탭 추가 ("현황" / "롤백 실행")
-- [ ] 서비스 현황 컴포넌트 구현 (카드 리스트, 상태별 색상)
-- [ ] A2UI RollbackTargetList Surface 상단에 인시던트 요약 영역 추가
-- [ ] RollbackTargetList 템플릿 타입/정의에 incident 필드 추가
-- [ ] Binder에서 incident 데이터를 payload에 포함하도록 수정
-- [ ] Story 페이지 롤백 파트 업데이트 (현황 페이지 시연 + A2UI 채팅 모의 수정)
+- [x] rollback.json seed에 serviceHealth 데이터 추가
+- [x] 도메인 타입에 ServiceHealth 타입 정의
+- [x] 롤백 페이지에 서브탭 추가 ("현황" / "롤백 실행")
+- [x] 서비스 현황 컴포넌트 구현 (카드 리스트, 상태별 색상)
+- [x] A2UI RollbackTargetList Surface 상단에 인시던트 요약 영역 추가
+- [x] RollbackTargetList 템플릿 타입/정의에 incident 필드 추가
+- [x] Binder에서 incident 데이터를 payload에 포함하도록 수정
+- [x] Story 페이지 롤백 파트 업데이트 (현황 페이지 시연 + A2UI 채팅 모의 수정)
