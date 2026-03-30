@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A2UI AI Architecture</title>
+  <style>
+    :root {
+      --bg: #0a111c;
+      --bg-card: #111a2a;
+      --bg-card-alt: #162035;
+      --border: #253244;
+      --text: #e4e8ef;
+      --text-secondary: #8899aa;
+      --accent: #5682e9;
+      --accent-light: #93b4ff;
+      --green: #34c38f;
+      --yellow: #f7c948;
+      --red: #f46a6a;
+      --purple: #a78bfa;
+      --orange: #fb923c;
+      --radius: 10px;
+      --mono: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    header h1 {
+      font-size: 42px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent-light), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 12px;
+    }
+
+    header p {
+      color: var(--text-secondary);
+      font-size: 18px;
+    }
+
+    /* ---- Section ---- */
+    .section {
+      margin-bottom: 48px;
+    }
+
+    .section-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title .num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .section-desc {
+      color: var(--text-secondary);
+      font-size: 15px;
+      margin-bottom: 20px;
+      padding-left: 42px;
+    }
+
+    /* ---- Flow Diagram ---- */
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+      align-items: stretch;
+      margin-bottom: 24px;
+    }
+
+    .flow-step {
+      flex: 1;
+      min-width: 150px;
+      max-width: 240px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      position: relative;
+    }
+
+    .flow-step::after {
+      content: '';
+      position: absolute;
+      right: -18px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: 8px solid transparent;
+      border-left-color: var(--accent);
+      z-index: 1;
+    }
+
+    .flow-step:last-child::after { display: none; }
+
+    .flow-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      flex-shrink: 0;
+      color: var(--accent);
+      font-size: 18px;
+      opacity: 0.5;
+    }
+
+    .flow-step-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent-light);
+      margin-bottom: 4px;
+    }
+
+    .flow-step-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .flow-step-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* ---- Card ---- */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .card-subtitle {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    /* ---- Grid ---- */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 800px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .flow { flex-direction: column; align-items: center; }
+      .flow-step { max-width: 100%; }
+      .flow-step::after { display: none; }
+      .flow-arrow { transform: rotate(90deg); }
+    }
+
+    /* ---- Pipeline ---- */
+    .pipeline {
+      position: relative;
+      padding-left: 32px;
+    }
+
+    .pipeline::before {
+      content: '';
+      position: absolute;
+      left: 11px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--border);
+    }
+
+    .pipeline-step {
+      position: relative;
+      margin-bottom: 20px;
+      padding: 16px 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    .pipeline-step::before {
+      content: '';
+      position: absolute;
+      left: -27px;
+      top: 22px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid var(--bg);
+    }
+
+    .pipeline-step.step-green::before { background: var(--green); }
+    .pipeline-step.step-yellow::before { background: var(--yellow); }
+    .pipeline-step.step-purple::before { background: var(--purple); }
+    .pipeline-step.step-orange::before { background: var(--orange); }
+    .pipeline-step.step-red::before { background: var(--red); }
+
+    .step-num {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent-light);
+      margin-bottom: 2px;
+    }
+
+    .step-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .step-body {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ---- Code ---- */
+    code, .code-block {
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    code {
+      background: rgba(86, 130, 233, 0.12);
+      color: var(--accent-light);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .code-block {
+      background: #0d1520;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      overflow-x: auto;
+      line-height: 1.8;
+      color: var(--text-secondary);
+      margin: 12px 0;
+    }
+
+    .code-block .kw { color: var(--purple); }
+    .code-block .fn { color: var(--accent-light); }
+    .code-block .str { color: var(--green); }
+    .code-block .cmt { color: #4a5568; font-style: italic; }
+    .code-block .type { color: var(--yellow); }
+
+    /* ---- Badge ---- */
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 10px;
+      border-radius: 10px;
+      margin-right: 4px;
+    }
+
+    .badge-blue { background: rgba(86,130,233,0.18); color: var(--accent-light); }
+    .badge-green { background: rgba(52,195,143,0.18); color: var(--green); }
+    .badge-yellow { background: rgba(247,201,72,0.18); color: var(--yellow); }
+    .badge-purple { background: rgba(167,139,250,0.18); color: var(--purple); }
+    .badge-red { background: rgba(244,106,106,0.18); color: var(--red); }
+    .badge-orange { background: rgba(251,146,60,0.18); color: var(--orange); }
+
+    /* ---- Table ---- */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .data-table th {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 2px solid var(--border);
+      color: var(--text-secondary);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .data-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(37,50,68,0.5);
+    }
+
+    .data-table tr:hover td {
+      background: rgba(37,50,68,0.3);
+    }
+
+    /* ---- Diagram (Decision Tree) ---- */
+    .decision-tree {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .dt-node {
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      font-size: 13px;
+    }
+
+    .dt-condition {
+      background: var(--bg-card-alt);
+      border-left: 3px solid var(--yellow);
+    }
+
+    .dt-result {
+      margin-left: 32px;
+      border-left: 3px solid var(--green);
+      background: var(--bg-card);
+    }
+
+    .dt-result.dt-ask {
+      border-left-color: var(--orange);
+    }
+
+    .dt-result.dt-text {
+      border-left-color: var(--purple);
+    }
+
+    .dt-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      opacity: 0.6;
+      margin-bottom: 2px;
+    }
+
+    /* ---- Toggle Diagram ---- */
+    .toggle-box {
+      display: flex;
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .toggle-side {
+      flex: 1;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+
+    .toggle-side h4 {
+      font-size: 14px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toggle-vs {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    .list-item {
+      font-size: 13px;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(37,50,68,0.4);
+      color: var(--text-secondary);
+    }
+
+    .list-item:last-child { border-bottom: none; }
+    .list-item strong { color: var(--text); }
+
+    /* ---- Files ---- */
+    .file-tree {
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 2;
+      padding: 16px 20px;
+      background: #0d1520;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    .file-tree .dir { color: var(--accent-light); }
+    .file-tree .file { color: var(--text-secondary); }
+    .file-tree .desc { color: #4a5568; }
+
+    .separator {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 48px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Header -->
+    <header>
+      <h1>A2UI AI Architecture</h1>
+      <p>AI-Driven DevOps Console &mdash; 사용자 입력부터 Surface 렌더링까지의 전체 흐름</p>
+    </header>
+
+    <!-- ============================================================ -->
+    <!-- Section 1: Overview Flow -->
+    <!-- ============================================================ -->
+    <div class="section">
+      <div class="section-title">
+        <span class="num">1</span>
+        전체 흐름 개요
+      </div>
+      <div class="section-desc">사용자의 채팅 입력이 AI/규칙 기반으로 처리되어 Template Surface로 렌더링되기까지의 흐름입니다.</div>
+
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-step-label">User</div>
+          <div class="flow-step-title">채팅 입력</div>
+          <div class="flow-step-desc">사용자가 "payments-api 배포해줘" 같은 자연어를 입력</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-step">
+          <div class="flow-step-label">API</div>
+          <div class="flow-step-title">POST /api/chat</div>
+          <div class="flow-step-desc">SSE 스트림으로 전송. facts, intent, workflow 상태 포함</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-step">
+          <div class="flow-step-label">Core</div>
+          <div class="flow-step-title">Orchestrator</div>
+          <div class="flow-step-desc">8단계 파이프라인 실행 (intent, slot, tool, decision)</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-step">
+          <div class="flow-step-label">Decision</div>
+          <div class="flow-step-title">정책 평가</div>
+          <div class="flow-step-desc">text / ask_followup / render_surface 중 하나 결정</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-step">
+          <div class="flow-step-label">Output</div>
+          <div class="flow-step-title">Surface 렌더</div>
+          <div class="flow-step-desc">Template 선택 &rarr; Binder &rarr; React 컴포넌트 렌더링</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- Section 2: Orchestration Pipeline -->
+    <!-- ============================================================ -->
+    <div class="section">
+      <div class="section-title">
+        <span class="num">2</span>
+        Orchestration Pipeline
+      </div>
+      <div class="section-desc">
+        <code>orchestrate-chat-turn.ts</code> &mdash; 모든 채팅 턴의 핵심 처리 파이프라인입니다. 최대 3회 반복(MAX_ITERATIONS)합니다.
+      </div>
+
+      <div class="pipeline">
+        <div class="pipeline-step">
+          <div class="step-num">Step 1</div>
+          <div class="step-title">State Hydration</div>
+          <div class="step-body">
+            요청으로부터 <code>facts</code>, <code>intent</code>, <code>workflow</code>, <code>awaiting</code> 상태를 복원합니다.
+          </div>
+        </div>
+
+        <div class="pipeline-step step-yellow">
+          <div class="step-num">Step 2</div>
+          <div class="step-title">Awaiting 응답 처리</div>
+          <div class="step-body">
+            이전 턴에서 사용자에게 질문(awaiting)한 경우, 응답을 파싱합니다.<br />
+            <span class="badge badge-blue">AI 모드</span> LLM이 <code>fill_slot</code> / <code>cancel</code> / <code>correction</code> / <code>interrupt</code> 분류<br />
+            <span class="badge badge-yellow">Mock 모드</span> 규칙 기반 엔터티 매칭 &amp; 유효성 검증
+          </div>
+        </div>
+
+        <div class="pipeline-step step-purple">
+          <div class="step-num">Step 3</div>
+          <div class="step-title">Intent &amp; Workflow 해석</div>
+          <div class="step-body">
+            사용자 입력에서 Intent(의도)를 추출하고 Workflow 상태를 업데이트합니다.<br />
+            <span class="badge badge-blue">AI 모드</span> LLM이 intent 분류 + slot 값 추출<br />
+            <span class="badge badge-yellow">Mock 모드</span> 정규식 패턴 매칭 + carry 정책
+          </div>
+        </div>
+
+        <div class="pipeline-step step-green">
+          <div class="step-num">Step 4-6</div>
+          <div class="step-title">Tool 계획 &amp; 실행 루프</div>
+          <div class="step-body">
+            Intent + 현재 Slot 상태를 보고 필요한 Tool을 계획하고 실행합니다.<br />
+            <code>planTools()</code> &rarr; <code>executeTool()</code> &rarr; <code>adaptToolResult()</code><br />
+            Tool 결과는 facts와 slot에 병합되어 다음 반복에 사용됩니다.
+          </div>
+        </div>
+
+        <div class="pipeline-step step-orange">
+          <div class="step-num">Step 7</div>
+          <div class="step-title">Decision 평가</div>
+          <div class="step-body">
+            Intent별 정책 평가기(Policy Evaluator)가 최종 결정을 내립니다.<br />
+            <span class="badge badge-purple">text</span> 텍스트 응답
+            <span class="badge badge-orange">ask_followup</span> 추가 질문
+            <span class="badge badge-green">render_surface</span> 템플릿 렌더
+          </div>
+        </div>
+
+        <div class="pipeline-step step-red">
+          <div class="step-num">Step 8</div>
+          <div class="step-title">응답 생성</div>
+          <div class="step-body">
+            Decision 결과에 따라 최종 응답을 구성합니다.<br />
+            <strong>ask_followup</strong>: 누락 slot의 awaiting 계약 생성<br />
+            <strong>render_surface</strong>: Template 선택 &rarr; Binder &rarr; SurfaceEnvelope<br />
+            <strong>text</strong>: LLM 또는 Mock 텍스트 응답
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- Section 3: Slot System -->
+    <!-- ============================================================ -->
+    <div class="section">
+      <div class="section-title">
+        <span class="num">3</span>
+        Slot 시스템
+      </div>
+      <div class="section-desc">대화를 통해 수집되는 정보 조각(Slot)을 관리합니다. 의존성 추적과 무효화를 지원합니다.</div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Slot 정의 구조</div>
+          <div class="card-subtitle">slot-definitions.ts</div>
+          <div class="code-block">
+<span class="type">SlotDefinition</span> {
+  <span class="fn">slotKey</span>: <span class="str">"deploy.serviceName"</span>
+  <span class="fn">type</span>: <span class="str">"string"</span> | <span class="str">"enum"</span> | <span class="str">"list"</span>
+  <span class="fn">required</span>: <span class="kw">true</span>
+  <span class="fn">sourcePrecedence</span>: [<span class="str">"user"</span>, <span class="str">"selection"</span>, <span class="str">"tool"</span>]
+  <span class="fn">validValues</span>?: [<span class="str">"production"</span>, <span class="str">"staging"</span>]
+  <span class="fn">staleWhen</span>?: [<span class="str">"deploy.serviceName"</span>]
+  <span class="fn">awaitingInput</span>?: <span class="str">"single_select"</span>
+  <span class="fn">awaitingPrompt</span>?: <span class="str">"어떤 서비스를?"</span>
+}
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Intent별 필수 Slot</div>
+          <div class="card-subtitle">각 Intent가 동작하기 위해 필요한 Slot 목록</div>
+          <table class="data-table">
+            <thead>
+              <tr><th>Intent</th><th>Required Slots</th><th>Ready Set</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>deploy.start</code></td>
+                <td><code>serviceName</code></td>
+                <td><code>serviceName</code> + <code>selectedServiceContext</code></td>
+              </tr>
+              <tr>
+                <td><code>approval.review</code></td>
+                <td><code>requestId</code></td>
+                <td><code>requestId</code> + <code>queueItems</code></td>
+              </tr>
+              <tr>
+                <td><code>rollback.start</code></td>
+                <td><code>serviceName</code></td>
+                <td><code>serviceName</code> + <code>candidates</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <div class="card-title">Slot 우선순위 &amp; 무효화</div>
+        <div class="grid-2" style="margin-top:12px;">
+          <div>
+            <div style="font-size:13px;font-weight:600;margin-bottom:8px;">Source Precedence (높은 순)</div>
+            <div class="list-item"><span class="badge badge-red">1</span> <strong>user</strong> &mdash; 사용자가 직접 입력한 값</div>
+            <div class="list-item"><span class="badge badge-orange">2</span> <strong>selection</strong> &mdash; UI에서 선택한 값</div>
+            <div class="list-item"><span class="badge badge-yellow">3</span> <strong>tool</strong> &mdash; Tool 실행 결과</div>
+            <div class="list-item"><span class="badge badge-blue">4</span> <strong>system</strong> &mdash; 시스템 기본값</div>
+          </div>
+          <div>
+            <div style="font-size:13px;font-weight:600;margin-bottom:8px;">staleWhen 의존성 예시</div>
+            <div class="list-item"><code>deploy.environment</code>는 <code>serviceName</code> 변경 시 무효화</div>
+            <div class="list-item"><code>deploy.selectedServiceContext</code>는 <code>serviceName</code> 변경 시 무효화</div>
+            <div class="list-item">서비스를 바꾸면 환경/컨텍스트가 자동 초기화됨</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- Section 4: Decision Engine -->
+    <!-- ============================================================ -->
+    <div class="section">
+      <div class="section-title">
+        <span class="num">4</span>
+        Decision Engine
+      </div>
+      <div class="section-desc">Intent별 정책(Policy)에 따라 3가지 모드 중 하나를 결정합니다.</div>
+
+      <div class="card">
+        <div class="card-title">Deploy Policy 판단 흐름</div>
+        <div class="card-subtitle">policies/deploy.ts</div>
+
+        <div class="decision-tree" style="margin-top:12px;">
+          <div class="dt-node dt-condition">
+            <div class="dt-label">조건 1</div>
+            <code>deploy.serviceName</code> 슬롯이 비어있는가?
+          </div>
+          <div class="dt-node dt-result dt-ask">
+            <div class="dt-label">Yes &rarr; ask_followup</div>
+            "어떤 서비스를 배포할까요?" 질문 + 서비스 목록 조회 Tool 실행
+          </div>
+
+          <div class="dt-node dt-condition">
+            <div class="dt-label">조건 2</div>
+            <code>serviceName</code> 있지만 <code>selectedServiceContext</code> 없는가?
+          </div>
+          <div class="dt-node dt-result dt-ask">
+            <div class="dt-label">Yes &rarr; ask_followup (+ Tool)</div>
+            <code>getServiceDeployContext</code> Tool 실행 후 다시 평가
+          </div>
+
+          <div class="dt-node dt-condition">
+            <div class="dt-label">조건 3</div>
+            모든 Ready Set 슬롯이 채워졌는가?
+          </div>
+          <div class="dt-node dt-result">
+            <div class="dt-label">Yes &rarr; render_surface</div>
+            <span class="badge badge-green">QuickDeployLaunchpad</span> 템플릿 렌더링
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-3" style="margin-top:16px;">
+        <div class="card">
+          <div class="card-title"><span class="badge badge-purple">text</span></div>
+          <div class="step-body">일반 질문에 대한 텍스트 응답. LLM 또는 Mock 패턴 매칭으로 생성.</div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="badge badge-orange">ask_followup</span></div>
+          <div class="step-body">필수 Slot이 누락. 사용자에게 추가 정보 요청. single_select / free_text 입력 방식.</div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="badge badge-green">render_surface</span></div>
+          <div class="step-body">모든 조건 충족. Template 선택 &rarr; Binder 실행 &rarr; Surface 카드 렌더링.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- Section 5: Tool System -->
+    <!-- ============================================================ -->
+    <div class="section">
+      <div class="section-title">
+        <span class="num">5</span>
+        Tool 시스템
+      </div>
+      <div class="section-desc">Intent와 Slot 상태를 기반으로 필요한 데이터를 수집하는 도구입니다. Seed JSON 데이터를 조회합니다.</div>
+
+      <div class="card">
+        <table class="data-table">
+          <thead>
+            <tr><th>Tool</th><th>트리거 조건</th><th>반환 데이터</th><th>Slot 업데이트</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>getDeployableServices</code></td>
+              <td>deploy intent + serviceName 없음</td>
+              <td>배포 가능 서비스 목록</td>
+              <td><code>deploy.availableServices</code></td>
+            </tr>
+            <tr>
+              <td><code>getServiceDeployContext</code></td>
+              <td>deploy intent + serviceName 있음</td>
+              <td>서비스 설정, 환경, 이미지 목록</td>
+              <td><code>deploy.selectedServiceContext</code></td>
+            </tr>
+            <tr>
+              <td><code>getPreviousDeployments</code></td>
+              <td>deploy.history.lookup intent</td>
+              <td>이전 배포 이력</td>
+              <td><code>deploy.deployHistory</code></td>
+            </tr>
+            <tr>
+              <td><code>getApprovalQueueSummary</code></td>
+              <td>approval intent</td>
+              <td>승인 대기 요청 목록</td>
+              <td><code>approval.queueItems</code></td>
+            </tr>
+            <tr>
+              <td><code>getRollbackCandidates</code></td>
+              <td>rollback intent</td>
+              <td>롤백 대상 목록</td>
+              <td><code>rollback.candidates</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <div class="card-title">Tool 실행 흐름</div>
+        <div class="code-block">
+<span class="cmt">// 1. Tool 계획</span>
+<span class="fn">planTools</span>(intentKey, facts)
+  &rarr; deploy.start + no serviceName &rarr; [<span class="str">"getDeployableServices"</span>]
+  &rarr; deploy.start + serviceName     &rarr; [<span class="str">"getServiceDeployContext"</span>]
+
+<span class="cmt">// 2. 중복 제거</span>
+<span class="fn">deduplicateTools</span>(planned, alreadyExecuted)
+
+<span class="cmt">// 3. 실행</span>
+<span class="fn">executeTool</span>(toolDef, facts, contextSnapshot)
+  &rarr; <span class="type">ToolOutput</span> { ok, data, summary }
+
+<span class="cmt">// 4. 결과 적용</span>
+<span class="fn">adaptToolResult</span>(output)
+  &rarr; <span class="type">{ factsPatch, slotPatch }</span>  <span class="cmt">// facts + slots에 병합</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- Section 6: Template System -->
+    <!-- ============================================================ -->
+    <div class="section">
+      <div class="section-title">
+        <span class="num">6</span>
+        Template 시스템
+      </div>
+      <div class="section-desc">Decision이 <code>render_surface</code>를 반환하면, 적절한 Template을 선택하고 데이터를 바인딩하여 UI로 렌더링합니다.</div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Template 선택 (Scoring)</div>
+          <div class="card-subtitle">template-selector.ts</div>
+          <div class="code-block">
+<span class="fn">scoreCandidate</span>(definition, input) {
+  intentMatch: intentKeys에 현재 intent 포함?
+  familyMatch: surfaceIntent.family 일치? <span class="str">+2점</span>
+  requiredFacts: 모든 필수 facts 존재? <span class="str">+1점</span>
+
+  <span class="cmt">// 최고 점수 Template 선택</span>
+  <span class="kw">return</span> candidates.sort(byScore)[0]
+}
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">사용 가능한 Templates</div>
+          <div class="card-subtitle">template-definitions.ts</div>
+          <table class="data-table">
+            <thead><tr><th>Template</th><th>Intent</th></tr></thead>
+            <tbody>
+              <tr><td><span class="badge badge-blue">QuickDeployLaunchpad</span></td><td>deploy.start</td></tr>
+              <tr><td><span class="badge badge-green">ApprovalQueueInbox</span></td><td>approval.review</td></tr>
+              <tr><td><span class="badge badge-green">DeploymentApprovalInbox</span></td><td>approval.review</td></tr>
+              <tr><td><span class="badge badge-orange">RollbackTargetList</span></td><td>rollback.start</td></tr>
+              <tr><td><span class="badge badge-orange">RollbackSummary</span></td><td>rollback.start</td></tr>
+              <tr><td><span class="badge badge-red">DryRunStepper</span></td><td>rollback (dry_run)</td></tr>
+              <tr><td><span class="badge badge-purple">ConfirmAction</span></td><td>rollback (confirm)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <div class="card-title">Binder: Facts &rarr; Payload 변환</div>
+        <div class="card-subtitle">예시: bind-deploy-launchpad.ts</div>
+        <div class="code-block">
+<span class="fn">bindDeployLaunchpad</span>(facts, intentKey) {
+  <span class="cmt">// 1. 필수 facts 추출</span>
+  <span class="kw">const</span> serviceName = <span class="fn">getSlot</span>(facts, <span class="str">"deploy.serviceName"</span>)
+  <span class="kw">const</span> context = <span class="fn">getSlot</span>(facts, <span class="str">"deploy.selectedServiceContext"</span>)
+
+  <span class="cmt">// 2. 이미지 매칭 (context에서 가져온 availableImages)</span>
+  <span class="kw">const</span> matchedImage = availableImages.find(img => img.imageTag === targetVersion)
+
+  <span class="cmt">// 3. Template payload 구성</span>
+  <span class="kw">return</span> {
+    service, environment, targetVersion, strategy,
+    impactSummary, <span class="fn">imageDetail</span>, <span class="fn">requestDetail</span>,
+    actions: [{ actionId: <span class="str">"deploy.start"</span>, label: <span class="str">"배포 시작"</span> }]
+  }
+}
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- Section 7: AI vs Mock Mode -->
+    <!-- ============================================================ -->
+    <div class="section">
+      <div class="section-title">
+        <span class="num">7</span>
+        AI / Mock 모드 전환
+      </div>
+      <div class="section-desc">헤더의 토글 버튼으로 AI(LLM) 모드와 Mock(규칙 기반) 모드를 전환합니다.</div>
+
+      <div class="toggle-box">
+        <div class="toggle-side" style="border-color:rgba(86,130,233,0.4);">
+          <h4><span class="badge badge-blue">AI 모드</span> LLM 기반</h4>
+          <div class="list-item"><strong>Intent 해석</strong>: LLM이 자연어에서 intent + slot 값 추출</div>
+          <div class="list-item"><strong>Awaiting 처리</strong>: LLM이 fill_slot / cancel / correction 분류</div>
+          <div class="list-item"><strong>응답 생성</strong>: Tool 결과를 LLM이 자연어로 변환</div>
+          <div class="list-item"><strong>요구사항</strong>: <code>OPENAI_API_KEY</code> 환경변수 필요</div>
+        </div>
+
+        <div class="toggle-vs">VS</div>
+
+        <div class="toggle-side" style="border-color:rgba(247,201,72,0.4);">
+          <h4><span class="badge badge-yellow">Mock 모드</span> 규칙 기반</h4>
+          <div class="list-item"><strong>Intent 해석</strong>: 정규식 패턴 매칭 (triggerPatterns)</div>
+          <div class="list-item"><strong>Awaiting 처리</strong>: 엔터티 매칭 + validValues 검증</div>
+          <div class="list-item"><strong>응답 생성</strong>: mock-responses.ts 패턴 DB에서 매칭</div>
+          <div class="list-item"><strong>요구사항</strong>: 없음 (API 키 불필요)</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <div class="card-title">모드 분기 로직</div>
+        <div class="code-block">
+<span class="kw">const</span> forceMock = useAi === <span class="kw">false</span>
+
+<span class="kw">if</span> (<span class="fn">isLlmAvailable</span>() && !forceMock) {
+  <span class="cmt">// AI 경로: LLM 호출</span>
+  <span class="fn">resolveAwaitingWithAi</span>(input)    <span class="cmt">// Step 2</span>
+  <span class="fn">resolveIntentWithAi</span>(input)      <span class="cmt">// Step 3</span>
+  <span class="fn">callLlmOrFallback</span>(prompt)       <span class="cmt">// Step 8</span>
+} <span class="kw">else</span> {
+  <span class="cmt">// Mock 경로: 규칙 기반</span>
+  <span class="fn">resolveAwaiting</span>(input)           <span class="cmt">// Step 2</span>
+  <span class="fn">resolveIntent</span>(input)             <span class="cmt">// Step 3</span>
+  <span class="fn">findMockResponse</span>(input, pageKey) <span class="cmt">// Step 8</span>
+}
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- Section 8: State Management -->
+    <!-- ============================================================ -->
+    <div class="section">
+      <div class="section-title">
+        <span class="num">8</span>
+        상태 관리 (Zustand)
+      </div>
+      <div class="section-desc">두 개의 Zustand Store가 대화 상태와 UI 상태를 각각 관리합니다.</div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">ConversationStore</div>
+          <div class="card-subtitle">대화 단위 상태 (conversation-store.ts)</div>
+          <div class="list-item"><strong>messages</strong>: 채팅 메시지 목록 (max 40)</div>
+          <div class="list-item"><strong>intent</strong>: 현재 활성 Intent</div>
+          <div class="list-item"><strong>workflow</strong>: 워크플로우 진행 상태</div>
+          <div class="list-item"><strong>facts</strong>: 수집된 Slot 값들</div>
+          <div class="list-item"><strong>awaiting</strong>: 사용자 응답 대기 계약</div>
+          <div class="list-item"><strong>activeSurface</strong>: 렌더 중인 Template</div>
+          <div class="list-item"><strong>composerText</strong>: 입력창 텍스트</div>
+          <div style="margin-top:12px;font-size:12px;color:var(--text-secondary);">
+            주요 액션: <code>startUserTurn</code>, <code>appendAssistantDelta</code>, <code>completeAssistantTurn</code>, <code>mergeFacts</code>, <code>setActiveSurface</code>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">AppStore</div>
+          <div class="card-subtitle">페이지 단위 UI 상태 (app-store.ts)</div>
+          <div class="list-item"><strong>pages</strong>: deploy / approve / rollback 페이지 데이터</div>
+          <div class="list-item"><strong>deployWorkflow</strong>: Image/Request 폼 상태</div>
+          <div class="list-item"><strong>images</strong>: 등록된 Docker 이미지 목록</div>
+          <div class="list-item"><strong>items</strong>: 배포 요청/실행 항목</div>
+          <div class="list-item"><strong>selectedRow</strong>: 테이블 선택 행</div>
+          <div class="list-item"><strong>sidebarOpen</strong>: 사이드바 상태</div>
+          <div style="margin-top:12px;font-size:12px;color:var(--text-secondary);">
+            주요 액션: <code>registerDeployImage</code>, <code>submitDeployRequest</code>, <code>startDeployRun</code>, <code>completeDeployRun</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="separator" />
+
+    <!-- ============================================================ -->
+    <!-- Section 9: Full E2E Example -->
+    <!-- ============================================================ -->
+    <div class="section">
+      <div class="section-title">
+        <span class="num">9</span>
+        E2E 시나리오: "payments-api 배포해줘"
+      </div>
+      <div class="section-desc">실제 사용자 대화가 처리되는 전체 과정을 단계별로 추적합니다.</div>
+
+      <div class="pipeline">
+        <div class="pipeline-step">
+          <div class="step-num">Turn 1 &mdash; 사용자 입력</div>
+          <div class="step-title">"payments-api 배포해줘"</div>
+          <div class="step-body">
+            <strong>Step 3</strong>: Intent &rarr; <code>deploy.start</code>, Slot 추출 &rarr; <code>serviceName = "payments-api"</code><br />
+            <strong>Step 4</strong>: Tool 계획 &rarr; <code>getServiceDeployContext("payments-api")</code><br />
+            <strong>Step 5</strong>: Tool 실행 &rarr; 환경, 이미지, 버전 정보 반환<br />
+            <strong>Step 6</strong>: Slot 업데이트 &rarr; <code>selectedServiceContext</code> 채워짐<br />
+            <strong>Step 7</strong>: Deploy Policy &rarr; Ready Set 완성 &rarr; <span class="badge badge-green">render_surface</span><br />
+            <strong>Step 8</strong>: Template 선택 &rarr; <code>QuickDeployLaunchpad</code> &rarr; Binder 실행
+          </div>
+        </div>
+
+        <div class="pipeline-step step-green">
+          <div class="step-num">결과</div>
+          <div class="step-title">QuickDeployLaunchpad 렌더링</div>
+          <div class="step-body">
+            서비스: payments-api, 환경: production, 버전: v2.3.18-rc1<br />
+            Image 정보 / Request 설정이 pre-filled된 접이식 폼 표시<br />
+            "배포 시작" / "초안 새로 고침" 액션 버튼 활성화
+          </div>
+        </div>
+      </div>
+
+      <div class="pipeline" style="margin-top:16px;">
+        <div class="pipeline-step step-yellow">
+          <div class="step-num">Turn 1 (대안) &mdash; 서비스명 없이 입력</div>
+          <div class="step-title">"배포 좀 할래"</div>
+          <div class="step-body">
+            <strong>Step 3</strong>: Intent &rarr; <code>deploy.start</code>, serviceName 없음<br />
+            <strong>Step 4</strong>: Tool &rarr; <code>getDeployableServices</code> 실행<br />
+            <strong>Step 7</strong>: Required slot 없음 &rarr; <span class="badge badge-orange">ask_followup</span><br />
+            <strong>Step 8</strong>: Awaiting 계약 생성 &rarr; "어떤 서비스를 배포할까요?" + 서비스 목록
+          </div>
+        </div>
+
+        <div class="pipeline-step">
+          <div class="step-num">Turn 2 &mdash; 사용자 응답</div>
+          <div class="step-title">"payments-api" (목록에서 선택)</div>
+          <div class="step-body">
+            <strong>Step 2</strong>: Awaiting 처리 &rarr; <code>fill_slot</code> &rarr; <code>serviceName = "payments-api"</code><br />
+            <strong>Step 4</strong>: Tool &rarr; <code>getServiceDeployContext</code> 실행<br />
+            <strong>Step 7</strong>: Ready Set 완성 &rarr; <span class="badge badge-green">render_surface</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="separator" />
+
+    <!-- ============================================================ -->
+    <!-- Section 10: File Map -->
+    <!-- ============================================================ -->
+    <div class="section">
+      <div class="section-title">
+        <span class="num">10</span>
+        파일 구조 맵
+      </div>
+
+      <div class="file-tree">
+<span class="dir">src/devops-chat/</span>
+  <span class="dir">server/</span>
+    <span class="file">orchestrate-chat-turn.ts</span>  <span class="desc">&larr; 핵심 파이프라인 (8 Steps)</span>
+    <span class="dir">ai/</span>
+      <span class="file">llm-client.ts</span>            <span class="desc">&larr; LLM API 호출</span>
+      <span class="file">ai-intent-resolver.ts</span>    <span class="desc">&larr; AI Intent 해석</span>
+      <span class="file">ai-awaiting-resolver.ts</span>  <span class="desc">&larr; AI Awaiting 응답 처리</span>
+      <span class="file">mock-responses.ts</span>        <span class="desc">&larr; Mock 패턴 응답 DB</span>
+    <span class="dir">decision/</span>
+      <span class="file">decision-engine.ts</span>       <span class="desc">&larr; Decision 라우터</span>
+      <span class="dir">policies/</span>
+        <span class="file">deploy.ts</span>              <span class="desc">&larr; 배포 정책 평가</span>
+        <span class="file">approval.ts</span>            <span class="desc">&larr; 승인 정책 평가</span>
+        <span class="file">rollback.ts</span>            <span class="desc">&larr; 롤백 정책 평가</span>
+    <span class="dir">orchestration/</span>
+      <span class="file">slot-definitions.ts</span>      <span class="desc">&larr; Slot 스키마 정의</span>
+      <span class="file">slot-memory.ts</span>           <span class="desc">&larr; Slot CRUD 연산</span>
+      <span class="file">intent-resolver.ts</span>       <span class="desc">&larr; 규칙 기반 Intent</span>
+      <span class="file">awaiting-resolver.ts</span>     <span class="desc">&larr; 규칙 기반 Awaiting</span>
+      <span class="file">workflow-definitions.ts</span>  <span class="desc">&larr; 워크플로우 정의</span>
+    <span class="dir">tools/</span>
+      <span class="file">tool-registry.ts</span>         <span class="desc">&larr; Tool 등록/조회</span>
+      <span class="file">tool-planner.ts</span>          <span class="desc">&larr; Tool 실행 계획</span>
+      <span class="file">tool-executor.ts</span>         <span class="desc">&larr; Tool 실행기</span>
+      <span class="file">tool-result-adapter.ts</span>   <span class="desc">&larr; 결과 &rarr; facts 변환</span>
+      <span class="dir">builtin/</span>                  <span class="desc">&larr; 5개 기본 Tool</span>
+  <span class="dir">templates/</span>
+    <span class="file">template-selector.ts</span>       <span class="desc">&larr; 점수 기반 선택</span>
+    <span class="file">template-definitions.ts</span>    <span class="desc">&larr; Template 메타데이터</span>
+    <span class="dir">binders/</span>                    <span class="desc">&larr; facts &rarr; payload 변환</span>
+  <span class="dir">store/</span>
+    <span class="file">conversation-store.ts</span>      <span class="desc">&larr; 대화 상태 (Zustand)</span>
+    <span class="file">app-store.ts</span>               <span class="desc">&larr; UI 상태 (Zustand)</span>
+  <span class="dir">types/</span>
+    <span class="file">domain.ts</span>                  <span class="desc">&larr; 도메인 타입</span>
+    <span class="file">templates.ts</span>               <span class="desc">&larr; Template 타입</span>
+    <span class="file">conversation.ts</span>            <span class="desc">&larr; 대화 타입</span>
+  <span class="dir">data/seed/</span>
+    <span class="file">deploy.json</span>                <span class="desc">&larr; Mock 배포 데이터</span>
+    <span class="file">approve.json</span>               <span class="desc">&larr; Mock 승인 데이터</span>
+    <span class="file">rollback.json</span>              <span class="desc">&larr; Mock 롤백 데이터</span>
+
+<span class="dir">src/app/api/chat/</span>
+  <span class="file">route.ts</span>                     <span class="desc">&larr; SSE 스트리밍 API</span>
+      </div>
+    </div>
+
+    <footer style="text-align:center;padding:40px 0;color:var(--text-secondary);font-size:12px;">
+      A2UI AI Architecture Document &mdash; Generated 2026-03-30
+    </footer>
+
+  </div>
+</body>
+</html>

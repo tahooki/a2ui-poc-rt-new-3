@@ -403,24 +403,24 @@ function buildApprovalDetailSections(item: ApprovalItem): DetailSection[] {
     {
       title: "요청 개요",
       items: [
-        { label: "Request", value: item.id, mono: true },
-        { label: "Title", value: item.title, mono: true },
-        { label: "Requester", value: item.requestedBy, mono: true },
-        { label: "Window", value: item.requestWindow, mono: true },
+        { label: "요청 ID", value: item.id, mono: true },
+        { label: "요청 내용", value: item.title, mono: true },
+        { label: "요청자", value: item.requestedBy, mono: true },
+        { label: "작업 시간", value: item.requestWindow, mono: true },
       ],
     },
     {
       title: "영향 범위",
       items: [
-        { label: "Team", value: item.team, mono: true },
-        { label: "Impact", value: item.impactScope },
-        { label: "Requested at", value: item.requestedAt, mono: true },
+        { label: "담당 팀", value: item.team, mono: true },
+        { label: "영향 범위", value: item.impactScope },
+        { label: "요청 시각", value: item.requestedAt, mono: true },
       ],
     },
     {
-      title: "검증 체크",
+      title: "검증 항목",
       items: item.verificationChecks.map((value, index) => ({
-        label: `Check ${index + 1}`,
+        label: `검증 ${index + 1}`,
         value,
       })),
     },
@@ -430,28 +430,28 @@ function buildApprovalDetailSections(item: ApprovalItem): DetailSection[] {
     return [
       ...commonSections,
       {
-        title: "Access scope",
+        title: "접근 권한 범위",
         items: [
-          { label: "Principal", value: item.detail.principal, mono: true },
-          { label: "Resource", value: item.detail.resource, mono: true },
-          { label: "Scope", value: item.detail.scope, mono: true },
-          { label: "Duration", value: item.detail.duration, mono: true },
-          { label: "Expires at", value: item.detail.expiresAt, mono: true },
+          { label: "접근 주체", value: item.detail.principal, mono: true },
+          { label: "대상 리소스", value: item.detail.resource, mono: true },
+          { label: "권한 범위", value: item.detail.scope, mono: true },
+          { label: "유지 시간", value: item.detail.duration, mono: true },
+          { label: "만료 시각", value: item.detail.expiresAt, mono: true },
         ],
       },
       {
-        title: "Safeguards",
+        title: "안전 장치",
         items: item.detail.safeguards.map((value, index) => ({
-          label: `Guard ${index + 1}`,
+          label: `보호 조치 ${index + 1}`,
           value,
         })),
       },
       {
         title: "관련 메모",
         items: [
-          { label: "Justification", value: item.detail.justification },
+          { label: "신청 사유", value: item.detail.justification },
           ...item.notes.map((value, index) => ({
-            label: `Note ${index + 1}`,
+            label: `메모 ${index + 1}`,
             value,
           })),
         ],
@@ -463,31 +463,31 @@ function buildApprovalDetailSections(item: ApprovalItem): DetailSection[] {
     return [
       ...commonSections,
       {
-        title: "Config diff",
+        title: "설정 변경 내역",
         items: [
-          { label: "Service", value: item.detail.service, mono: true },
-          { label: "Change type", value: item.detail.changeType, mono: true },
-          { label: "Target config", value: item.detail.targetConfig, mono: true },
-          { label: "Current", value: item.detail.currentValue, mono: true },
-          { label: "Proposed", value: item.detail.proposedValue, mono: true },
+          { label: "대상 서비스", value: item.detail.service, mono: true },
+          { label: "변경 유형", value: item.detail.changeType, mono: true },
+          { label: "변경 대상", value: item.detail.targetConfig, mono: true },
+          { label: "현재 값", value: item.detail.currentValue, mono: true },
+          { label: "변경 요청 값", value: item.detail.proposedValue, mono: true },
         ],
       },
       {
-        title: "Rollback 방법",
+        title: "원복 방법",
         items: [
-          { label: "Rollback", value: item.detail.rollbackMethod },
-          { label: "Availability", value: item.rollbackAvailability },
+          { label: "롤백 방법", value: item.detail.rollbackMethod },
+          { label: "롤백 가능 여부", value: item.rollbackAvailability },
         ],
       },
       {
         title: "관련 메모",
         items: [
           ...(item.detail.verificationEvidence ?? []).map((value, index) => ({
-            label: `Evidence ${index + 1}`,
+            label: `검증 근거 ${index + 1}`,
             value,
           })),
           ...item.notes.map((value, index) => ({
-            label: `Note ${index + 1}`,
+            label: `메모 ${index + 1}`,
             value,
           })),
         ],
@@ -498,31 +498,31 @@ function buildApprovalDetailSections(item: ApprovalItem): DetailSection[] {
   return [
     ...commonSections,
     {
-      title: "Operation summary",
+      title: "작업 요약",
       items: [
-        { label: "Operation", value: item.detail.operationType, mono: true },
-        { label: "Target", value: item.detail.target, mono: true },
-        { label: "Window", value: item.detail.executionWindow, mono: true },
-        { label: "Records", value: item.detail.recordCount, mono: true },
+        { label: "작업 유형", value: item.detail.operationType, mono: true },
+        { label: "대상", value: item.detail.target, mono: true },
+        { label: "실행 시간", value: item.detail.executionWindow, mono: true },
+        { label: "처리 건수", value: item.detail.recordCount, mono: true },
       ],
     },
     {
-      title: "Recovery / rollback",
+      title: "복구 / 원복",
       items: [
-        { label: "Recovery", value: item.detail.recoveryMethod },
-        { label: "Blast radius", value: item.detail.blastRadius },
-        { label: "Availability", value: item.rollbackAvailability },
+        { label: "복구 방법", value: item.detail.recoveryMethod },
+        { label: "영향 반경", value: item.detail.blastRadius },
+        { label: "롤백 가능 여부", value: item.rollbackAvailability },
       ],
     },
     {
       title: "관련 메모",
       items: [
         ...item.detail.executionChecks.map((value, index) => ({
-          label: `Execution check ${index + 1}`,
+          label: `실행 점검 ${index + 1}`,
           value,
         })),
         ...item.notes.map((value, index) => ({
-          label: `Note ${index + 1}`,
+          label: `메모 ${index + 1}`,
           value,
         })),
       ],

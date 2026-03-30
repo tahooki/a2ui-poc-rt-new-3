@@ -1,0 +1,129 @@
+/* Story page styles */
+
+.storyContainer {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ---- Hero ---- */
+.hero { padding: 60px 0 40px; }
+.heroLabel { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: rgba(76,141,255,.82); font-weight: 700; margin-bottom: 6px; }
+.heroTitle { font-size: clamp(28px,4vw,44px); font-weight: 800; line-height: 1.15; margin-bottom: 12px; background: linear-gradient(135deg, #93b4ff, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.heroSub { font-size: 16px; color: var(--console-text-secondary); max-width: 640px; }
+.badgeRow { margin-top: 20px; display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ---- Sections ---- */
+.section { padding: 80px 0; border-top: 1px solid var(--console-border, rgba(37,50,68,.76)); }
+.sectionLabel { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: rgba(76,141,255,.82); font-weight: 700; margin-bottom: 6px; }
+.sectionTitle { font-size: clamp(22px,3vw,32px); font-weight: 800; margin-bottom: 8px; color: var(--console-text); }
+.sectionDesc { font-size: 15px; color: var(--console-text-secondary); max-width: 680px; margin-bottom: 28px; }
+
+/* ---- Badge ---- */
+.badge { display: inline-block; font-size: 12px; font-weight: 600; padding: 4px 14px; border-radius: 12px; }
+.badgeBlue { background: rgba(91,141,238,.15); color: #93b4ff; }
+.badgeGreen { background: rgba(52,195,143,.15); color: #34c38f; }
+.badgeOrange { background: rgba(251,146,60,.15); color: #fb923c; }
+
+/* ---- Grids ---- */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 28px; }
+@media (max-width: 800px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+
+/* ---- Overview card ---- */
+.overviewCard { background: var(--console-bg-raised, #111a2a); border: 1px solid var(--console-border, rgba(37,50,68,.76)); border-top: 3px solid; border-radius: 10px; padding: 20px; }
+.overviewCard h4 { font-size: 16px; font-weight: 700; margin: 4px 0; }
+.overviewCard p { font-size: 13px; color: var(--console-text-secondary); }
+
+/* ---- Story block ---- */
+.storyBlock { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center; margin-bottom: 28px; }
+@media (max-width: 800px) { .storyBlock { grid-template-columns: 1fr; } }
+.storyText h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+.storyText p { font-size: 14px; color: var(--console-text-secondary); margin-bottom: 10px; }
+.storyText blockquote { border-left: 3px solid rgba(76,141,255,.6); padding: 8px 16px; font-size: 14px; color: var(--console-text-secondary); background: rgba(76,141,255,.06); border-radius: 0 8px 8px 0; margin: 12px 0; }
+.storyVisual { background: rgba(15,23,34,.6); border: 1px solid var(--console-border, rgba(37,50,68,.76)); border-radius: 10px; min-height: 180px; display: flex; align-items: center; justify-content: center; padding: 24px; text-align: center; font-size: 13px; color: var(--console-text-secondary); }
+
+/* ---- Pain card ---- */
+.painCard { background: var(--console-bg-raised, #111a2a); border: 1px solid var(--console-border, rgba(37,50,68,.76)); border-left: 3px solid #f46a6a; border-radius: 10px; padding: 16px 20px; }
+.painCard h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.painCard p { font-size: 13px; color: var(--console-text-secondary); }
+
+/* ---- Demo button ---- */
+.demoButton { width: 100%; display: flex; align-items: center; gap: 16px; padding: 24px; margin-bottom: 28px; background: transparent; border: 1px dashed var(--console-border, rgba(37,50,68,.76)); border-radius: 10px; color: var(--console-text-secondary); cursor: pointer; transition: border-color .15s, background .15s; text-align: left; font: inherit; }
+.demoButton:hover { border-color: rgba(76,141,255,.5); background: rgba(76,141,255,.04); }
+.demoButtonAccent { border-color: rgba(76,141,255,.4); }
+.demoButtonAccent .demoLabel { color: #93b4ff; }
+.demoLabel { font-size: 15px; font-weight: 600; color: var(--console-text); }
+.demoDesc { font-size: 12px; color: var(--console-text-secondary); margin-top: 2px; }
+
+/* ---- Solution block ---- */
+.solutionBlock { margin-bottom: 20px; }
+.solutionTitle { font-size: 20px; font-weight: 700; margin: 10px 0 6px; }
+.solutionDesc { font-size: 14px; color: var(--console-text-secondary); max-width: 640px; }
+
+/* ---- Architecture box ---- */
+.archBox { background: var(--console-bg-raised, #111a2a); border: 1px solid var(--console-border, rgba(37,50,68,.76)); border-radius: 10px; padding: 24px; text-align: center; }
+.archBox h4 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+.archBox p { font-size: 13px; color: var(--console-text-secondary); }
+
+/* ---- Insight / Decision / Benefit ---- */
+.insightCard { background: var(--console-bg-raised, #111a2a); border: 1px solid var(--console-border, rgba(37,50,68,.76)); border-left: 3px solid #a78bfa; border-radius: 10px; padding: 24px; margin-bottom: 20px; }
+.insightCard h3 { font-size: 16px; font-weight: 700; margin-bottom: 12px; }
+.insightList { list-style: none; padding: 0; display: grid; gap: 10px; }
+.insightList li { font-size: 14px; color: var(--console-text-secondary); line-height: 1.6; }
+.insightList li strong { color: var(--console-text); }
+
+.decisionCard { background: var(--console-bg-raised, #111a2a); border: 1px solid rgba(167,139,250,.3); border-left: 3px solid #a78bfa; border-radius: 10px; padding: 24px; margin-bottom: 20px; }
+.decisionCard h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.decisionCard p { font-size: 14px; color: var(--console-text-secondary); }
+
+.benefitCard { background: var(--console-bg-raised, #111a2a); border: 1px solid var(--console-border, rgba(37,50,68,.76)); border-left: 3px solid #34c38f; border-radius: 10px; padding: 20px; }
+.benefitCard h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.benefitCard p { font-size: 13px; color: var(--console-text-secondary); }
+
+/* ---- Value card ---- */
+.valueCard { background: var(--console-bg-raised, #111a2a); border: 1px solid var(--console-border, rgba(37,50,68,.76)); border-top: 3px solid #22d3ee; border-radius: 10px; padding: 20px; }
+.valueCard h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.valueCard p { font-size: 13px; color: var(--console-text-secondary); }
+
+/* ---- Mermaid ---- */
+.mermaidWrap { background: #0d1520; border: 1px solid var(--console-border, rgba(37,50,68,.76)); border-radius: 10px; padding: 24px; margin-bottom: 28px; overflow-x: auto; }
+
+/* ---- Flow title ---- */
+.flowTitle { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+
+/* ---- A2UI solution block (chat + text side by side) ---- */
+.a2uiSolutionBlock { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center; margin-bottom: 28px; }
+@media (max-width: 800px) { .a2uiSolutionBlock { grid-template-columns: 1fr; } }
+
+.solutionText {}
+.solutionTitle { font-size: 20px; font-weight: 700; margin: 10px 0 6px; }
+.solutionDesc { font-size: 14px; color: var(--console-text-secondary); max-width: 640px; margin-bottom: 8px; }
+.solutionHighlight { font-size: 14px; color: var(--console-text); }
+.solutionBlock { margin-bottom: 20px; }
+
+/* ---- Chat mock ---- */
+.chatMock { background: rgba(15,23,34,.7); border: 1px solid var(--console-border, rgba(37,50,68,.76)); border-radius: 10px; padding: 20px; max-width: 520px; }
+.chatMsg { display: flex; gap: 10px; margin-bottom: 14px; align-items: flex-start; }
+.chatMsg:last-child { margin-bottom: 0; }
+.chatAvatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; font-weight: 700; }
+.chatAvatarUser { background: rgba(148,163,184,.2); color: var(--console-text-secondary); }
+.chatAvatarAi { background: rgba(91,141,238,.2); color: #93b4ff; }
+.chatBubble { padding: 10px 14px; border-radius: 12px; font-size: 13px; line-height: 1.6; max-width: 420px; }
+.chatBubbleUser { background: rgba(30,41,59,.8); color: var(--console-text); }
+.chatBubbleAi { background: rgba(91,141,238,.1); color: var(--console-text); border: 1px solid rgba(91,141,238,.2); }
+.surfacePreview { margin-top: 8px; padding: 12px; border: 1px solid rgba(91,141,238,.25); border-radius: 8px; background: rgba(91,141,238,.05); font-size: 12px; }
+.surfaceTitle { font-weight: 700; font-size: 13px; margin-bottom: 4px; color: #93b4ff; }
+.surfaceBtn { display: inline-block; margin-top: 6px; padding: 4px 16px; border-radius: 6px; background: #5b8dee; color: #fff; font-size: 11px; font-weight: 600; }
+.surfaceBtnGreen { display: inline-block; margin-top: 4px; padding: 4px 14px; border-radius: 6px; background: #34c38f; color: #fff; font-size: 11px; font-weight: 600; margin-right: 6px; }
+.surfaceBtnGhost { display: inline-block; padding: 4px 14px; border-radius: 6px; background: rgba(30,41,59,.8); border: 1px solid var(--console-border, rgba(37,50,68,.76)); color: var(--console-text-secondary); font-size: 11px; }
+.surfaceBtnOrange { display: inline-block; margin-top: 6px; padding: 4px 16px; border-radius: 6px; background: #fb923c; color: #fff; font-size: 11px; font-weight: 600; }
+
+/* ---- Additional badges ---- */
+.badgeRed { background: rgba(244,106,106,.15); color: #f46a6a; }
+.badgeYellow { background: rgba(247,201,72,.15); color: #f7c948; }
+
+/* ---- Closing card ---- */
+.closingCard { text-align: center; padding: 40px; background: linear-gradient(135deg, rgba(91,141,238,.08), rgba(167,139,250,.08)); border: 1px solid rgba(91,141,238,.3); border-radius: 10px; margin-top: 28px; }
+.closingCard h3 { font-size: 20px; font-weight: 800; margin-bottom: 10px; }
+.closingCard p { font-size: 15px; color: var(--console-text-secondary); max-width: 560px; margin: 0 auto; }
