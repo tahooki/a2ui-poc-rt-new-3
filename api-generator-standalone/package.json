@@ -1,0 +1,20 @@
+{
+  "name": "api-generator-standalone",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "start:single": "tsx src/single-file.ts",
+    "start:inspect": "tsx src/inspect.ts",
+    "start:montage": "tsx src/example-montage.ts",
+    "start:custom": "tsx src/example-custom.ts"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "ts-morph": "^27.0.2"
+  }
+}

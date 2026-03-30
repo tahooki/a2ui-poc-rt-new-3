@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>React Props Parser — Library Guide</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #1c2128;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+      --accent-bg: #1f6feb22;
+      --green: #3fb950;
+      --green-bg: #23863622;
+      --orange: #d29922;
+      --orange-bg: #d2992222;
+      --purple: #bc8cff;
+      --purple-bg: #bc8cff18;
+      --red: #f85149;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2.5rem 2rem 4rem;
+    }
+
+    /* ── Typography ── */
+    h1 { font-size: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 0.8rem; margin-bottom: 0.4rem; }
+    h1 small { display: block; font-size: 0.85rem; font-weight: 400; color: var(--muted); margin-top: 0.3rem; }
+    h2 { font-size: 1.35rem; color: var(--accent); margin: 2.5rem 0 0.8rem; }
+    h3 { font-size: 1.05rem; color: var(--purple); margin: 1.6rem 0 0.5rem; }
+    p { margin-bottom: 0.6rem; }
+
+    /* ── Code ── */
+    code {
+      background: var(--surface2);
+      padding: 0.12em 0.4em;
+      border-radius: 4px;
+      font-size: 0.88em;
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+      color: var(--orange);
+    }
+
+    pre {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.1rem 1.3rem;
+      overflow-x: auto;
+      font-size: 0.84rem;
+      line-height: 1.7;
+      margin: 0.6rem 0 1rem;
+    }
+
+    pre code { background: none; padding: 0; color: var(--text); font-size: inherit; }
+
+    /* ── Diagram ── */
+    .dia {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.2rem;
+      margin: 1rem 0;
+      overflow-x: auto;
+    }
+
+    .dia .mermaid { display: flex; justify-content: center; }
+
+    /* ── Table ── */
+    table { width: 100%; border-collapse: collapse; margin: 0.6rem 0 1rem; }
+    th, td { text-align: left; padding: 0.55rem 0.8rem; border: 1px solid var(--border); font-size: 0.88rem; }
+    th { background: var(--surface); color: var(--accent); font-weight: 600; }
+
+    /* ── Callout ── */
+    .note      { background: var(--accent-bg); border-left: 3px solid var(--accent); }
+    .note-ok   { background: var(--green-bg);  border-left: 3px solid var(--green); }
+    .note-warn { background: var(--orange-bg); border-left: 3px solid var(--orange); }
+    .note, .note-ok, .note-warn {
+      padding: 0.8rem 1rem;
+      border-radius: 0 6px 6px 0;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+    }
+
+    /* ── Option Card ── */
+    .opt-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 0.8rem;
+      margin: 1rem 0;
+    }
+
+    .opt-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+    }
+
+    .opt-card .name {
+      font-family: 'SF Mono', monospace;
+      font-weight: 700;
+      color: var(--green);
+      font-size: 0.9rem;
+    }
+
+    .opt-card .type {
+      font-family: 'SF Mono', monospace;
+      color: var(--muted);
+      font-size: 0.78rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .opt-card .desc {
+      font-size: 0.85rem;
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .opt-card .default {
+      margin-top: 0.3rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    /* ── Before/After ── */
+    .ba {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 1rem;
+      align-items: stretch;
+      margin: 1rem 0;
+    }
+
+    @media (max-width: 700px) {
+      .ba { grid-template-columns: 1fr; }
+      .ba-arrow { display: none !important; }
+    }
+
+    .ba-col { display: flex; flex-direction: column; }
+
+    .ba-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.4rem;
+    }
+
+    .ba-label.l { color: var(--orange); }
+    .ba-label.r { color: var(--green); }
+
+    .ba pre { flex: 1; margin: 0; }
+
+    .ba-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      color: var(--muted);
+      padding-top: 1.2rem;
+    }
+
+    /* ── Misc ── */
+    hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+    ul, ol { padding-left: 1.5rem; margin: 0.4rem 0 0.8rem; }
+    li { margin-bottom: 0.25rem; }
+    .footer { text-align: center; color: var(--muted); font-size: 0.8rem; margin-top: 3rem; }
+  </style>
+</head>
+<body>
+
+<h1>
+  React Props Parser
+  <small>lib/ — 어떤 React 프로젝트에든 붙여 쓸 수 있는 컴포넌트 Props 추출 라이브러리</small>
+</h1>
+
+<!-- ============================================================ -->
+<h2>한눈에 보기</h2>
+
+<p>
+  <code>.tsx</code> 파일을 읽어서 React 컴포넌트의 Props 타입 정보를 JSON으로 추출합니다.<br>
+  TypeScript 컴파일러(<code>ts-morph</code>) 기반이라 정규식보다 정확하고,
+  옵션으로 동작을 조절할 수 있어서 어떤 프로젝트에든 이식 가능합니다.
+</p>
+
+<div class="dia">
+  <pre class="mermaid">
+flowchart LR
+  A["<b>내 .tsx 파일</b>"]
+  B["<b>Parser</b><br/>lib/"]
+  C["<b>JSON</b>"]
+
+  A -->|"tsconfig 경로 +<br/>옵션(선택)"| B -->|"ComponentInfo[]"| C
+
+  style A fill:#d29922,stroke:#d29922,color:#fff
+  style B fill:#1f6feb,stroke:#1f6feb,color:#fff
+  style C fill:#238636,stroke:#238636,color:#fff
+  </pre>
+</div>
+
+<h3>최소 코드</h3>
+
+<pre><code><span style="color:#ff7b72">import</span> { Parser } <span style="color:#ff7b72">from</span> <span style="color:#a5d6ff">'./lib'</span>;
+
+<span style="color:#ff7b72">const</span> parser = <span style="color:#ff7b72">new</span> <span style="color:#ffa657">Parser</span>(<span style="color:#a5d6ff">'./tsconfig.json'</span>);
+
+<span style="color:#ff7b72">const</span> items = parser.getExportedItems();       <span style="color:#8b949e">// PascalCase export 수집</span>
+<span style="color:#ff7b72">const</span> result = parser.parse(items);             <span style="color:#8b949e">// Props 추출</span>
+
+console.log(JSON.stringify(result, <span style="color:#79c0ff">null</span>, 2));  <span style="color:#8b949e">// ComponentInfo[]</span></code></pre>
+
+<p>이게 전부입니다. 옵션 없이도 동작하며, 대부분의 React 컴포넌트 패턴을 자동 인식합니다.</p>
+
+<!-- ============================================================ -->
+<h2>파일 구조</h2>
+
+<div class="dia">
+  <pre class="mermaid">
+flowchart TB
+  subgraph lib["lib/"]
+    direction TB
+    INDEX["<b>index.ts</b><br/>public API"]
+    TYPES["<b>types.ts</b><br/>ParserOptions<br/>ResolverOptions<br/>ExtractorOptions<br/>ComponentInfo, Prop"]
+    PARSER["<b>parser.ts</b><br/>Parser 클래스"]
+    EXTRACTOR["<b>extractor.ts</b><br/>Extractor 클래스"]
+    RESOLVER["<b>resolver.ts</b><br/>Resolver 클래스"]
+  end
+
+  INDEX -.->|re-export| PARSER
+  INDEX -.->|re-export| TYPES
+  PARSER -->|"options.extractor<br/>options.resolver"| EXTRACTOR
+  EXTRACTOR -->|"resolverOptions"| RESOLVER
+
+  style lib fill:#161b22,stroke:#1f6feb,color:#e6edf3
+  style INDEX fill:#1f6feb,stroke:#1f6feb,color:#fff
+  </pre>
+</div>
+
+<table>
+  <thead><tr><th>파일</th><th>역할</th><th>한줄 요약</th></tr></thead>
+  <tbody>
+    <tr><td><code>index.ts</code></td><td>진입점</td><td><code>Parser</code> 클래스와 타입들을 re-export</td></tr>
+    <tr><td><code>types.ts</code></td><td>타입 정의</td><td>옵션 타입 + 출력 타입 (<code>ComponentInfo</code>, <code>Prop</code>)</td></tr>
+    <tr><td><code>parser.ts</code></td><td>컴포넌트 탐색</td><td>소스 파일에서 컴포넌트를 찾아 Extractor에 넘김</td></tr>
+    <tr><td><code>extractor.ts</code></td><td>Props 추출</td><td>타입 프로퍼티 순회, JSDoc/기본값 수집, 필터링</td></tr>
+    <tr><td><code>resolver.ts</code></td><td>타입 정규화</td><td>TS <code>Type</code> 객체 → 사람이 읽을 수 있는 문자열</td></tr>
+  </tbody>
+</table>
+
+<!-- ============================================================ -->
+<h2>옵션 주입 흐름</h2>
+
+<p>
+  <code>new Parser(tsconfig, options?)</code> 하나로 모든 설정이 전달됩니다.
+  내부에서 옵션이 어떻게 흘러가는지 보여드립니다.
+</p>
+
+<div class="dia">
+  <pre class="mermaid">
+sequenceDiagram
+  participant User as 사용자 코드
+  participant P as Parser
+  participant E as Extractor
+  participant R as Resolver
+
+  User->>P: new Parser(tsconfig, options)
+  Note over P: options.resolver,<br/>options.extractor 분리
+
+  P->>E: new Extractor(resolverOpts, extractorOpts)
+  Note over E: rawTypeProps,<br/>complexAnnotationTypes 저장
+
+  E->>R: new Resolver(resolverOpts)
+  Note over R: preservedTypes,<br/>typeParameterMap,<br/>maxDepth 저장
+  </pre>
+</div>
+
+<!-- ============================================================ -->
+<h2>옵션 레퍼런스</h2>
+
+<h3>ParserOptions</h3>
+
+<p>최상위 옵션. <code>resolver</code>와 <code>extractor</code> 두 그룹으로 나뉩니다.</p>
+
+<pre><code><span style="color:#ff7b72">const</span> parser = <span style="color:#ff7b72">new</span> <span style="color:#ffa657">Parser</span>(<span style="color:#a5d6ff">'tsconfig.json'</span>, {
+  resolver:  { <span style="color:#8b949e">/* ResolverOptions */</span> },
+  extractor: { <span style="color:#8b949e">/* ExtractorOptions */</span> },
+});</code></pre>
+
+<h3>ResolverOptions</h3>
+
+<p>타입을 문자열로 변환할 때의 동작을 제어합니다.</p>
+
+<div class="opt-grid">
+  <div class="opt-card">
+    <div class="name">preservedTypes</div>
+    <div class="type">Array&lt;string&gt;</div>
+    <div class="desc">
+      resolve하지 않고 이름 그대로 보존할 타입 목록.
+      예: <code>ReactNode</code>를 넣으면 내부 union으로 풀지 않고 <code>"ReactNode"</code>로 출력.
+    </div>
+    <div class="default">기본: React 공통 10개 (ReactNode, CSSProperties, ForwardedRef 등)</div>
+  </div>
+
+  <div class="opt-card">
+    <div class="name">typeParameterMap</div>
+    <div class="type">Record&lt;string, string&gt;</div>
+    <div class="desc">
+      제네릭 타입 파라미터 이름을 다른 이름으로 치환.
+      예: <code>{ T: 'ElementType' }</code>이면 <code>T</code>가 보일 때 <code>ElementType</code>으로 표시.
+    </div>
+    <div class="default">기본: <code>{}</code> (치환 안 함, T는 T로 표시)</div>
+  </div>
+
+  <div class="opt-card">
+    <div class="name">maxDepth</div>
+    <div class="type">number</div>
+    <div class="desc">
+      타입 재귀 해석 깊이 제한.
+      깊이를 초과하면 <code>import</code> 경로만 정리한 원본 텍스트로 폴백.
+    </div>
+    <div class="default">기본: <code>2</code></div>
+  </div>
+</div>
+
+<h3>ExtractorOptions</h3>
+
+<p>Props 추출 시 특수 처리 규칙을 제어합니다.</p>
+
+<div class="opt-grid">
+  <div class="opt-card">
+    <div class="name">rawTypeProps</div>
+    <div class="type">Array&lt;string&gt;</div>
+    <div class="desc">
+      Resolver를 거치지 않고 <code>cleanTypeText()</code>로만 정리할 prop 이름들.
+      반응형 breakpoint prop처럼 원본 타입 텍스트를 유지하고 싶을 때 사용.
+    </div>
+    <div class="default">기본: <code>[]</code></div>
+  </div>
+
+  <div class="opt-card">
+    <div class="name">complexAnnotationTypes</div>
+    <div class="type">Array&lt;string&gt;</div>
+    <div class="desc">
+      타입 annotation에 이 이름이 포함되면 resolve하지 않고 annotation 텍스트를 그대로 사용.
+      예: <code>ComponentPropsWithoutRef&lt;'input'&gt;</code>
+    </div>
+    <div class="default">기본: <code>['ComponentPropsWithoutRef', 'ComponentProps']</code></div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<h2>프리셋 비교</h2>
+
+<p>같은 코드를 옵션만 바꿔서 파싱했을 때 어떤 차이가 나는지 비교합니다.</p>
+
+<div class="ba">
+  <div class="ba-col">
+    <div class="ba-label l">기본 (옵션 없음)</div>
+    <pre><code><span style="color:#ff7b72">new</span> <span style="color:#ffa657">Parser</span>(tsconfig)
+
+<span style="color:#8b949e">// DataTable 결과:</span>
+data: <span style="color:#a5d6ff">T[]</span>            <span style="color:#8b949e">// T 그대로</span>
+onRowClick: <span style="color:#a5d6ff">(row: T) => void</span></code></pre>
+  </div>
+  <div class="ba-arrow">vs</div>
+  <div class="ba-col">
+    <div class="ba-label r">Montage 프리셋</div>
+    <pre><code><span style="color:#ff7b72">new</span> <span style="color:#ffa657">Parser</span>(tsconfig, {
+  resolver: {
+    preservedTypes: [...기본, <span style="color:#a5d6ff">'SxProp'</span>, <span style="color:#a5d6ff">'ThemeColorsToken'</span>],
+    typeParameterMap: { <span style="color:#ffa657">T</span>: <span style="color:#a5d6ff">'ElementType'</span> },
+  },
+  extractor: {
+    rawTypeProps: [<span style="color:#a5d6ff">'xs'</span>,<span style="color:#a5d6ff">'sm'</span>,<span style="color:#a5d6ff">'md'</span>,<span style="color:#a5d6ff">'lg'</span>,<span style="color:#a5d6ff">'xl'</span>],
+  },
+})
+
+<span style="color:#8b949e">// DataTable 결과:</span>
+data: <span style="color:#a5d6ff">ElementType[]</span>  <span style="color:#8b949e">// T → ElementType</span>
+onRowClick: <span style="color:#a5d6ff">(row: ElementType) => void</span></code></pre>
+  </div>
+</div>
+
+<div class="note">
+  <strong>요점</strong> — 기본값만으로도 범용 React 프로젝트에서 바로 동작합니다.
+  옵션은 프로젝트 전용 타입이나 특수 패턴이 있을 때만 건드리면 됩니다.
+</div>
+
+<!-- ============================================================ -->
+<h2>처리 파이프라인</h2>
+
+<p>컴포넌트 하나가 <code>ComponentInfo</code>로 변환되는 전체 과정입니다.</p>
+
+<div class="dia">
+  <pre class="mermaid">
+flowchart TD
+  SRC["소스 파일<br/>.tsx"] --> EXPORTS["getExportedItems()<br/>PascalCase export 수집"]
+  EXPORTS --> FILTER["사용자 필터 적용<br/>(파일 경로 등)"]
+  FILTER --> PARSE["parse()"]
+
+  PARSE --> MATCH{"컴포넌트 패턴 매칭"}
+  MATCH --> P1["ArrowFunction"]
+  MATCH --> P2["FunctionDeclaration"]
+  MATCH --> P3["forwardRef + as"]
+  MATCH --> P4["forwardRef&lt;El, Props&gt;"]
+  MATCH --> P5["memo()"]
+  MATCH --> P6["re-export / Identifier"]
+
+  P1 & P2 & P3 & P4 & P5 & P6 --> EXTRACT["Extractor.extractFromType()"]
+
+  EXTRACT --> SKIP{"필터링"}
+  SKIP -->|"key, ref 제외"| NEXT["다음 prop"]
+  SKIP -->|"@types/react 출처 제외"| NEXT
+  SKIP -->|"통과"| TYPE_RESOLVE["타입 해석"]
+
+  TYPE_RESOLVE --> A1{"preservedType?"}
+  A1 -->|Yes| KEEP["이름 그대로 유지"]
+  A1 -->|No| A2{"rawTypeProp?"}
+  A2 -->|Yes| CLEAN["import 경로만 정리"]
+  A2 -->|No| RESOLVE["Resolver.resolve()"]
+
+  KEEP & CLEAN & RESOLVE --> BUILD["Prop 생성"]
+  BUILD --> JSDOC["JSDoc → description"]
+  JSDOC --> DEFAULT["구조분해 → defaultValue"]
+  DEFAULT --> RESULT["ComponentInfo"]
+
+  style SRC fill:#d29922,stroke:#d29922,color:#fff
+  style RESULT fill:#238636,stroke:#238636,color:#fff
+  </pre>
+</div>
+
+<!-- ============================================================ -->
+<h2>Resolver 체인</h2>
+
+<p>
+  <code>Resolver.resolve(type)</code>는 아래 순서로 타입을 해석합니다.
+  첫 번째로 매칭되는 것이 결과가 됩니다.
+</p>
+
+<div class="dia">
+  <pre class="mermaid">
+flowchart LR
+  T["Type"] --> D{"depth > max?"}
+  D -->|Yes| FB["cleanTypeText()"]
+  D -->|No| PR["preserved?"]
+  PR -->|Yes| FB2["이름 반환"]
+  PR -->|No| CHAIN
+
+  subgraph CHAIN["순서대로 시도"]
+    direction TB
+    C1["1. Primitive<br/>string, boolean, 42..."]
+    C2["2. Union<br/>'a' | 'b' | 'c'"]
+    C3["3. Intersection<br/>A & B"]
+    C4["4. Array<br/>string[], Array&lt;A|B&gt;"]
+    C5["5. Tuple<br/>[string, number]"]
+    C6["6. Function<br/>(e: Event) => void"]
+    C7["7. Object<br/>{ x: number; y?: string }"]
+    C8["8. Alias<br/>Record&lt;K, V&gt;"]
+    C9["9. Symbol<br/>Map&lt;K, V&gt;"]
+
+    C1 --> C2 --> C3 --> C4 --> C5 --> C6 --> C7 --> C8 --> C9
+  end
+
+  CHAIN --> DONE["결과"]
+  C9 -->|"전부 실패"| FB
+
+  style CHAIN fill:#161b22,stroke:#30363d,color:#e6edf3
+  style DONE fill:#238636,stroke:#238636,color:#fff
+  style FB fill:#d29922,stroke:#d29922,color:#fff
+  style FB2 fill:#238636,stroke:#238636,color:#fff
+  </pre>
+</div>
+
+<table>
+  <thead><tr><th>단계</th><th>입력 예시</th><th>출력</th><th>특이사항</th></tr></thead>
+  <tbody>
+    <tr><td>Primitive</td><td><code>string</code>, <code>"hello"</code>, <code>42</code></td><td><code>string</code>, <code>"hello"</code>, <code>42</code></td><td>리터럴 타입 구분</td></tr>
+    <tr><td>Union</td><td><code>string | number | undefined</code></td><td><code>string | number</code></td><td><code>undefined</code> 자동 제거, <code>true|false</code> → <code>boolean</code></td></tr>
+    <tr><td>Array</td><td><code>(A|B)[]</code></td><td><code>Array&lt;A | B&gt;</code></td><td>복합 element면 <code>Array&lt;&gt;</code> 형태 사용</td></tr>
+    <tr><td>Function</td><td><code>(e: MouseEvent) =&gt; void</code></td><td><code>(e: MouseEvent) =&gt; void</code></td><td>callSignature 기반</td></tr>
+    <tr><td>Object</td><td><code>{ x: number; y?: string }</code></td><td>인라인 표기</td><td>10개 초과 시 심볼 이름 사용</td></tr>
+  </tbody>
+</table>
+
+<!-- ============================================================ -->
+<h2>인식하는 컴포넌트 패턴</h2>
+
+<p>별도의 설정 없이 다음 패턴을 모두 자동 인식합니다.</p>
+
+<table>
+  <thead><tr><th>패턴</th><th>코드</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>Arrow function</td>
+      <td><code>export const Button = ({ size = 'md' }: Props) =&gt; { }</code></td>
+    </tr>
+    <tr>
+      <td>Function declaration</td>
+      <td><code>export function Button({ size }: Props) { }</code></td>
+    </tr>
+    <tr>
+      <td>forwardRef (타입 인자)</td>
+      <td><code>forwardRef&lt;HTMLDivElement, Props&gt;((props, ref) =&gt; { })</code></td>
+    </tr>
+    <tr>
+      <td>forwardRef + as 캐스팅</td>
+      <td><code>forwardRef((...) =&gt; ...) as PolymorphicComponent&lt;...&gt;</code></td>
+    </tr>
+    <tr>
+      <td>memo</td>
+      <td><code>export const Avatar = memo(({ src }: Props) =&gt; { })</code></td>
+    </tr>
+    <tr>
+      <td>Re-export</td>
+      <td><code>export { Button } from './button'</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ============================================================ -->
+<h2>출력 구조</h2>
+
+<h3>ComponentInfo</h3>
+
+<pre><code>{
+  <span style="color:#79c0ff">"name"</span>:     <span style="color:#a5d6ff">"Button"</span>,
+  <span style="color:#79c0ff">"filePath"</span>: <span style="color:#a5d6ff">"/src/components/button/index.tsx"</span>,
+  <span style="color:#79c0ff">"props"</span>:    [Prop, Prop, ...]
+}</code></pre>
+
+<h3>Prop</h3>
+
+<pre><code>{
+  <span style="color:#79c0ff">"name"</span>:         <span style="color:#a5d6ff">"size"</span>,                              <span style="color:#8b949e">// 항상 존재</span>
+  <span style="color:#79c0ff">"type"</span>:         <span style="color:#a5d6ff">"\"small\" | \"medium\" | \"large\""</span>,   <span style="color:#8b949e">// 항상 존재</span>
+  <span style="color:#79c0ff">"isOptional"</span>:   <span style="color:#79c0ff">true</span>,                               <span style="color:#8b949e">// 항상 존재</span>
+  <span style="color:#79c0ff">"description"</span>:  <span style="color:#a5d6ff">"버튼 크기"</span>,                        <span style="color:#8b949e">// JSDoc이 있을 때만</span>
+  <span style="color:#79c0ff">"defaultValue"</span>: <span style="color:#a5d6ff">"\"medium\""</span>                        <span style="color:#8b949e">// 구조분해 기본값이 있을 때만</span>
+}</code></pre>
+
+<div class="note">
+  <strong>description</strong>은 타입 선언의 JSDoc에서,
+  <strong>defaultValue</strong>은 함수 파라미터의 구조분해 기본값에서 추출됩니다.
+  두 곳 모두 없으면 해당 필드는 생략됩니다.
+</div>
+
+<!-- ============================================================ -->
+<h2>사용 예제 모음</h2>
+
+<h3>1. 기본 — 전체 스캔</h3>
+
+<pre><code><span style="color:#ff7b72">import</span> { Parser } <span style="color:#ff7b72">from</span> <span style="color:#a5d6ff">'./lib'</span>;
+
+<span style="color:#ff7b72">const</span> parser = <span style="color:#ff7b72">new</span> <span style="color:#ffa657">Parser</span>(<span style="color:#a5d6ff">'./tsconfig.json'</span>);
+<span style="color:#ff7b72">const</span> all = parser.getExportedItems();
+
+<span style="color:#8b949e">// 원하는 파일만 필터</span>
+<span style="color:#ff7b72">const</span> filtered = all.filter(i => i.filePath.includes(<span style="color:#a5d6ff">'/components/'</span>));
+<span style="color:#ff7b72">const</span> result = parser.parse(filtered);</code></pre>
+
+<h3>2. 파일 하나만 파싱</h3>
+
+<pre><code><span style="color:#ff7b72">const</span> items = parser
+  .getExportedItems()
+  .filter(i => i.filePath === <span style="color:#a5d6ff">'/absolute/path/to/button/index.tsx'</span>);
+
+<span style="color:#ff7b72">const</span> [button] = parser.parse(items);</code></pre>
+
+<h3>3. Montage 디자인 시스템 프리셋</h3>
+
+<pre><code><span style="color:#ff7b72">const</span> parser = <span style="color:#ff7b72">new</span> <span style="color:#ffa657">Parser</span>(<span style="color:#a5d6ff">'./tsconfig.json'</span>, {
+  resolver: {
+    preservedTypes: [
+      <span style="color:#a5d6ff">'ReactNode'</span>, <span style="color:#a5d6ff">'CSSProperties'</span>, <span style="color:#a5d6ff">'ForwardedRef'</span>,  <span style="color:#8b949e">// React 공통</span>
+      <span style="color:#a5d6ff">'SxProp'</span>, <span style="color:#a5d6ff">'ThemeColorsToken'</span>, <span style="color:#a5d6ff">'CSSInterpolation'</span>,  <span style="color:#8b949e">// Montage 전용</span>
+    ],
+    typeParameterMap: { <span style="color:#ffa657">T</span>: <span style="color:#a5d6ff">'ElementType'</span> },
+  },
+  extractor: {
+    rawTypeProps: [<span style="color:#a5d6ff">'xs'</span>, <span style="color:#a5d6ff">'sm'</span>, <span style="color:#a5d6ff">'md'</span>, <span style="color:#a5d6ff">'lg'</span>, <span style="color:#a5d6ff">'xl'</span>],  <span style="color:#8b949e">// 반응형 props</span>
+  },
+});</code></pre>
+
+<h3>4. MUI/Chakra 같은 외부 라이브러리 스타일</h3>
+
+<pre><code><span style="color:#ff7b72">const</span> parser = <span style="color:#ff7b72">new</span> <span style="color:#ffa657">Parser</span>(<span style="color:#a5d6ff">'./tsconfig.json'</span>, {
+  resolver: {
+    preservedTypes: [
+      <span style="color:#a5d6ff">'ReactNode'</span>, <span style="color:#a5d6ff">'CSSProperties'</span>,
+      <span style="color:#a5d6ff">'SystemStyleObject'</span>, <span style="color:#a5d6ff">'ThemeTypings'</span>,    <span style="color:#8b949e">// 프로젝트 전용</span>
+    ],
+    maxDepth: 3,  <span style="color:#8b949e">// 깊은 제네릭도 풀기</span>
+  },
+  extractor: {
+    complexAnnotationTypes: [
+      <span style="color:#a5d6ff">'ComponentPropsWithoutRef'</span>,
+      <span style="color:#a5d6ff">'HTMLAttributes'</span>,
+      <span style="color:#a5d6ff">'SVGAttributes'</span>,
+    ],
+  },
+});</code></pre>
+
+<!-- ============================================================ -->
+<h2>자주 묻는 질문</h2>
+
+<h3>onClick 같은 HTML 이벤트가 안 나와요</h3>
+<p>
+  의도된 동작입니다. <code>@types/react</code>에서 오는 기본 props는 자동 제외합니다.
+  컴포넌트가 직접 정의한 props만 추출하여 문서 노이즈를 줄입니다.
+</p>
+
+<h3>타입이 <code>import("...").Something</code>으로 나와요</h3>
+<p>
+  <code>maxDepth</code>를 초과한 경우입니다. 값을 <code>3</code>이나 <code>4</code>로 올리면
+  더 깊이 풀어줍니다. 단, 너무 높이면 성능이 저하될 수 있습니다.
+</p>
+
+<h3>특정 prop 이름의 타입을 원본 그대로 보고 싶어요</h3>
+<p>
+  <code>extractor.rawTypeProps</code>에 해당 prop 이름을 넣으면
+  Resolver를 거치지 않고 <code>import</code> 경로만 정리한 원본 텍스트를 사용합니다.
+</p>
+
+<h3>제네릭 <code>T</code>가 그대로 노출돼요</h3>
+<p>
+  <code>resolver.typeParameterMap</code>에 <code>{ T: '원하는이름' }</code>을 넣으면 치환됩니다.
+  비워두면 <code>T</code> 그대로 출력합니다.
+</p>
+
+<h3>새 컴포넌트를 추가하면 자동으로 인식되나요?</h3>
+<p>
+  네. <code>tsconfig.json</code>의 <code>include</code> 범위 안에 있고,
+  PascalCase로 export하면 자동 인식됩니다.
+  <code>getExportedItems()</code> 이후 <code>.filter()</code>로 원하는 경로만 골라 쓰세요.
+</p>
+
+<hr>
+
+<div class="dia">
+  <pre class="mermaid">
+flowchart LR
+  YOU["내 프로젝트"] -->|"1. tsconfig 경로"| LIB["lib/"]
+  YOU -->|"2. 옵션 (선택)"| LIB
+  LIB -->|"ComponentInfo[]"| USE
+
+  subgraph USE["활용"]
+    DOCS["문서 사이트<br/>PropsTable"]
+    MCP["MCP 서버<br/>AI 에이전트"]
+    CLI["CLI 도구<br/>타입 검증"]
+    CUSTOM["그 외<br/>뭐든"]
+  end
+
+  style YOU fill:#d29922,stroke:#d29922,color:#fff
+  style LIB fill:#1f6feb,stroke:#1f6feb,color:#fff
+  style USE fill:#161b22,stroke:#238636,color:#e6edf3
+  </pre>
+</div>
+
+<p class="footer">React Props Parser — lib/</p>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'dark',
+    themeVariables: {
+      primaryColor: '#1f6feb',
+      primaryTextColor: '#e6edf3',
+      primaryBorderColor: '#30363d',
+      lineColor: '#58a6ff',
+      secondaryColor: '#161b22',
+      tertiaryColor: '#1c2128',
+      fontFamily: '-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif',
+      fontSize: '14px',
+    },
+    flowchart: { curve: 'basis', padding: 15 },
+    sequence: { mirrorActors: false },
+  });
+</script>
+
+</body>
+</html>

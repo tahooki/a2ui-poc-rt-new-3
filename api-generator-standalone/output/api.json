@@ -1,0 +1,299 @@
+[
+  {
+    "name": "Button",
+    "props": [
+      {
+        "name": "children",
+        "type": "ReactNode",
+        "isOptional": false,
+        "description": "버튼 내부 콘텐츠"
+      },
+      {
+        "name": "variant",
+        "type": "\"filled\" | \"outlined\" | \"ghost\"",
+        "isOptional": true,
+        "description": "버튼 스타일 변형",
+        "defaultValue": "\"filled\""
+      },
+      {
+        "name": "size",
+        "type": "\"small\" | \"medium\" | \"large\"",
+        "isOptional": true,
+        "description": "버튼 크기",
+        "defaultValue": "\"medium\""
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "isOptional": true,
+        "description": "비활성화 여부",
+        "defaultValue": "false"
+      },
+      {
+        "name": "fullWidth",
+        "type": "boolean",
+        "isOptional": true,
+        "description": "전체 너비 채우기",
+        "defaultValue": "false"
+      },
+      {
+        "name": "onClick",
+        "type": "(event: MouseEvent) => void",
+        "isOptional": true,
+        "description": "클릭 핸들러"
+      }
+    ],
+    "filePath": "/Users/tahooki/Documents/git/montage-web/scripts/api-generator-standalone/fixtures/components/button/index.tsx"
+  },
+  {
+    "name": "Chip",
+    "props": [
+      {
+        "name": "label",
+        "type": "string",
+        "isOptional": false,
+        "description": "칩 라벨 텍스트"
+      },
+      {
+        "name": "color",
+        "type": "\"default\" | \"primary\" | \"success\" | \"warning\" | \"error\"",
+        "isOptional": true,
+        "description": "칩 색상",
+        "defaultValue": "\"default\""
+      },
+      {
+        "name": "deletable",
+        "type": "boolean",
+        "isOptional": true,
+        "description": "삭제 가능 여부",
+        "defaultValue": "false"
+      },
+      {
+        "name": "onDelete",
+        "type": "() => void",
+        "isOptional": true,
+        "description": "삭제 시 콜백"
+      },
+      {
+        "name": "icon",
+        "type": "ReactNode",
+        "isOptional": true,
+        "description": "좌측 아이콘"
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "isOptional": true,
+        "description": "비활성화",
+        "defaultValue": "false"
+      }
+    ],
+    "filePath": "/Users/tahooki/Documents/git/montage-web/scripts/api-generator-standalone/fixtures/components/chip/index.tsx"
+  },
+  {
+    "name": "Alert",
+    "props": [
+      {
+        "name": "type",
+        "type": "\"success\" | \"warning\" | \"error\" | \"info\"",
+        "isOptional": false,
+        "description": "알림 유형"
+      },
+      {
+        "name": "message",
+        "type": "string",
+        "isOptional": false,
+        "description": "메시지"
+      },
+      {
+        "name": "description",
+        "type": "string",
+        "isOptional": true,
+        "description": "상세 설명"
+      },
+      {
+        "name": "closable",
+        "type": "boolean",
+        "isOptional": true,
+        "description": "닫기 가능 여부",
+        "defaultValue": "false"
+      },
+      {
+        "name": "onClose",
+        "type": "() => void",
+        "isOptional": true,
+        "description": "닫기 콜백"
+      },
+      {
+        "name": "showIcon",
+        "type": "boolean",
+        "isOptional": true,
+        "description": "좌측 아이콘 표시 여부",
+        "defaultValue": "true"
+      },
+      {
+        "name": "action",
+        "type": "ReactNode",
+        "isOptional": true,
+        "description": "액션 버튼"
+      }
+    ],
+    "filePath": "/Users/tahooki/Documents/git/montage-web/scripts/api-generator-standalone/fixtures/components/external-style/index.tsx"
+  },
+  {
+    "name": "DataTable",
+    "props": [
+      {
+        "name": "data",
+        "type": "T[]",
+        "isOptional": false,
+        "description": "테이블 데이터"
+      },
+      {
+        "name": "columns",
+        "type": "{ key: keyof T; label: string; width?: number }[]",
+        "isOptional": false,
+        "description": "컬럼 정의"
+      },
+      {
+        "name": "loading",
+        "type": "boolean",
+        "isOptional": true,
+        "description": "로딩 상태",
+        "defaultValue": "false"
+      },
+      {
+        "name": "emptyMessage",
+        "type": "string",
+        "isOptional": true,
+        "description": "빈 데이터 시 메시지",
+        "defaultValue": "\"데이터가 없습니다\""
+      },
+      {
+        "name": "onRowClick",
+        "type": "(row: T, index: number) => void",
+        "isOptional": true,
+        "description": "행 클릭 핸들러"
+      },
+      {
+        "name": "pagination",
+        "type": "{ page: number; pageSize: number; total: number; onChange: (page: number) => void }",
+        "isOptional": true,
+        "description": "페이지네이션"
+      }
+    ],
+    "filePath": "/Users/tahooki/Documents/git/montage-web/scripts/api-generator-standalone/fixtures/components/external-style/index.tsx"
+  },
+  {
+    "name": "Input",
+    "props": [
+      {
+        "name": "label",
+        "type": "string",
+        "isOptional": true,
+        "description": "라벨 텍스트"
+      },
+      {
+        "name": "error",
+        "type": "string",
+        "isOptional": true,
+        "description": "에러 메시지"
+      },
+      {
+        "name": "startIcon",
+        "type": "ReactNode",
+        "isOptional": true,
+        "description": "좌측 아이콘"
+      }
+    ],
+    "filePath": "/Users/tahooki/Documents/git/montage-web/scripts/api-generator-standalone/fixtures/components/external-style/index.tsx"
+  },
+  {
+    "name": "Avatar",
+    "props": [
+      {
+        "name": "src",
+        "type": "string",
+        "isOptional": true,
+        "description": "이미지 URL"
+      },
+      {
+        "name": "alt",
+        "type": "string",
+        "isOptional": false,
+        "description": "대체 텍스트 또는 이니셜"
+      },
+      {
+        "name": "size",
+        "type": "24 | 32 | 40 | 48 | 64",
+        "isOptional": true,
+        "description": "크기 (px)",
+        "defaultValue": "40"
+      },
+      {
+        "name": "shape",
+        "type": "\"circle\" | \"square\"",
+        "isOptional": true,
+        "description": "모양",
+        "defaultValue": "\"circle\""
+      }
+    ],
+    "filePath": "/Users/tahooki/Documents/git/montage-web/scripts/api-generator-standalone/fixtures/components/external-style/index.tsx"
+  },
+  {
+    "name": "Modal",
+    "props": [
+      {
+        "name": "open",
+        "type": "boolean",
+        "isOptional": false,
+        "description": "모달 열림 상태"
+      },
+      {
+        "name": "onClose",
+        "type": "() => void",
+        "isOptional": false,
+        "description": "닫기 콜백"
+      },
+      {
+        "name": "title",
+        "type": "string",
+        "isOptional": true,
+        "description": "모달 제목"
+      },
+      {
+        "name": "children",
+        "type": "ReactNode",
+        "isOptional": false,
+        "description": "모달 내부 콘텐츠"
+      },
+      {
+        "name": "width",
+        "type": "string | number",
+        "isOptional": true,
+        "description": "모달 너비",
+        "defaultValue": "480"
+      },
+      {
+        "name": "closeOnOverlayClick",
+        "type": "boolean",
+        "isOptional": true,
+        "description": "오버레이 클릭 시 닫기 여부",
+        "defaultValue": "true"
+      },
+      {
+        "name": "style",
+        "type": "CSSProperties",
+        "isOptional": true,
+        "description": "커스텀 스타일"
+      },
+      {
+        "name": "footer",
+        "type": "ReactNode",
+        "isOptional": true,
+        "description": "모달 하단 액션 영역"
+      }
+    ],
+    "filePath": "/Users/tahooki/Documents/git/montage-web/scripts/api-generator-standalone/fixtures/components/modal/index.tsx"
+  }
+]
