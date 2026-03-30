@@ -5,7 +5,7 @@
  */
 
 import type { ConversationFacts, BindingResult } from "@/devops-chat/types/conversation";
-import type { RollbackTargetListTemplateData, RollbackTargetItem } from "@/devops-chat/types/templates";
+import type { RollbackTargetListTemplateData, RollbackTargetItem, IncidentAlert } from "@/devops-chat/types/templates";
 import { getSlotValue } from "@/devops-chat/server/orchestration/slot-memory";
 import { ROLLBACK_ACTION_IDS, type SurfaceActionDescriptor } from "@/devops-chat/actions/action-types";
 
@@ -73,6 +73,28 @@ export function bindRollbackTargetList(
     };
   });
 
+  // Build incident alert from serviceHealth if available
+  const serviceHealthList = (facts.rollback?.serviceHealth as Array<Record<string, unknown>>) ?? [];
+  const healthEntry = serviceHealthList.find(
+    (h) => (h.service as string)?.toLowerCase() === serviceName!.toLowerCase(),
+  );
+
+  const incidentAlert: IncidentAlert | undefined = healthEntry
+    ? {
+        status: (healthEntry.status as IncidentAlert["status"]) ?? "warning",
+        incidentId: ((healthEntry.activeIncident as Record<string, unknown>)?.id as string) ?? "",
+        incidentTitle: ((healthEntry.activeIncident as Record<string, unknown>)?.title as string) ?? "",
+        severity: ((healthEntry.activeIncident as Record<string, unknown>)?.severity as string) ?? (serviceCandidate.severity as string) ?? "high",
+        errorRate: (healthEntry.errorRate as string) ?? "",
+        normalErrorRate: (healthEntry.normalErrorRate as string) ?? "",
+        p99Latency: (healthEntry.p99Latency as string) ?? "",
+        normalP99Latency: (healthEntry.normalP99Latency as string) ?? "",
+        lastDeployedAt: (healthEntry.lastDeployedAt as string) ?? "",
+        instancesHealthy: ((healthEntry.instances as Record<string, number>)?.healthy as number) ?? 0,
+        instancesTotal: ((healthEntry.instances as Record<string, number>)?.total as number) ?? 0,
+      }
+    : undefined;
+
   const payload: RollbackTargetListTemplateData = {
     templateId: "rollback_target_list",
     state: "active",
@@ -81,6 +103,7 @@ export function bindRollbackTargetList(
     currentVersion: (serviceCandidate.currentVersion as string) ?? "unknown",
     incidentSummary: (serviceCandidate.incidentSummary as string) ?? "",
     severity: (serviceCandidate.severity as string) ?? "high",
+    incidentAlert,
     targets,
     recommendedTargetId: recommendedId,
     primaryActionLabel: "추천 버전으로 롤백",

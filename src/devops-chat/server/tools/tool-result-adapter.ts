@@ -75,10 +75,11 @@ export function adaptToolResult(output: ToolOutput): AdaptedToolResult {
     }
 
     case "getRollbackCandidates": {
-      const rbData = output.data as { candidates?: unknown[] } | null;
+      const rbData = output.data as { candidates?: unknown[]; serviceHealth?: unknown[] } | null;
       const rbCandidates = rbData?.candidates ?? [];
+      const rbServiceHealth = rbData?.serviceHealth ?? [];
       return {
-        factsPatch: { rollback: { candidates: output.data } },
+        factsPatch: { rollback: { candidates: output.data, serviceHealth: rbServiceHealth } },
         slotPatch: rbCandidates.length > 0
           ? { "rollback.candidates": { value: rbCandidates, source: "tool" } }
           : {},

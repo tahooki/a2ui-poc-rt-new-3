@@ -285,7 +285,7 @@ export function StoryPage() {
 
           <button className={s.demoButton} onClick={() => openDemo("/rollback")} type="button">
             <span style={{ fontSize: 24 }}>▶</span>
-            <div><div className={s.demoLabel}>기존 Rollback Admin 시연</div><div className={s.demoDesc}>4개 화면 전환, 5분 소요</div></div>
+            <div><div className={s.demoLabel}>기존 Rollback Admin 시연 &mdash; 서비스 현황 확인</div><div className={s.demoDesc}>서비스 현황 페이지에서 에러율, 응답시간, 인시던트 확인</div></div>
             <span style={{ fontSize: 12, opacity: 0.5, marginLeft: "auto" }}>새 창에서 열기</span>
           </button>
 
@@ -297,10 +297,17 @@ export function StoryPage() {
                 <div className={`${s.chatBubble} ${s.chatBubbleAi}`}>
                   payments-api 롤백 대상을 준비했습니다.
                   <div className={s.surfacePreview}>
-                    <div className={s.surfaceTitle}>Rollback Target List</div>
-                    <div style={{ margin: "6px 0", fontSize: 12 }}>
-                      <span className={`${s.badge} ${s.badgeGreen}`}>추천</span> v2.3.16 &mdash; 24h stable, low risk<br/>
-                      <span className={`${s.badge} ${s.badgeYellow}`} style={{ marginTop: 4, display: "inline-block" }}>대안</span> v2.3.14 &mdash; stable, medium risk
+                    <div className={s.surfaceTitle} style={{ color: "#f46a6a" }}>Incident Alert &middot; CRITICAL</div>
+                    <div style={{ fontSize: 11, margin: "4px 0", opacity: 0.7 }}>
+                      INC-842: card timeout spike<br/>
+                      에러율 12.4% (평소 0.3%) &middot; p99 4,200ms (평소 320ms)
+                    </div>
+                    <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", marginTop: 8, paddingTop: 8 }}>
+                      <div className={s.surfaceTitle}>Rollback Target List</div>
+                      <div style={{ margin: "4px 0", fontSize: 12 }}>
+                        <span className={`${s.badge} ${s.badgeGreen}`}>추천</span> v2.3.16 &mdash; 24h stable, low risk<br/>
+                        <span className={`${s.badge} ${s.badgeYellow}`} style={{ marginTop: 4, display: "inline-block" }}>대안</span> v2.3.14 &mdash; stable, medium risk
+                      </div>
                     </div>
                     <span className={s.surfaceBtnOrange}>이 버전으로 롤백</span>
                   </div>
@@ -309,8 +316,8 @@ export function StoryPage() {
             </div>
             <div className={s.solutionText}>
               <span className={`${s.badge} ${s.badgeOrange}`}>A2UI Solution</span>
-              <h3 className={s.solutionTitle}>30초 만에 롤백 완료</h3>
-              <p className={s.solutionDesc}>현재 상태, 인시던트 정보, 추천 롤백 버전까지 한 번에. AI가 안정 버전을 추천하고, 한 번의 클릭으로 롤백합니다.</p>
+              <h3 className={s.solutionTitle}>인시던트 현황 + 롤백을 한 화면에</h3>
+              <p className={s.solutionDesc}>인시던트 상태(에러율, 응답시간, severity)와 추천 롤백 버전이 하나의 Surface에 함께 표시됩니다. 상황 파악과 실행이 동시에.</p>
               <p className={s.solutionHighlight}><strong>5분이 30초로.</strong> 4개 화면이 1개 화면으로.</p>
             </div>
           </div>

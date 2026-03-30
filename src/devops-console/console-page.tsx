@@ -97,6 +97,7 @@ export function DevopsConsolePage({ pageKey }: { pageKey: PageKey }) {
             selectRow(pageKey, rowId);
           }}
           selectedItem={selectedItem as RollbackItem | null}
+          serviceHealth={pages.rollback.serviceHealth}
           viewModel={viewModel}
         />
       )}

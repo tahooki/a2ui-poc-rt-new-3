@@ -21,6 +21,7 @@ import type {
   RollbackItem,
   RollbackSeed,
   SemanticTone,
+  ServiceHealth,
 } from "@/devops-chat/types/domain";
 import type { TemplateEnvelope } from "@/devops-chat/types/templates";
 import type { SurfaceEnvelope } from "@/devops-chat/types/conversation";
@@ -169,6 +170,7 @@ type ApprovalRuntime = {
 type RollbackRuntime = {
   seed: RollbackSeed;
   items: RollbackItem[];
+  serviceHealth: ServiceHealth[];
   selectedId: string | null;
   activeDeploymentId: string | null;
     assistant: {

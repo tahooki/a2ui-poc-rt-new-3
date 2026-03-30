@@ -181,6 +181,20 @@ export type RollbackTargetItem = {
   }>;
 };
 
+export type IncidentAlert = {
+  status: "critical" | "warning" | "healthy";
+  incidentId: string;
+  incidentTitle: string;
+  severity: string;
+  errorRate: string;
+  normalErrorRate: string;
+  p99Latency: string;
+  normalP99Latency: string;
+  lastDeployedAt: string;
+  instancesHealthy: number;
+  instancesTotal: number;
+};
+
 export type RollbackTargetListTemplateData = {
   templateId: "rollback_target_list";
   state: "active" | "selected";
@@ -189,6 +203,7 @@ export type RollbackTargetListTemplateData = {
   currentVersion: string;
   incidentSummary: string;
   severity: string;
+  incidentAlert?: IncidentAlert;
   targets: RollbackTargetItem[];
   recommendedTargetId: string | null;
   primaryActionLabel: string;

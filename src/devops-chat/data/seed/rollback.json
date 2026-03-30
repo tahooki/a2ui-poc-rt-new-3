@@ -318,5 +318,53 @@
         }
       ]
     }
+  ],
+  "serviceHealth": [
+    {
+      "service": "payments-api",
+      "version": "v2.3.18",
+      "status": "critical",
+      "errorRate": "12.4%",
+      "normalErrorRate": "0.3%",
+      "p99Latency": "4,200ms",
+      "normalP99Latency": "320ms",
+      "instances": { "total": 4, "healthy": 3, "unhealthy": 1 },
+      "lastDeployedAt": "2시간 전",
+      "activeIncident": {
+        "id": "INC-842",
+        "title": "card timeout spike",
+        "severity": "HIGH",
+        "startedAt": "2026-03-30 02:10 KST"
+      }
+    },
+    {
+      "service": "checkout",
+      "version": "v1.8.42",
+      "status": "warning",
+      "errorRate": "2.1%",
+      "normalErrorRate": "0.8%",
+      "p99Latency": "890ms",
+      "normalP99Latency": "450ms",
+      "instances": { "total": 3, "healthy": 3, "unhealthy": 0 },
+      "lastDeployedAt": "6시간 전",
+      "activeIncident": {
+        "id": "INC-835",
+        "title": "auth retries",
+        "severity": "MEDIUM",
+        "startedAt": "2026-03-30 01:45 KST"
+      }
+    },
+    {
+      "service": "catalog-api",
+      "version": "v4.2.1",
+      "status": "healthy",
+      "errorRate": "0.1%",
+      "normalErrorRate": "0.2%",
+      "p99Latency": "210ms",
+      "normalP99Latency": "200ms",
+      "instances": { "total": 2, "healthy": 2, "unhealthy": 0 },
+      "lastDeployedAt": "12시간 전",
+      "activeIncident": null
+    }
   ]
 }

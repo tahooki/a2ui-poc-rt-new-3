@@ -14,8 +14,9 @@ export const getRollbackCandidates: ToolDefinition = {
     /rollback\s*list/i,
   ],
   async execute() {
-    const seed = rollbackSeedData as { items: Record<string, unknown>[] };
+    const seed = rollbackSeedData as { items: Record<string, unknown>[]; serviceHealth?: Record<string, unknown>[] };
     const items = seed.items ?? [];
+    const serviceHealth = seed.serviceHealth ?? [];
 
     const candidates = items.map((item) => {
       const history = (item.deploymentHistory as Record<string, unknown>[] | undefined) ?? [];
@@ -43,7 +44,7 @@ export const getRollbackCandidates: ToolDefinition = {
     return {
       ok: true,
       toolName: "getRollbackCandidates",
-      data: { candidates },
+      data: { candidates, serviceHealth },
       summary: candidates.length === 0
         ? "현재 롤백 대상 서비스가 없습니다."
         : `롤백 대상 서비스 ${candidates.length}개, 롤백 가능 버전 총 ${totalEligible}건.`,

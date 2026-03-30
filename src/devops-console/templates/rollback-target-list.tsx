@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import styles from "@/devops-console/console-page.module.css";
 import { StatusChip } from "@/devops-console/foundation/status-chip";
-import type { RollbackTargetListTemplateData, RollbackTargetItem } from "@/devops-chat/types/templates";
+import type { RollbackTargetListTemplateData, RollbackTargetItem, IncidentAlert } from "@/devops-chat/types/templates";
 
 // ---------------------------------------------------------------------------
 // Rollback-specific steps (faster than deploy — emergency recovery)
@@ -256,18 +256,22 @@ export function RollbackTargetList({
 
   return (
     <article>
-      <div className={styles.templateCard} style={{ marginBottom: 16 }}>
-        <div className={styles.templateHeaderRow}>
-          <div>
-            <div className={styles.sectionEyebrow}>{template.environment}</div>
-            <h4 className={styles.templateTitle}>{template.service} 롤백 대상</h4>
-            <p className={styles.templateDescription}>
-              현재 {template.currentVersion} · {template.incidentSummary}
-            </p>
+      {template.incidentAlert ? (
+        <IncidentAlertCard alert={template.incidentAlert} service={template.service} />
+      ) : (
+        <div className={styles.templateCard} style={{ marginBottom: 16 }}>
+          <div className={styles.templateHeaderRow}>
+            <div>
+              <div className={styles.sectionEyebrow}>{template.environment}</div>
+              <h4 className={styles.templateTitle}>{template.service} 롤백 대상</h4>
+              <p className={styles.templateDescription}>
+                현재 {template.currentVersion} · {template.incidentSummary}
+              </p>
+            </div>
+            <StatusChip label={template.severity} tone={severityTone} />
           </div>
-          <StatusChip label={template.severity} tone={severityTone} />
         </div>
-      </div>
+      )}
 
       {eligible.length > 0 ? (
         <div>
@@ -305,5 +309,59 @@ export function RollbackTargetList({
         </details>
       ) : null}
     </article>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Incident alert card (shown at top of rollback target list)
+// ---------------------------------------------------------------------------
+
+const alertStatusTone = { critical: "danger", warning: "warning", healthy: "success" } as const;
+const alertStatusLabel = { critical: "CRITICAL", warning: "WARNING", healthy: "HEALTHY" } as const;
+
+function IncidentAlertCard({ alert, service }: { alert: IncidentAlert; service: string }) {
+  return (
+    <div className={styles.templateCard} style={{
+      marginBottom: 16,
+      borderColor: alert.status === "critical" ? "rgba(244,106,106,0.4)" : alert.status === "warning" ? "rgba(247,201,72,0.4)" : undefined,
+    }}>
+      <div className={styles.templateHeaderRow}>
+        <div>
+          <div className={styles.sectionEyebrow} style={{ color: alert.status === "critical" ? "#f46a6a" : "#f7c948" }}>
+            Incident Alert
+          </div>
+          <h4 className={styles.templateTitle}>{service}</h4>
+          <p className={styles.templateDescription}>
+            {alert.incidentId}: {alert.incidentTitle}
+          </p>
+        </div>
+        <StatusChip label={alertStatusLabel[alert.status]} tone={alertStatusTone[alert.status]} />
+      </div>
+
+      <div className={styles.templateMetaGrid}>
+        <div className={styles.templateMetaCard}>
+          <div className={styles.metaLabel}>에러율</div>
+          <div className={`${styles.detailPrimaryValue} ${styles.mono}`} style={{ color: alert.status === "critical" ? "#f46a6a" : undefined }}>
+            {alert.errorRate}
+          </div>
+          <div className={styles.propertyValue}>평소 {alert.normalErrorRate}</div>
+        </div>
+        <div className={styles.templateMetaCard}>
+          <div className={styles.metaLabel}>p99 응답시간</div>
+          <div className={`${styles.detailPrimaryValue} ${styles.mono}`} style={{ color: alert.status === "critical" ? "#f46a6a" : undefined }}>
+            {alert.p99Latency}
+          </div>
+          <div className={styles.propertyValue}>평소 {alert.normalP99Latency}</div>
+        </div>
+        <div className={styles.templateMetaCard}>
+          <div className={styles.metaLabel}>인스턴스</div>
+          <div className={`${styles.detailPrimaryValue} ${styles.mono}`}>{alert.instancesHealthy}/{alert.instancesTotal}</div>
+        </div>
+        <div className={styles.templateMetaCard}>
+          <div className={styles.metaLabel}>마지막 배포</div>
+          <div className={`${styles.detailPrimaryValue} ${styles.mono}`}>{alert.lastDeployedAt}</div>
+        </div>
+      </div>
+    </div>
   );
 }

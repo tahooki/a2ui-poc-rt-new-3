@@ -237,7 +237,30 @@ export type DeploySeed = BaseSeed<DeployItem, "deploy"> & {
 };
 
 export type ApprovalSeed = BaseSeed<ApprovalItem, "approve">;
-export type RollbackSeed = BaseSeed<RollbackItem, "rollback">;
+
+export type ActiveIncident = {
+  id: string;
+  title: string;
+  severity: string;
+  startedAt: string;
+};
+
+export type ServiceHealth = {
+  service: string;
+  version: string;
+  status: "critical" | "warning" | "healthy";
+  errorRate: string;
+  normalErrorRate: string;
+  p99Latency: string;
+  normalP99Latency: string;
+  instances: { total: number; healthy: number; unhealthy: number };
+  lastDeployedAt: string;
+  activeIncident: ActiveIncident | null;
+};
+
+export type RollbackSeed = BaseSeed<RollbackItem, "rollback"> & {
+  serviceHealth: ServiceHealth[];
+};
 
 export type PageSeedMap = {
   deploy: DeploySeed;

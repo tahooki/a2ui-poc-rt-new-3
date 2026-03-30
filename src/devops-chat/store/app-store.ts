@@ -25,6 +25,7 @@ import type {
   RollbackDeployment,
   RollbackItem,
   RollbackSeed,
+  ServiceHealth,
 } from "@/devops-chat/types/domain";
 import type { TemplateEnvelope } from "@/devops-chat/types/templates";
 import type {
@@ -62,6 +63,7 @@ type ApprovalRuntime = {
 type RollbackRuntime = {
   seed: RollbackSeed;
   items: RollbackItem[];
+  serviceHealth: ServiceHealth[];
   selectedId: string | null;
   activeDeploymentId: string | null;
   assistant: AssistantRuntime;
@@ -271,6 +273,7 @@ function createApprovalRuntime(seed: ApprovalSeed): ApprovalRuntime {
 
 function createRollbackRuntime(seed: RollbackSeed): RollbackRuntime {
   const items = cloneSeed(seed.items);
+  const serviceHealth = cloneSeed(seed.serviceHealth ?? []);
   const selectedId = seed.selectedId;
   const selectedItem = items.find((item) => item.id === selectedId) ?? null;
   const activeDeploymentId =
@@ -279,6 +282,7 @@ function createRollbackRuntime(seed: RollbackSeed): RollbackRuntime {
   return {
     seed: cloneSeed(seed),
     items,
+    serviceHealth,
     selectedId,
     activeDeploymentId,
     assistant: {
@@ -385,6 +389,7 @@ function updateApprovalRuntime(runtime: ApprovalRuntime, updater: (draft: Approv
 function updateRollbackRuntime(runtime: RollbackRuntime, updater: (draft: RollbackRuntime) => void): RollbackRuntime {
   const draft: RollbackRuntime = {
     seed: runtime.seed,
+    serviceHealth: runtime.serviceHealth,
     selectedId: runtime.selectedId,
     activeDeploymentId: runtime.activeDeploymentId,
     items: runtime.items.map((item) => ({
