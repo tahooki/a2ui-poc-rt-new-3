@@ -24,6 +24,18 @@ export function isLlmAvailable(): boolean {
 }
 
 /**
+ * Strip markdown code fences that some LLMs wrap around JSON output.
+ * e.g. ```json\n{...}\n``` → {...}
+ */
+function stripMarkdownCodeFence(text: string): string {
+  let s = text.trim();
+  // ```json ... ``` or ``` ... ```
+  const fenceMatch = s.match(/^```(?:json|JSON)?\s*\n?([\s\S]*?)\n?\s*```$/);
+  if (fenceMatch) return fenceMatch[1].trim();
+  return s;
+}
+
+/**
  * Call LLM and parse the response as JSON of type T.
  * Returns null if API key is not set or call fails.
  */
@@ -59,7 +71,7 @@ export async function callLlmStructured<T>(
     const content = data.choices?.[0]?.message?.content;
     if (!content) return null;
 
-    return JSON.parse(content) as T;
+    return JSON.parse(stripMarkdownCodeFence(content)) as T;
   } catch {
     return null;
   }
