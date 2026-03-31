@@ -65,25 +65,31 @@ export function StoryPage() {
         {/* HERO */}
         <section className={s.hero}>
           <div className={s.heroLabel}>DevOps A2UI Chatbot PoC</div>
-          <h1 className={s.heroTitle}>DevOps 운영을<br/>대화 한 줄로</h1>
+          <h1 className={s.heroTitle}>DevOps 운영을<br/>A2UI로 보다 쉽게</h1>
           <p className={s.heroSub}>
             DevOps 3가지 핵심 사례 &mdash; 배포, 승인, 롤백 &mdash; 을 A2UI(Adaptive Agentic UI)로 풀어,
-            복잡한 콘솔 조작을 자연어 대화로 대체한 PoC를 소개합니다.
+            복잡한 콘솔 조작을 AI가 맥락을 이해하고 필요한 화면을 직접 구성해주는 PoC를 소개합니다.
           </p>
-          <div className={s.badgeRow}>
-            <span className={`${s.badge} ${s.badgeBlue}`}>Deploy</span>
-            <span className={`${s.badge} ${s.badgeGreen}`}>Approval</span>
-            <span className={`${s.badge} ${s.badgeOrange}`}>Rollback</span>
-          </div>
+          <img src="/images/story-title.jpg" alt="DevOps A2UI 소개" style={{ width: '100%', borderRadius: '12px', marginTop: '28px' }} />
         </section>
 
         {/* OVERVIEW */}
         <section className={s.section}>
           <div className={s.sectionLabel}>Overview</div>
+          <h2 className={s.sectionTitle}>A2UI PoC 발표 흐름</h2>
+          <p className={s.sectionDesc}>DevOps 운영에서 반복되는 복잡한 콘솔 조작을, AI가 맥락을 파악해 필요한 화면을 직접 구성해주는 A2UI(Adaptive Agentic UI)의 컨셉, 작동 원리, 그리고 설계 배경을 소개합니다.</p>
+          <img src="/images/story-000.jpg" alt="A2UI 발표 흐름 — 사례 소개, 로직 설명, 개발 이유" style={{ width: '100%', borderRadius: '12px', marginBottom: '28px' }} />
+        </section>
+
+        <div className={s.chapterDivider}><h2 className={s.chapterTitle}>A2UI 사례 소개</h2></div>
+
+        {/* CASES */}
+        <section className={s.section}>
+          <div className={s.sectionLabel}>Cases</div>
           <h2 className={s.sectionTitle}>A2UI로 풀어본 3가지 사례</h2>
           <p className={s.sectionDesc}>여러 단계를 거쳐야 하거나, 여러 페이지에서 확인해야 하는 정보를 한번에 풀 수 있도록 개선합니다.</p>
           <div className={s.grid3}>
-            <div className={s.overviewCard} style={{ borderTopColor: "#5b8dee" }}><div style={{ fontSize: 28, fontWeight: 800 }}>1</div><h4>배포 (Deploy)</h4><p>도커 이미지 생성 &rarr; Request 등록 &rarr; Deploy 실행. 3단계 배포를 대화로 간소화합니다.</p></div>
+            <div className={s.overviewCard} style={{ borderTopColor: "#5b8dee" }}><div style={{ fontSize: 28, fontWeight: 800 }}>1</div><h4>배포 (Deploy)</h4><p>도커 이미지 생성 &rarr; Request 등록 &rarr; Deploy 실행. 3단계 배포를 AI가 맥락에 맞는 화면으로 간소화합니다.</p></div>
             <div className={s.overviewCard} style={{ borderTopColor: "#34c38f" }}><div style={{ fontSize: 28, fontWeight: 800 }}>2</div><h4>승인 (Approval)</h4><p>임시 접근, 설정 변경, 데이터 작업 등 다양한 타입의 승인 요청을 한곳에서 처리합니다.</p></div>
             <div className={s.overviewCard} style={{ borderTopColor: "#fb923c" }}><div style={{ fontSize: 28, fontWeight: 800 }}>3</div><h4>롤백 (Rollback)</h4><p>문제 발생 시 안정 버전 식별 &rarr; Dry Run &rarr; 확인 &rarr; 실행. 긴박한 인시던트 대응을 가속합니다.</p></div>
           </div>
@@ -106,6 +112,7 @@ export function StoryPage() {
             <div className={s.storyVisual}><div style={{ fontSize: 48, marginBottom: 12 }}>🐳</div><div>도커 이미지 기반 3단계 배포<br/>Image 등록 &rarr; Request 생성 &rarr; Deploy 실행</div></div>
           </div>
 
+          <h3 className={s.flowTitle}>이런 일이 있을 수 있습니다.</h3>
           <div className={s.grid2}>
             <div className={s.painCard}><h4>3단계를 각각 따로</h4><p>이미지 등록, 배포 요청 생성, 실행이 별도의 탭과 폼으로 분리되어 있습니다.</p></div>
             <div className={s.painCard}><h4>총 21개의 입력 필드</h4><p>이미지 등록 8개 + 배포 요청 13개. 매번 수동으로 채워야 합니다.</p></div>
@@ -147,9 +154,9 @@ export function StoryPage() {
             </div>
             <div className={s.solutionText}>
               <span className={`${s.badge} ${s.badgeBlue}`}>A2UI Solution</span>
-              <h3 className={s.solutionTitle}>대화 한 줄로 배포를 시작합니다</h3>
+              <h3 className={s.solutionTitle}>AI가 맥락을 파악해 배포를 준비합니다</h3>
               <p className={s.solutionDesc}>서비스명을 말하면 AI가 이전 배포 데이터를 기반으로 이미지 정보와 배포 설정을 자동으로 채워, Deploy Launchpad를 렌더링합니다. 수십 개의 필드를 직접 채울 필요가 없습니다.</p>
-              <p className={s.solutionHighlight}><strong>3단계 7화면이 대화 2턴으로.</strong> 21개 입력이 확인 한 번으로.</p>
+              <p className={s.solutionHighlight}><strong>여러 페이지, 여러 입력을</strong> AI가 정리해서 한 화면에.</p>
             </div>
           </div>
 
@@ -163,7 +170,7 @@ export function StoryPage() {
 
           <button className={`${s.demoButton} ${s.demoButtonAccent}`} onClick={() => openDemo("/deploy/image")} type="button">
             <span style={{ fontSize: 24 }}>▶</span>
-            <div><div className={s.demoLabel} style={{ color: "#93b4ff" }}>A2UI Deploy 시연</div><div className={s.demoDesc}>대화 2턴으로 배포 완료</div></div>
+            <div><div className={s.demoLabel} style={{ color: "#93b4ff" }}>A2UI Deploy 시연</div><div className={s.demoDesc}>흩어진 정보를 한 화면에서 배포</div></div>
             <span style={{ fontSize: 12, opacity: 0.5, marginLeft: "auto" }}>새 창에서 열기</span>
           </button>
         </section>
@@ -185,11 +192,12 @@ export function StoryPage() {
             <div className={s.storyVisual}><div style={{ fontSize: 48, marginBottom: 12 }}>📋</div><div>승인 큐 페이지<br/>필터 변경, 긴 리스트, 유형 분류 없음</div></div>
           </div>
 
+          <h3 className={s.flowTitle}>이런 일이 있을 수 있습니다.</h3>
           <div className={s.grid2}>
-            <div className={s.painCard}><h4>현황 파악에 필터 3번</h4><p>유형별, 상태별, 위험도별 필터 전환</p></div>
-            <div className={s.painCard}><h4>고위험 요청 놓칠 위험</h4><p>리스트에 시각적 우선순위가 약함</p></div>
-            <div className={s.painCard}><h4>판단 정보 부족</h4><p>&quot;보류하면 어떻게 되지?&quot; 즉시 답을 얻을 수 없음</p></div>
-            <div className={s.painCard}><h4>도메인 전환 시 컨텍스트 유실</h4><p>승인 중 배포가 필요하면 탭 전환</p></div>
+            <div className={s.painCard}><h4>대기/보류/고위험 현황 파악이 어려움</h4><p>승인 대기 건수, 보류 건수, 고위험 건수를 한눈에 볼 수 없어 리스트를 직접 세야 합니다.</p></div>
+            <div className={s.painCard}><h4>고위험 요청이 묻힘</h4><p>danger 등급의 break-glass 요청이나 데이터 작업이 일반 요청 사이에 섞여 놓치기 쉽습니다.</p></div>
+            <div className={s.painCard}><h4>리스크 정보를 따로 확인해야 함</h4><p>영향 범위, 복구 방법, 검증 상태를 보려면 각 요청을 하나씩 열어봐야 합니다.</p></div>
+            <div className={s.painCard}><h4>승인/보류를 건별로 처리</h4><p>요청마다 상세 페이지에 들어가서 개별적으로 승인하거나 보류해야 합니다.</p></div>
           </div>
 
           <h3 className={s.flowTitle}>기존 승인 흐름</h3>
@@ -267,6 +275,7 @@ export function StoryPage() {
             <div className={s.storyVisual}><div style={{ fontSize: 48, marginBottom: 12 }}>🚨</div><div>새벽 인시던트 대응<br/>4개 탭을 오가며 정보 수집</div></div>
           </div>
 
+          <h3 className={s.flowTitle}>이런 일이 있을 수 있습니다.</h3>
           <div className={s.grid2}>
             <div className={s.painCard}><h4>정보 수집에 5분</h4><p>4개 화면을 오가며 상황 파악</p></div>
             <div className={s.painCard}><h4>추천 버전 없음</h4><p>어떤 버전이 안전한지 스스로 판단</p></div>
@@ -332,10 +341,12 @@ export function StoryPage() {
 
           <button className={`${s.demoButton} ${s.demoButtonAccent}`} onClick={() => openDemo("/rollback")} type="button">
             <span style={{ fontSize: 24 }}>▶</span>
-            <div><div className={s.demoLabel} style={{ color: "#fb923c" }}>A2UI Rollback 시연</div><div className={s.demoDesc}>대화 2턴, 30초 만에 롤백 완료</div></div>
+            <div><div className={s.demoLabel} style={{ color: "#fb923c" }}>A2UI Rollback 시연</div><div className={s.demoDesc}>필요한 정보를 AI가 모아 빠르게 롤백</div></div>
             <span style={{ fontSize: 12, opacity: 0.5, marginLeft: "auto" }}>새 창에서 열기</span>
           </button>
         </section>
+
+        <div className={s.chapterDivider}><h2 className={s.chapterTitle}>로직 설명</h2></div>
 
         {/* ============================================================
             ARCHITECTURE
@@ -353,24 +364,58 @@ export function StoryPage() {
           <h3 className={s.flowTitle}>AI Chatbot 작동 흐름</h3>
           <Mermaid chart={`sequenceDiagram
     actor User as User
-    participant API as Chat API
-    participant Orch as Orchestrator
+    participant Orch as Chat API
+    participant LLM as AI (LLM)
     participant Dec as Decision Engine
     participant Tpl as Template System
-    User->>API: "배포해줘"
-    API->>Orch: orchestrate()
+    User->>Orch: "배포해줘"
     rect rgba(91,141,238,0.08)
-    Note over Orch: Intent 해석
-    Note over Orch: Slot 추출 (serviceName)
-    Note over Orch: Tool 실행 (getServiceDeployContext)
+    Note over Orch,LLM: 1. Intent 해석 + Slot 추출
+    Orch->>LLM: resolveIntentWithAi(input, history)
+    LLM-->>Orch: intent: deploy, slots: {serviceName}
+    end
+    rect rgba(91,141,238,0.08)
+    Note over Orch: 2. Tool 실행 루프
+    Note over Orch: planTools → executeTool
+    Note over Orch: getServiceDeployContext → facts 병합
     end
     Orch->>Dec: evaluate(facts)
     Dec-->>Orch: render_surface
     Orch->>Tpl: select + bind(facts)
     Tpl-->>Orch: SurfaceEnvelope
-    Orch-->>API: SSE stream (delta + result)
-    API-->>User: Surface 렌더링`} />
+    rect rgba(91,141,238,0.08)
+    Note over Orch,LLM: 3. 응답 생성
+    Orch->>LLM: Tool 결과 + context → 자연어 응답
+    LLM-->>Orch: 스트리밍 응답
+    end
+    Orch-->>User: SSE stream (Surface 렌더링)`} />
+
+          <div className={s.grid3} style={{ marginTop: '2rem' }}>
+            <div className={s.valueCard}>
+              <h4>AI (LLM)</h4>
+              <p>사용자 발화에서 의도(Intent)와 필요한 파라미터(Slot)를 추출하고, 최종 결과를 자연어로 정리하여 응답을 생성합니다.</p>
+            </div>
+            <div className={s.valueCard}>
+              <h4>Decision Engine</h4>
+              <p>수집된 Slot과 Tool 실행 결과(facts)를 평가하여, UI를 렌더링할지(render_surface) 추가 질문을 할지(ask_followup) 판단합니다.</p>
+            </div>
+            <div className={s.valueCard}>
+              <h4>Template System</h4>
+              <p>Decision Engine의 판단에 따라 적절한 UI 템플릿을 선택하고, facts 데이터를 바인딩하여 최종 Surface를 구성합니다.</p>
+            </div>
+          </div>
+
+          <ol style={{ marginTop: '2rem', lineHeight: '2', color: 'var(--text-secondary, #b0b0b0)', paddingLeft: '1.2rem' }}>
+            <li>사용자가 <strong>&ldquo;배포해줘&rdquo;</strong>라고 입력하면, Chat API가 <strong>AI(LLM)</strong>에게 의도 해석을 요청합니다.</li>
+            <li>AI(LLM)는 발화에서 <strong>Intent(배포)</strong>와 <strong>Slot(serviceName 등)</strong>을 추출하여 돌려줍니다.</li>
+            <li>Chat API는 추출된 정보를 바탕으로 <strong>Tool을 실행</strong>하여 배포 컨텍스트, 서비스 목록 등 실제 데이터(facts)를 수집합니다.</li>
+            <li><strong>Decision Engine</strong>이 facts를 평가하여, UI를 렌더링할지(<code>render_surface</code>) 추가 질문이 필요한지(<code>ask_followup</code>) 판단합니다.</li>
+            <li><strong>Template System</strong>이 워크플로에 맞는 UI 템플릿을 선택하고, facts 데이터를 바인딩하여 최종 Surface를 구성합니다.</li>
+            <li>AI(LLM)가 결과를 자연어로 정리한 응답과 함께, <strong>Surface가 SSE 스트리밍으로 사용자에게 전달</strong>됩니다.</li>
+          </ol>
         </section>
+
+        <div className={s.chapterDivider}><h2 className={s.chapterTitle}>이렇게 개발한 이유</h2></div>
 
         {/* ============================================================
             WHY
@@ -380,23 +425,33 @@ export function StoryPage() {
           <h2 className={s.sectionTitle}>이렇게 만든 이유</h2>
           <p className={s.sectionDesc}>A2UI를 여러 버전으로 구축하고 다시 만들면서 발견한 어려움과, 그에 따른 설계 결정입니다.</p>
 
-          <div className={s.insightCard}>
-            <h3>Challenge</h3>
-            <ul className={s.insightList}>
-              <li><strong>백엔드 작업의 부수적 부담</strong> &mdash; A2UI에 필요한 정보를 받아오는 백엔드, 버튼 액션에 맞는 백엔드 행동을 새롭게 만들어야 합니다.</li>
-              <li><strong>기존보다 더 좋아야 하는 높은 기준</strong> &mdash; 기존 페이지보다 더 좋아야 하며, Chatbot 텍스트보다 더 좋은 사례여야 A2UI의 가치가 있습니다.</li>
-              <li><strong>사용자에게 직접 만들게 하는 한계</strong> &mdash; 사용자가 A2UI를 학습하고 더 좋은 UIUX를 연구해서 등록하게 하는 것은 큰 어려움이 있습니다.</li>
-            </ul>
-          </div>
+          <img src="/images/story-002.jpg" alt="A2UI 설계 결정 — Challenge에서 솔루션으로" style={{ width: '100%', borderRadius: '12px', marginBottom: '28px' }} />
 
-          <div className={s.decisionCard}>
-            <h3>따라서, 직접 등록이 아닌 솔루션으로 풀기로 했습니다.</h3>
-            <p>사용자가 직접 Template을 만들게 하는 것이 아니라, 솔루션 차원에서 직접 설계하여 템플릿 수준으로 제공하기로 결정했습니다.</p>
-          </div>
-
-          <div className={s.grid2}>
-            <div className={s.benefitCard}><h4>예측 가능한 품질 확보</h4><p>어떤 값이 나올지 예측 가능해져, 고객에게 전달하는 A2UI 품질을 확보할 수 있습니다.</p></div>
-            <div className={s.benefitCard}><h4>사용자 학습 비용 절감</h4><p>A2UI를 직접 필요한 부분을 솔루션하여 설계해줌으로써, 사용자가 무엇을 A2UI로 만들어야 할지 고민하는 시간을 줄여줍니다.</p></div>
+          <div style={{ display: 'grid', gap: '20px', lineHeight: '1.8', color: 'var(--text-secondary, #b0b0b0)' }}>
+            <div>
+              <h4 style={{ color: '#f46a6a', fontSize: '16px', marginBottom: '4px' }}>백엔드 작업의 부수적 부담</h4>
+              <p>A2UI에 필요한 정보를 받아오는 백엔드, 버튼 액션에 맞는 백엔드 행동을 새롭게 만들어야 합니다.</p>
+            </div>
+            <div>
+              <h4 style={{ color: '#f46a6a', fontSize: '16px', marginBottom: '4px' }}>기존보다 더 좋아야 하는 높은 기준</h4>
+              <p>기존 페이지보다 더 좋아야 하며, Chatbot 텍스트보다 더 좋은 사례여야 A2UI의 가치가 있습니다.</p>
+            </div>
+            <div>
+              <h4 style={{ color: '#f46a6a', fontSize: '16px', marginBottom: '4px' }}>사용자에게 직접 만들게 하는 한계</h4>
+              <p>사용자가 A2UI를 학습하고 더 좋은 UIUX를 연구해서 등록하게 하는 것은 큰 어려움이 있습니다.</p>
+            </div>
+            <div>
+              <h4 style={{ color: '#34c38f', fontSize: '16px', marginBottom: '4px' }}>솔루션으로 설계하여 제공</h4>
+              <p>사용자가 직접 Template을 만들게 하는 것이 아니라, 솔루션 차원에서 직접 설계하여 템플릿 수준으로 제공하기로 결정했습니다.</p>
+            </div>
+            <div>
+              <h4 style={{ color: '#34c38f', fontSize: '16px', marginBottom: '4px' }}>예측 가능한 품질 확보</h4>
+              <p>어떤 값이 나올지 예측 가능해져, 고객에게 전달하는 A2UI 품질을 확보할 수 있습니다.</p>
+            </div>
+            <div>
+              <h4 style={{ color: '#34c38f', fontSize: '16px', marginBottom: '4px' }}>사용자 학습 비용 절감</h4>
+              <p>A2UI를 직접 필요한 부분을 솔루션하여 설계해줌으로써, 사용자가 무엇을 A2UI로 만들어야 할지 고민하는 시간을 줄여줍니다.</p>
+            </div>
           </div>
         </section>
 
@@ -406,13 +461,9 @@ export function StoryPage() {
         <section className={s.section}>
           <div className={s.sectionLabel}>Value Proposition</div>
           <h2 className={s.sectionTitle}>A2UI는 언제 가치가 있나요?</h2>
-          <div className={s.grid3}>
-            <div className={s.valueCard}><h4>기존 시스템 수정이 어려울 때</h4><p>레거시 시스템을 건드리지 않고, Chatbot 레이어에서 새로운 UX를 제공합니다.</p></div>
-            <div className={s.valueCard}><h4>기존 시스템이 복잡할 때</h4><p>여러 페이지에 흩어진 정보를 하나의 Surface로 모아 인지 부하를 줄입니다.</p></div>
-            <div className={s.valueCard}><h4>자주 쓰는 기능을 묶을 때</h4><p>반복되는 워크플로우를 대화 한 줄로 압축하여 작업 속도를 높입니다.</p></div>
-          </div>
+          <img src="/images/story-001.jpg" alt="A2UI 가치 제안 — 기존 시스템 수정이 어려울 때, 복잡할 때, 자주 쓰는 기능을 묶을 때" style={{ width: '100%', borderRadius: '12px', marginBottom: '28px' }} />
           <div className={s.closingCard}>
-            <h3>A2UI는 DevOps 엔지니어의 &quot;클릭&quot;을 &quot;대화&quot;로 바꿉니다.</h3>
+            <h3>A2UI는 DevOps 엔지니어가 찾아야 할 것을 AI가 먼저 준비합니다.</h3>
             <p>반복적인 네비게이션을 없애고, 컨텍스트 스위칭을 줄이며, 긴박한 순간에도 정확한 정보와 즉각적인 실행을 제공합니다.</p>
           </div>
         </section>

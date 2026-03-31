@@ -13,6 +13,11 @@
 .heroSub { font-size: 16px; color: var(--console-text-secondary); max-width: 640px; }
 .badgeRow { margin-top: 20px; display: flex; gap: 8px; flex-wrap: wrap; }
 
+/* ---- Chapter divider ---- */
+.chapterDivider { padding: 80px 0 0; display: flex; justify-content: center; }
+.chapterDivider + .section { border-top: none; }
+.chapterTitle { font-size: clamp(28px,4vw,40px); font-weight: 800; color: var(--console-text-secondary, #8892a4); letter-spacing: .02em; }
+
 /* ---- Sections ---- */
 .section { padding: 80px 0; border-top: 1px solid var(--console-border, rgba(37,50,68,.76)); }
 .sectionLabel { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: rgba(76,141,255,.82); font-weight: 700; margin-bottom: 6px; }
@@ -24,6 +29,7 @@
 .badgeBlue { background: rgba(91,141,238,.15); color: #93b4ff; }
 .badgeGreen { background: rgba(52,195,143,.15); color: #34c38f; }
 .badgeOrange { background: rgba(251,146,60,.15); color: #fb923c; }
+.badgePurple { background: rgba(167,139,250,.15); color: #a78bfa; }
 
 /* ---- Grids ---- */
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px; }
@@ -45,7 +51,7 @@
 
 /* ---- Pain card ---- */
 .painCard { background: var(--console-bg-raised, #111a2a); border: 1px solid var(--console-border, rgba(37,50,68,.76)); border-left: 3px solid #f46a6a; border-radius: 10px; padding: 16px 20px; }
-.painCard h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.painCard h4 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
 .painCard p { font-size: 13px; color: var(--console-text-secondary); }
 
 /* ---- Demo button ---- */

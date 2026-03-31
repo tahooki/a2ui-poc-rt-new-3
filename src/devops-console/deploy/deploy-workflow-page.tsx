@@ -261,7 +261,7 @@ export function DeployWorkflowPage({ stage }: { stage: DeployStage }) {
             <div className={styles.propertyValue}>{stageCopy[stage].role}</div>
           </div>
           <div className={styles.calloutCard}>
-            <div className={styles.metaLabel}>AWS 의미 설명</div>
+            <div className={styles.metaLabel}>AWS에서 이런 부분을 참고했습니다</div>
             <div className={styles.propertyValue}>{stageCopy[stage].aws}</div>
           </div>
         </div>

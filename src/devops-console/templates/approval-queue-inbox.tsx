@@ -101,7 +101,7 @@ function QueueItemCard({
   const cat = getCategoryInfo(item.type);
 
   return (
-    <div className={`${styles.templateCard} ${styles.deployFadeIn}`} style={{ marginBottom: 8 }}>
+    <div className={`${styles.templateCard} ${styles.deployFadeIn}`} style={{ marginBottom: 8, borderLeft: item.riskTone === "danger" ? "3px solid var(--danger, #d32f2f)" : undefined }}>
       {/* Category badge */}
       <div style={{
         display: "flex",

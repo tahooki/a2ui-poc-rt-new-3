@@ -34,6 +34,7 @@ export const getApprovalQueueSummary: ToolDefinition = {
       environment: item.environment,
       requestedBy: item.requestedBy,
       riskSummary: item.riskSummary,
+      riskTone: item.riskTone,
       status: item.status,
     }));
 

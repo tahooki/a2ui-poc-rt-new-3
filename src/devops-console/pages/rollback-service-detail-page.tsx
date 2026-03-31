@@ -145,7 +145,9 @@ export function RollbackServiceDetailPage({ serviceId }: { serviceId: string }) 
                           <td>{deployment.healthSummary}</td>
                           <td>{deployment.verification}</td>
                           <td>
-                            {deployment.rollbackEligible ? (
+                            {deployment.status === "executed" ? (
+                              <StatusChip label="rolled back" tone="success" />
+                            ) : deployment.rollbackEligible ? (
                               <button
                                 className={styles.secondaryButton}
                                 onClick={(event) => {
