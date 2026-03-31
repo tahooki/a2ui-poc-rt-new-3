@@ -277,10 +277,10 @@ export function StoryPage() {
 
           <h3 className={s.flowTitle}>이런 일이 있을 수 있습니다.</h3>
           <div className={s.grid2}>
-            <div className={s.painCard}><h4>정보 수집에 5분</h4><p>4개 화면을 오가며 상황 파악</p></div>
-            <div className={s.painCard}><h4>추천 버전 없음</h4><p>어떤 버전이 안전한지 스스로 판단</p></div>
-            <div className={s.painCard}><h4>절차 확인 불가</h4><p>&quot;dry run이 뭐였지?&quot; 위키를 뒤져야 함</p></div>
-            <div className={s.painCard}><h4>새벽의 인지 부하</h4><p>잠이 덜 깬 상태에서 여러 화면, 여러 판단</p></div>
+            <div className={s.painCard}><h4>배포 이력을 직접 비교해야 함</h4><p>어떤 버전이 안정적이었는지 deployment history를 하나씩 열어서 health와 verification을 확인해야 합니다.</p></div>
+            <div className={s.painCard}><h4>롤백 대상 선택이 어려움</h4><p>eligible 여부, 버전별 health 상태, strategy 차이를 종합적으로 판단해서 직접 골라야 합니다.</p></div>
+            <div className={s.painCard}><h4>dry run 절차를 따로 확인</h4><p>롤백 전 dry run 검증이 필요한지, 어떤 체크가 포함되는지 별도 문서를 찾아봐야 합니다.</p></div>
+            <div className={s.painCard}><h4>실행 후 상태 추적이 분산됨</h4><p>롤백 실행 후 서비스 상태, 버전 변경, 인시던트 해소 여부를 여러 화면에서 따로 확인해야 합니다.</p></div>
           </div>
 
           <h3 className={s.flowTitle}>기존 롤백 흐름</h3>
@@ -357,7 +357,7 @@ export function StoryPage() {
           <p className={s.sectionDesc}>A2UI는 템플릿 수준으로 필요한 화면, 백엔드, 관리 어드민을 설계합니다.</p>
           <div className={s.grid3}>
             <div className={s.archBox}><div style={{ fontSize: 36, marginBottom: 8 }}>🖼️</div><h4>React Renderer</h4><p>A2UI Surface 컴포넌트. Template별 전용 UI를 렌더링합니다.</p><span className={`${s.badge} ${s.badgeBlue}`} style={{ marginTop: 8 }}>7개 Template</span></div>
-            <div className={s.archBox}><div style={{ fontSize: 36, marginBottom: 8 }}>⚙️</div><h4>Template 설계 어드민</h4><p>Template 정의, Input Contract, Selection Policy를 관리합니다.</p><span className={`${s.badge} ${s.badgeBlue}`} style={{ marginTop: 8 }}>Registry 기반</span></div>
+            <div className={s.archBox}><div style={{ fontSize: 36, marginBottom: 8 }}>⚙️</div><h4>Template 관리 어드민</h4><p>Template 정의, Input Contract, Selection Policy를 관리합니다.</p><span className={`${s.badge} ${s.badgeBlue}`} style={{ marginTop: 8 }}>Registry 기반</span></div>
             <div className={s.archBox}><div style={{ fontSize: 36, marginBottom: 8 }}>🧠</div><h4>AI 판단 로직</h4><p>Intent 해석, Slot 수집, Tool 실행, Decision Engine, Template 선택.</p><span className={`${s.badge} ${s.badgeGreen}`} style={{ marginTop: 8 }}>8 Step Pipeline</span></div>
           </div>
 
@@ -370,19 +370,19 @@ export function StoryPage() {
     participant Tpl as Template System
     User->>Orch: "배포해줘"
     rect rgba(91,141,238,0.08)
-    Note over Orch,LLM: 1. Intent 해석 + Slot 추출
-    Orch->>LLM: resolveIntentWithAi(input, history)
-    LLM-->>Orch: intent: deploy, slots: {serviceName}
+    Note over Orch,LLM: 1. 사용자 질문 A2UI 판단
+    Orch->>LLM: resolveIntentWithAi(input, history)<br/>사용자 입력과 대화 이력을 AI에게 전달
+    LLM-->>Orch: intent: deploy, slots: {serviceName}<br/>의도는 배포, 서비스명 추출
     end
     rect rgba(91,141,238,0.08)
     Note over Orch: 2. Tool 실행 루프
     Note over Orch: planTools → executeTool
     Note over Orch: getServiceDeployContext → facts 병합
     end
-    Orch->>Dec: evaluate(facts)
-    Dec-->>Orch: render_surface
-    Orch->>Tpl: select + bind(facts)
-    Tpl-->>Orch: SurfaceEnvelope
+    Orch->>Dec: evaluate(facts)<br/>수집된 정보로 판단 요청
+    Dec-->>Orch: render_surface<br/>A2UI 화면을 그려라
+    Orch->>Tpl: select + bind(facts)<br/>템플릿 선택 + 데이터 바인딩
+    Tpl-->>Orch: SurfaceEnvelope<br/>A2UI 렌더링에 필요한 데이터 전달
     rect rgba(91,141,238,0.08)
     Note over Orch,LLM: 3. 응답 생성
     Orch->>LLM: Tool 결과 + context → 자연어 응답
@@ -393,25 +393,25 @@ export function StoryPage() {
           <div className={s.grid3} style={{ marginTop: '2rem' }}>
             <div className={s.valueCard}>
               <h4>AI (LLM)</h4>
-              <p>사용자 발화에서 의도(Intent)와 필요한 파라미터(Slot)를 추출하고, 최종 결과를 자연어로 정리하여 응답을 생성합니다.</p>
+              <p>사용자가 무엇을 원하는지 파악하고, A2UI 화면을 그려야 하는지 판단합니다. 최종 결과도 자연어로 정리해줍니다.</p>
             </div>
             <div className={s.valueCard}>
               <h4>Decision Engine</h4>
-              <p>수집된 Slot과 Tool 실행 결과(facts)를 평가하여, UI를 렌더링할지(render_surface) 추가 질문을 할지(ask_followup) 판단합니다.</p>
+              <p>AI가 아닌 규칙 기반 로직으로, 필요한 정보가 다 모였는지 체크합니다. 부족하면 되묻고, 충분하면 화면을 그립니다.</p>
             </div>
             <div className={s.valueCard}>
               <h4>Template System</h4>
-              <p>Decision Engine의 판단에 따라 적절한 UI 템플릿을 선택하고, facts 데이터를 바인딩하여 최종 Surface를 구성합니다.</p>
+              <p>상황에 맞는 A2UI 화면 템플릿을 골라서, 수집된 데이터를 채워 넣어 사용자에게 보여줄 최종 화면을 만듭니다.</p>
             </div>
           </div>
 
           <ol style={{ marginTop: '2rem', lineHeight: '2', color: 'var(--text-secondary, #b0b0b0)', paddingLeft: '1.2rem' }}>
             <li>사용자가 <strong>&ldquo;배포해줘&rdquo;</strong>라고 입력하면, Chat API가 <strong>AI(LLM)</strong>에게 의도 해석을 요청합니다.</li>
-            <li>AI(LLM)는 발화에서 <strong>Intent(배포)</strong>와 <strong>Slot(serviceName 등)</strong>을 추출하여 돌려줍니다.</li>
-            <li>Chat API는 추출된 정보를 바탕으로 <strong>Tool을 실행</strong>하여 배포 컨텍스트, 서비스 목록 등 실제 데이터(facts)를 수집합니다.</li>
-            <li><strong>Decision Engine</strong>이 facts를 평가하여, UI를 렌더링할지(<code>render_surface</code>) 추가 질문이 필요한지(<code>ask_followup</code>) 판단합니다.</li>
-            <li><strong>Template System</strong>이 워크플로에 맞는 UI 템플릿을 선택하고, facts 데이터를 바인딩하여 최종 Surface를 구성합니다.</li>
-            <li>AI(LLM)가 결과를 자연어로 정리한 응답과 함께, <strong>Surface가 SSE 스트리밍으로 사용자에게 전달</strong>됩니다.</li>
+            <li>AI가 사용자의 입력을 <strong>A2UI로 그려야 하는지 판단</strong>합니다. 예를 들어 &ldquo;배포해줘&rdquo;는 배포 A2UI를, &ldquo;승인 현황 보여줘&rdquo;는 승인 큐 A2UI를 그려야 한다고 판단합니다.</li>
+            <li>Chat API는 판단 결과를 바탕으로 <strong>Tool을 실행</strong>하여 실제 데이터(facts)를 수집합니다. 예를 들어 배포라면 <code>getServiceDeployContext</code>를 호출해 서비스 목록, 추천 버전, 최근 배포 이력 등을 가져옵니다.</li>
+            <li><strong>Decision Engine</strong>이 facts를 평가하여, A2UI 화면을 그릴지(<code>render_surface</code>) 추가 질문이 필요한지(<code>ask_followup</code>) 판단합니다. 예를 들어 서비스명이 아직 없으면 &ldquo;어떤 서비스를 배포할까요?&rdquo;라고 되묻습니다.</li>
+            <li><strong>Template System</strong>이 워크플로에 맞는 UI 템플릿을 선택하고, facts 데이터를 바인딩합니다. 예를 들어 배포라면 <code>quick_deploy_launchpad</code> 템플릿에 서비스명, 버전, 리스크 정보를 채워 넣습니다.</li>
+            <li>AI(LLM)가 결과를 자연어로 정리한 응답과 함께, <strong>완성된 A2UI 화면이 사용자에게 전달</strong>됩니다. 사용자는 이 화면에서 바로 확인하고 실행할 수 있습니다.</li>
           </ol>
         </section>
 
