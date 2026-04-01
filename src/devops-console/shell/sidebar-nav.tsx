@@ -10,7 +10,6 @@ const navItems: Array<{ href: string; key: NavKey; label: string; icon: IconName
   { href: "/deploy/image", key: "deploy", label: "Deploy", icon: "deploy" },
   { href: "/approve", key: "approve", label: "Approve", icon: "approve" },
   { href: "/rollback", key: "rollback", label: "Rollback", icon: "rollback" },
-  { href: "/assistant", key: "assistant", label: "Assistant", icon: "assistant" },
 ];
 
 export function SidebarNav({

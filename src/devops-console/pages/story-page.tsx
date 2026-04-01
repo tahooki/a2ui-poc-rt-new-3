@@ -263,24 +263,24 @@ export function StoryPage() {
             ============================================================ */}
         <section className={s.section}>
           <div className={s.sectionLabel} style={{ color: "#fb923c" }}>Part 3 &mdash; Rollback</div>
-          <h2 className={s.sectionTitle}>박롤백 대리의 긴박한 밤</h2>
-          <p className={s.sectionDesc}>SRE. 새벽 2시, PagerDuty 알림. payments-api severity HIGH 인시던트. 에러율 급등.</p>
+          <h2 className={s.sectionTitle}>박대응 대리의 긴박한 밤</h2>
+          <p className={s.sectionDesc}>인프라 엔지니어. 같은 팀이라 서비스 배포 권한은 있지만, payments-api를 직접 배포한 적은 없습니다. 새벽 2시, PagerDuty 알림.</p>
 
           <div className={s.storyBlock}>
             <div className={s.storyText}>
               <h3>새벽 2시, 알림이 울립니다</h3>
-              <p>잠에서 깬 박롤백 대리가 가장 먼저 알아야 할 것 &mdash; 어떤 서비스? 인시던트 심각도? 롤백 가능 버전? 기존에는 4개의 화면을 동시에 열어야 했습니다.</p>
-              <blockquote>지금 뭐가 터진 거지? 어떤 버전으로 돌려야 해? 데이터는 괜찮을까?</blockquote>
+              <p>payments-api에 severity HIGH 인시던트. 에러율이 급등하고 있습니다. 배포한 김배포 선임에게 연락했지만 응답이 없습니다. 서비스 접근 권한은 있지만, 이 서비스를 직접 배포한 적이 없는 박대응 대리는 뭐가 바뀌어서 문제인지 알 수 없습니다.</p>
+              <blockquote>나는 이 서비스 배포한 적 없는데... 뭐가 바뀌어서 터진 거지? 어떤 버전으로 돌려야 안전한 거야?</blockquote>
             </div>
-            <div className={s.storyVisual}><div style={{ fontSize: 48, marginBottom: 12 }}>🚨</div><div>새벽 인시던트 대응<br/>4개 탭을 오가며 정보 수집</div></div>
+            <div className={s.storyVisual}><div style={{ fontSize: 48, marginBottom: 12 }}>🚨</div><div>새벽 인시던트 대응<br/>배포자 부재, 원인 파악 불가<br/>권한은 있지만 맥락이 없는 상황</div></div>
           </div>
 
           <h3 className={s.flowTitle}>이런 일이 있을 수 있습니다.</h3>
           <div className={s.grid2}>
-            <div className={s.painCard}><h4>배포 이력을 직접 비교해야 함</h4><p>어떤 버전이 안정적이었는지 deployment history를 하나씩 열어서 health와 verification을 확인해야 합니다.</p></div>
-            <div className={s.painCard}><h4>롤백 대상 선택이 어려움</h4><p>eligible 여부, 버전별 health 상태, strategy 차이를 종합적으로 판단해서 직접 골라야 합니다.</p></div>
-            <div className={s.painCard}><h4>dry run 절차를 따로 확인</h4><p>롤백 전 dry run 검증이 필요한지, 어떤 체크가 포함되는지 별도 문서를 찾아봐야 합니다.</p></div>
-            <div className={s.painCard}><h4>실행 후 상태 추적이 분산됨</h4><p>롤백 실행 후 서비스 상태, 버전 변경, 인시던트 해소 여부를 여러 화면에서 따로 확인해야 합니다.</p></div>
+            <div className={s.painCard}><h4>배포자가 아니라 원인 특정 불가</h4><p>어떤 변경이 들어갔는지, 왜 문제가 생겼는지 배포 맥락이 없어 원인을 파악할 수 없습니다.</p></div>
+            <div className={s.painCard}><h4>담당자 연락까지 대기</h4><p>배포한 사람이 응답할 때까지 기다리거나, 혼자서 배포 이력을 하나씩 뒤져야 합니다.</p></div>
+            <div className={s.painCard}><h4>롤백 대상 선택이 어려움</h4><p>어떤 버전이 안전한지 판단할 근거가 부족합니다. eligible 여부, health 상태를 직접 비교해야 합니다.</p></div>
+            <div className={s.painCard}><h4>실행에 대한 불안감</h4><p>서비스를 잘 모르는 상태에서 롤백을 실행하면 더 큰 문제가 생기지 않을까 망설이게 됩니다.</p></div>
           </div>
 
           <h3 className={s.flowTitle}>기존 롤백 흐름</h3>
@@ -301,15 +301,21 @@ export function StoryPage() {
           {/* A2UI Solution */}
           <div className={s.a2uiSolutionBlock}>
             <div className={s.chatMock}>
-              <div className={s.chatMsg}><div className={`${s.chatAvatar} ${s.chatAvatarUser}`}>박</div><div className={`${s.chatBubble} ${s.chatBubbleUser}`}>payments-api 롤백하고 싶어</div></div>
+              <div className={s.chatMsg}><div className={`${s.chatAvatar} ${s.chatAvatarUser}`}>박</div><div className={`${s.chatBubble} ${s.chatBubbleUser}`}>payments-api에 인시던트 떴는데, 원인이 뭐야?</div></div>
               <div className={s.chatMsg}><div className={`${s.chatAvatar} ${s.chatAvatarAi}`}>AI</div>
                 <div className={`${s.chatBubble} ${s.chatBubbleAi}`}>
-                  payments-api 롤백 대상을 준비했습니다.
+                  payments-api 인시던트를 분석했습니다.
                   <div className={s.surfacePreview}>
                     <div className={s.surfaceTitle} style={{ color: "#f46a6a" }}>Incident Alert &middot; CRITICAL</div>
                     <div style={{ fontSize: 11, margin: "4px 0", opacity: 0.7 }}>
                       INC-842: card timeout spike<br/>
                       에러율 12.4% (평소 0.3%) &middot; p99 4,200ms (평소 320ms)
+                    </div>
+                    <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", marginTop: 8, paddingTop: 8 }}>
+                      <div className={s.surfaceTitle} style={{ color: "#fb923c" }}>원인 분석</div>
+                      <div style={{ fontSize: 11, margin: "4px 0", opacity: 0.7 }}>
+                        v2.3.18-rc1 배포 후 card-processing 모듈의 timeout 설정 변경이 원인으로 추정됩니다. 이전 안정 버전 대비 connection pool 설정이 변경되었습니다.
+                      </div>
                     </div>
                     <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", marginTop: 8, paddingTop: 8 }}>
                       <div className={s.surfaceTitle}>Rollback Target List</div>
@@ -322,26 +328,34 @@ export function StoryPage() {
                   </div>
                 </div>
               </div>
+              <div className={s.chatMsg}><div className={`${s.chatAvatar} ${s.chatAvatarUser}`}>박</div><div className={`${s.chatBubble} ${s.chatBubbleUser}`}>v2.3.16으로 롤백해줘</div></div>
+              <div className={s.chatMsg}><div className={`${s.chatAvatar} ${s.chatAvatarAi}`}>AI</div>
+                <div className={`${s.chatBubble} ${s.chatBubbleAi}`}>
+                  v2.3.16으로 롤백이 완료되었습니다. 에러율이 0.3%로 정상화되었습니다.
+                </div>
+              </div>
             </div>
             <div className={s.solutionText}>
               <span className={`${s.badge} ${s.badgeOrange}`}>A2UI Solution</span>
-              <h3 className={s.solutionTitle}>인시던트 현황 + 롤백을 한 화면에</h3>
-              <p className={s.solutionDesc}>인시던트 상태(에러율, 응답시간, severity)와 추천 롤백 버전이 하나의 Surface에 함께 표시됩니다. 상황 파악과 실행이 동시에.</p>
-              <p className={s.solutionHighlight}><strong>5분이 30초로.</strong> 4개 화면이 1개 화면으로.</p>
+              <h3 className={s.solutionTitle}>AI가 원인을 특정하고, 안전한 버전을 추천합니다</h3>
+              <p className={s.solutionDesc}>배포자가 아니어도 괜찮습니다. AI가 배포 이력을 분석해 원인을 특정하고, 안정성이 검증된 롤백 버전을 추천합니다. 서비스 맥락을 몰라도 근거 있는 판단이 가능합니다.</p>
+              <p className={s.solutionHighlight}><strong>서비스 이해도가 부족해도, A2UI가 있다면 빠르고 안전하게 롤백할 수 있습니다.</strong></p>
             </div>
           </div>
 
           <h3 className={s.flowTitle}>A2UI 롤백 흐름</h3>
           <Mermaid chart={`flowchart LR
-    A["1. 자연어 입력\\n롤백하고 싶어"] --> B["2. AI 추천 버전\\n+ Target List"]
-    B --> C["3. 클릭 한 번\\n롤백 실행"]
+    A["1. 자연어 입력\\n원인이 뭐야?"] --> B["2. AI 원인 분석\\n+ 버전 추천"]
+    B --> C["3. 롤백 요청\\n롤백해줘"]
+    C --> D["4. 롤백 완료\\n정상화 확인"]
     style A stroke:#fb923c,stroke-width:2px
     style B stroke:#fb923c,stroke-width:2px
-    style C stroke:#34c38f,stroke-width:2px`} />
+    style C stroke:#fb923c,stroke-width:2px
+    style D stroke:#34c38f,stroke-width:2px`} />
 
           <button className={`${s.demoButton} ${s.demoButtonAccent}`} onClick={() => openDemo("/rollback")} type="button">
             <span style={{ fontSize: 24 }}>▶</span>
-            <div><div className={s.demoLabel} style={{ color: "#fb923c" }}>A2UI Rollback 시연</div><div className={s.demoDesc}>필요한 정보를 AI가 모아 빠르게 롤백</div></div>
+            <div><div className={s.demoLabel} style={{ color: "#fb923c" }}>A2UI Rollback 시연</div><div className={s.demoDesc}>배포자가 아니어도 AI가 원인 분석 + 롤백 추천</div></div>
             <span style={{ fontSize: 12, opacity: 0.5, marginLeft: "auto" }}>새 창에서 열기</span>
           </button>
         </section>

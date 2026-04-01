@@ -52,26 +52,25 @@ export function TemplateManagerPage() {
   ];
 
   return (
-    <div style={{ display: "flex", gap: 16, height: "100%" }}>
-      <div style={{ width: 280, flexShrink: 0, overflow: "auto" }}>
-        <TemplateListPanel selectedId={selectedId} onSelect={handleSelectTemplate} />
-      </div>
-      <div style={{ flex: 1, overflow: "auto" }}>
+    <div className={styles.templateManagerLayout}>
+      <TemplateListPanel selectedId={selectedId} onSelect={handleSelectTemplate} />
+      <div className={styles.templateDetailPane}>
         {!definition ? (
-          <div style={{ padding: 24, opacity: 0.5 }}>
+          <div className={styles.templateDetailEmpty}>
             좌측에서 template를 선택하세요.
           </div>
         ) : (
           <>
-            <h3 className={styles.panelTitle}>{definition.title}</h3>
-            <p style={{ opacity: 0.7, marginBottom: 12 }}>{definition.description}</p>
-            <div style={{ display: "flex", gap: 4, marginBottom: 16 }}>
+            <div className={styles.templateDetailHeader}>
+              <h3 className={styles.templateDetailTitle}>{definition.title}</h3>
+              <p className={styles.templateDetailDesc}>{definition.description}</p>
+            </div>
+            <div className={styles.templateTabs}>
               {TABS.map((tab) => (
                 <button
-                  className={styles.chatAwaitingChip}
+                  className={`${styles.templateTab} ${activeTab === tab.key ? styles.templateTabActive : ""}`}
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key)}
-                  style={activeTab === tab.key ? { fontWeight: 700 } : undefined}
                   type="button"
                 >
                   {tab.label}
@@ -84,22 +83,18 @@ export function TemplateManagerPage() {
             ) : null}
 
             {activeTab === "preview" ? (
-              <div style={{ display: "flex", gap: 16 }}>
-                <div style={{ flex: 1 }}>
-                  <ExamplePayloadEditor
-                    definition={definition}
-                    onChange={handlePayloadChange}
-                    parseError={parseError}
-                    validationErrors={validationErrors}
-                    value={payloadJson}
-                  />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <TemplateLivePreview
-                    payloadJson={payloadJson}
-                    templateId={definition.templateId}
-                  />
-                </div>
+              <div className={styles.templatePreviewSplit}>
+                <ExamplePayloadEditor
+                  definition={definition}
+                  onChange={handlePayloadChange}
+                  parseError={parseError}
+                  validationErrors={validationErrors}
+                  value={payloadJson}
+                />
+                <TemplateLivePreview
+                  payloadJson={payloadJson}
+                  templateId={definition.templateId}
+                />
               </div>
             ) : null}
 
