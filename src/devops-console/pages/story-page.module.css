@@ -129,6 +129,16 @@
 .badgeRed { background: rgba(244,106,106,.15); color: #f46a6a; }
 .badgeYellow { background: rgba(247,201,72,.15); color: #f7c948; }
 
+/* ---- Code block ---- */
+.codeCompare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px; }
+@media (max-width: 800px) { .codeCompare { grid-template-columns: 1fr; } }
+.codePanel { background: #0d1520; border: 1px solid var(--console-border, rgba(37,50,68,.76)); border-radius: 10px; padding: 16px 20px; overflow-x: auto; }
+.codePanel pre { margin: 0; font-size: 12px; line-height: 1.7; color: var(--console-text-secondary); font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace; white-space: pre; }
+.codePanelLabel { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; }
+.codePanelLabelBefore { color: #f46a6a; }
+.codePanelLabelAfter { color: #34c38f; }
+.codeHighlight { color: #34c38f; }
+
 /* ---- Closing card ---- */
 .closingCard { text-align: center; padding: 40px; background: linear-gradient(135deg, rgba(91,141,238,.08), rgba(167,139,250,.08)); border: 1px solid rgba(91,141,238,.3); border-radius: 10px; margin-top: 28px; }
 .closingCard h3 { font-size: 20px; font-weight: 800; margin-bottom: 10px; }

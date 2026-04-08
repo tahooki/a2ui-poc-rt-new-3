@@ -360,20 +360,15 @@ export function StoryPage() {
           </button>
         </section>
 
-        <div className={s.chapterDivider}><h2 className={s.chapterTitle}>로직 설명</h2></div>
+        <div className={s.chapterDivider}><h2 className={s.chapterTitle}>A2UI 작동 흐름</h2></div>
 
         {/* ============================================================
             ARCHITECTURE
             ============================================================ */}
         <section className={s.section}>
           <div className={s.sectionLabel}>Architecture</div>
-          <h2 className={s.sectionTitle}>A2UI를 어떻게 구축하나요?</h2>
-          <p className={s.sectionDesc}>A2UI는 템플릿 수준으로 필요한 화면, 백엔드, 관리 어드민을 설계합니다.</p>
-          <div className={s.grid3}>
-            <div className={s.archBox}><div style={{ fontSize: 36, marginBottom: 8 }}>🖼️</div><h4>React Renderer</h4><p>A2UI Surface 컴포넌트. Template별 전용 UI를 렌더링합니다.</p><span className={`${s.badge} ${s.badgeBlue}`} style={{ marginTop: 8 }}>7개 Template</span></div>
-            <div className={s.archBox}><div style={{ fontSize: 36, marginBottom: 8 }}>⚙️</div><h4>Template 관리 어드민</h4><p>Template 정의, Input Contract, Selection Policy를 관리합니다.</p><span className={`${s.badge} ${s.badgeBlue}`} style={{ marginTop: 8 }}>Registry 기반</span></div>
-            <div className={s.archBox}><div style={{ fontSize: 36, marginBottom: 8 }}>🧠</div><h4>AI 판단 로직</h4><p>Intent 해석, Slot 수집, Tool 실행, Decision Engine, Template 선택.</p><span className={`${s.badge} ${s.badgeGreen}`} style={{ marginTop: 8 }}>8 Step Pipeline</span></div>
-          </div>
+          <h2 className={s.sectionTitle}>A2UI는 어떻게 작동하나요?</h2>
+          <p className={s.sectionDesc}>사용자의 자연어 입력이 AI 판단, 데이터 수집, 템플릿 선택을 거쳐 A2UI Surface로 렌더링되기까지의 흐름입니다.</p>
 
           <h3 className={s.flowTitle}>AI Chatbot 작동 흐름</h3>
           <Mermaid chart={`sequenceDiagram
@@ -429,58 +424,300 @@ export function StoryPage() {
           </ol>
         </section>
 
-        <div className={s.chapterDivider}><h2 className={s.chapterTitle}>이렇게 개발한 이유</h2></div>
+        <div className={s.chapterDivider}><h2 className={s.chapterTitle}>A2UI 개발 구성</h2></div>
 
         {/* ============================================================
-            WHY
+            PLATFORM
             ============================================================ */}
         <section className={s.section}>
-          <div className={s.sectionLabel}>Insight</div>
-          <h2 className={s.sectionTitle}>이렇게 만든 이유</h2>
-          <p className={s.sectionDesc}>A2UI를 여러 버전으로 구축하고 다시 만들면서 발견한 어려움과, 그에 따른 설계 결정입니다.</p>
+          <div className={s.sectionLabel} style={{ color: "#a78bfa" }}>Platform</div>
+          <h2 className={s.sectionTitle}>A2UI 플랫폼 구성</h2>
+          <p className={s.sectionDesc}>A2UI는 3가지 제품과 공통 Contract 레이어로 구성됩니다. 각 제품은 독립적으로 발전하되, Contract를 통해 안정적으로 연결됩니다.</p>
 
-          <img src="/images/story-002.jpg" alt="A2UI 설계 결정 — Challenge에서 솔루션으로" style={{ width: '100%', borderRadius: '12px', marginBottom: '28px' }} />
-
-          <div style={{ display: 'grid', gap: '20px', lineHeight: '1.8', color: 'var(--text-secondary, #b0b0b0)' }}>
-            <div>
-              <h4 style={{ color: '#f46a6a', fontSize: '16px', marginBottom: '4px' }}>백엔드 작업의 부수적 부담</h4>
-              <p>A2UI에 필요한 정보를 받아오는 백엔드, 버튼 액션에 맞는 백엔드 행동을 새롭게 만들어야 합니다.</p>
+          <h3 className={s.flowTitle}>3가지 제품</h3>
+          <div className={s.grid3}>
+            <div className={s.archBox}>
+              <div style={{ fontSize: 36, marginBottom: 8 }}>🖼️</div>
+              <h4>A2UI Chatbot UI Library</h4>
+              <p>Material UI, Ant Design처럼 A2UI 전용 컴포넌트를 제공하는 UI 라이브러리. 사용자가 직접 템플릿을 만들고 <code>templateId</code>로 Admin과 연동합니다.</p>
+              <span className={`${s.badge} ${s.badgeBlue}`} style={{ marginTop: 8 }}>Presentation Plane</span>
             </div>
-            <div>
-              <h4 style={{ color: '#f46a6a', fontSize: '16px', marginBottom: '4px' }}>기존보다 더 좋아야 하는 높은 기준</h4>
-              <p>기존 페이지보다 더 좋아야 하며, Chatbot 텍스트보다 더 좋은 사례여야 A2UI의 가치가 있습니다.</p>
+            <div className={s.archBox}>
+              <div style={{ fontSize: 36, marginBottom: 8 }}>⚙️</div>
+              <h4>Admin + MCP Server</h4>
+              <p>템플릿과 resolver를 설계하는 Control Plane, 검증된 정의만 실행하는 Execution Plane으로 분리합니다.</p>
+              <span className={`${s.badge} ${s.badgePurple}`} style={{ marginTop: 8 }}>Control + Execution</span>
             </div>
-            <div>
-              <h4 style={{ color: '#f46a6a', fontSize: '16px', marginBottom: '4px' }}>사용자에게 직접 만들게 하는 한계</h4>
-              <p>사용자가 A2UI를 학습하고 더 좋은 UIUX를 연구해서 등록하게 하는 것은 큰 어려움이 있습니다.</p>
-            </div>
-            <div>
-              <h4 style={{ color: '#34c38f', fontSize: '16px', marginBottom: '4px' }}>솔루션으로 설계하여 제공</h4>
-              <p>사용자가 직접 Template을 만들게 하는 것이 아니라, 솔루션 차원에서 직접 설계하여 템플릿 수준으로 제공하기로 결정했습니다.</p>
-            </div>
-            <div>
-              <h4 style={{ color: '#34c38f', fontSize: '16px', marginBottom: '4px' }}>예측 가능한 품질 확보</h4>
-              <p>어떤 값이 나올지 예측 가능해져, 고객에게 전달하는 A2UI 품질을 확보할 수 있습니다.</p>
-            </div>
-            <div>
-              <h4 style={{ color: '#34c38f', fontSize: '16px', marginBottom: '4px' }}>사용자 학습 비용 절감</h4>
-              <p>A2UI를 직접 필요한 부분을 솔루션하여 설계해줌으로써, 사용자가 무엇을 A2UI로 만들어야 할지 고민하는 시간을 줄여줍니다.</p>
+            <div className={s.archBox}>
+              <div style={{ fontSize: 36, marginBottom: 8 }}>🔌</div>
+              <h4>A2UI Agent Library</h4>
+              <p>기존 agent/workflow에 A2UI를 한 step처럼 끼워 넣는 SDK. MCP 호출을 감싸 고수준 orchestration을 제공합니다.</p>
+              <span className={`${s.badge} ${s.badgeGreen}`} style={{ marginTop: 8 }}>Integration Plane</span>
             </div>
           </div>
+
+          {/* ============ Product 1: UI Library ============ */}
+          <div className={s.sectionLabel} style={{ color: "#5b8dee", marginTop: 48 }}>Product 1</div>
+          <h3 className={s.flowTitle} style={{ fontSize: 22 }}>A2UI Chatbot UI Library</h3>
+          <p className={s.sectionDesc}>Material UI나 Ant Design처럼, 챗봇 안에서 A2UI 화면을 구성하기 위한 전용 컴포넌트 라이브러리입니다.</p>
+
+          <div className={s.grid3}>
+            <div className={s.archBox} style={{ borderTop: '3px solid #5b8dee' }}>
+              <h4>라이브러리가 제공하는 것</h4>
+              <p>카드, 테이블, 액션 버튼, 상태 배지, 폼 필드 같은 A2UI 전용 빌딩 블록. 이 라이브러리 자체는 데이터를 가져오지 않습니다. 순수하게 화면을 그리는 도구만 제공합니다.</p>
+              <div style={{ marginTop: 12, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                <span className={`${s.badge} ${s.badgeBlue}`}>SurfaceCard</span>
+                <span className={`${s.badge} ${s.badgeBlue}`}>DataTable</span>
+                <span className={`${s.badge} ${s.badgeBlue}`}>ActionButton</span>
+                <span className={`${s.badge} ${s.badgeBlue}`}>StatusBadge</span>
+                <span className={`${s.badge} ${s.badgeBlue}`}>FormField</span>
+              </div>
+            </div>
+            <div className={s.archBox} style={{ borderTop: '3px solid #a78bfa' }}>
+              <h4>사용자(개발자)가 하는 일</h4>
+              <p>컴포넌트를 조합해서 자기 도메인에 맞는 A2UI 템플릿을 직접 만듭니다. 템플릿은 어떤 데이터가 들어와야 렌더링 가능한지 Input Contract를 선언합니다.</p>
+              <div style={{ marginTop: 12, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                <span className={`${s.badge} ${s.badgePurple}`}>Approval Queue</span>
+                <span className={`${s.badge} ${s.badgePurple}`}>Deploy Launchpad</span>
+                <span className={`${s.badge} ${s.badgePurple}`}>Rollback Summary</span>
+              </div>
+            </div>
+            <div className={s.archBox} style={{ borderTop: '3px solid #fb923c' }}>
+              <h4>Admin과의 연동</h4>
+              <p>완성된 템플릿에 <code>templateId</code>를 부여하면 Admin에 등록됩니다. Admin이 데이터 공급 방식을 설정하면, 런타임에서 payload가 자동으로 채워져 렌더링됩니다.</p>
+              <div style={{ marginTop: 12, fontSize: 12, color: 'var(--console-text-secondary)' }}>
+                <code>templateId</code>가 라이브러리와 Admin을 잇는 핵심 고리
+              </div>
+            </div>
+          </div>
+
+          <Mermaid chart={`flowchart LR
+    A["컴포넌트 조합<br/>UI Library"] --> B["Template 완성<br/>+ Input Contract 선언"]
+    B --> C["templateId 부여<br/>Admin에 등록"]
+    C --> D["Admin이 resolver<br/>+ binding 설정"]
+    D --> E["런타임에서<br/>payload 자동 생성"]
+    E --> F["templateId + payload<br/>→ 렌더링"]
+    style A stroke:#5b8dee,stroke-width:2px
+    style C stroke:#a78bfa,stroke-width:2px
+    style D stroke:#fb923c,stroke-width:2px
+    style F stroke:#5b8dee,stroke-width:2px`} />
+
+          {/* ============ Product 2: Admin + MCP Server ============ */}
+          <div className={s.sectionLabel} style={{ color: "#fb923c", marginTop: 48 }}>Product 2</div>
+          <h3 className={s.flowTitle} style={{ fontSize: 22 }}>Admin + MCP Server</h3>
+          <p className={s.sectionDesc}>템플릿에 어떤 데이터를 어떻게 채울지 설계하고, 검증된 정의만 안전하게 실행하는 관리 + 실행 제품입니다.</p>
+
+          <div className={s.grid2}>
+            <div className={s.archBox} style={{ borderTop: '3px solid #fb923c', textAlign: 'left' }}>
+              <h4 style={{ textAlign: 'center' }}>Admin <span style={{ fontSize: 12, fontWeight: 400, color: 'var(--console-text-secondary)' }}>(Control Plane)</span></h4>
+              <p>등록된 templateId별로 필요한 입력 필드를 확인하고, 각 필드를 채울 resolver를 연결합니다. 예를 들어 <code>serviceName</code>은 API resolver로, <code>riskSummary</code>는 LLM resolver로 채우도록 설계합니다.</p>
+              <div style={{ marginTop: 16, display: 'grid', gap: 8 }}>
+                <div style={{ fontSize: 13, color: 'var(--console-text-secondary)' }}><strong style={{ color: 'var(--console-text)' }}>1.</strong> 템플릿 등록 + Input Contract 확인</div>
+                <div style={{ fontSize: 13, color: 'var(--console-text-secondary)' }}><strong style={{ color: 'var(--console-text)' }}>2.</strong> Resolver / Tool 설계 (API, LLM, Auth, Transform)</div>
+                <div style={{ fontSize: 13, color: 'var(--console-text-secondary)' }}><strong style={{ color: 'var(--console-text)' }}>3.</strong> Binding Recipe 작성 (resolver 결과 &rarr; 템플릿 필드 매핑)</div>
+                <div style={{ fontSize: 13, color: 'var(--console-text-secondary)' }}><strong style={{ color: 'var(--console-text)' }}>4.</strong> Draft &rarr; Preview &rarr; Publish 승인</div>
+              </div>
+            </div>
+            <div className={s.archBox} style={{ borderTop: '3px solid #34c38f', textAlign: 'left' }}>
+              <h4 style={{ textAlign: 'center' }}>MCP Server <span style={{ fontSize: 12, fontWeight: 400, color: 'var(--console-text-secondary)' }}>(Execution Plane)</span></h4>
+              <p>Admin에서 publish된 정의만 안전하게 실행합니다. Agent가 A2UI를 요청하면, resolver chain을 실행해서 검증된 payload를 돌려줍니다.</p>
+              <div style={{ marginTop: 16, display: 'grid', gap: 8 }}>
+                <div style={{ fontSize: 13, color: 'var(--console-text-secondary)' }}><strong style={{ color: 'var(--console-text)' }}>1.</strong> Published 정의 기반으로 resolver chain 실행</div>
+                <div style={{ fontSize: 13, color: 'var(--console-text-secondary)' }}><strong style={{ color: 'var(--console-text)' }}>2.</strong> 실행 시점 권한 체크 + secret 주입</div>
+                <div style={{ fontSize: 13, color: 'var(--console-text-secondary)' }}><strong style={{ color: 'var(--console-text)' }}>3.</strong> Payload 검증 후 Agent에 반환</div>
+                <div style={{ fontSize: 13, color: 'var(--console-text-secondary)' }}><strong style={{ color: 'var(--console-text)' }}>4.</strong> Audit / tracing / retry / fallback</div>
+              </div>
+            </div>
+          </div>
+
+          <h3 className={s.flowTitle}>Resolver가 프론트에 값을 채우는 방법</h3>
+          <p style={{ fontSize: 14, color: 'var(--console-text-secondary)', marginBottom: 20, maxWidth: 680 }}>
+            Resolver는 유형이 달라도 모두 같은 인터페이스를 따릅니다. Admin에서 설계한 resolver chain이 실행되면, 각 결과가 Binding Recipe에 따라 템플릿 필드에 매핑되어 최종 payload가 완성됩니다.
+          </p>
+          <div className={s.grid2} style={{ marginBottom: 12 }}>
+            <div className={s.painCard} style={{ borderLeftColor: '#5b8dee' }}>
+              <h4>API Resolver</h4>
+              <p>내부/외부 API를 호출해서 서비스 정보, 배포 이력, 인시던트 현황 같은 팩트 데이터를 가져옵니다.</p>
+            </div>
+            <div className={s.painCard} style={{ borderLeftColor: '#a78bfa' }}>
+              <h4>LLM Resolver</h4>
+              <p>수집된 데이터를 기반으로 리스크 요약, 추천 사유, 변경 설명 같은 자연어 필드를 생성합니다.</p>
+            </div>
+            <div className={s.painCard} style={{ borderLeftColor: '#34c38f' }}>
+              <h4>Auth Resolver</h4>
+              <p>현재 유저가 이 템플릿을 볼 수 있는지, 특정 액션 버튼을 노출할 수 있는지 권한을 체크합니다.</p>
+            </div>
+            <div className={s.painCard} style={{ borderLeftColor: '#fb923c' }}>
+              <h4>Transform Resolver</h4>
+              <p>여러 데이터 소스를 병합하거나 정규화해서 템플릿이 요구하는 payload shape로 변환합니다.</p>
+            </div>
+          </div>
+          <Mermaid chart={`flowchart LR
+    R1["API Resolver"] --> BR["Binding Recipe<br/>필드별 매핑"]
+    R2["LLM Resolver"] --> BR
+    R3["Auth Resolver"] --> BR
+    R4["Transform"] --> BR
+    BR --> PL["Template Payload<br/>완성"]
+    PL --> FE["프론트 렌더링"]
+    style BR stroke:#a78bfa,stroke-width:2px
+    style PL stroke:#5b8dee,stroke-width:2px`} />
+
+          <div className={s.closingCard} style={{ marginTop: 0, marginBottom: 28, background: 'linear-gradient(135deg, rgba(251,146,60,.06), rgba(52,195,143,.06))', borderColor: 'rgba(251,146,60,.25)' }}>
+            <h3 style={{ fontSize: 16 }}>Admin은 &ldquo;어떻게 만들지&rdquo;를 설계하고, MCP Server는 &ldquo;안전하게 실행&rdquo;합니다</h3>
+            <p style={{ fontSize: 14 }}>설계와 실행의 책임을 분리해서, Agent는 MCP Server에 요청만 보내면 검증된 payload를 받을 수 있습니다.</p>
+          </div>
+
+          {/* ============ Product 3: Agent Library ============ */}
+          <div className={s.sectionLabel} style={{ color: "#22d3ee", marginTop: 48 }}>Product 3</div>
+          <h3 className={s.flowTitle} style={{ fontSize: 22 }}>A2UI Agent Library</h3>
+          <p className={s.sectionDesc}>기존 agent에 A2UI를 붙이기 위한 SDK입니다. MCP Server와의 통신, 템플릿 추천, 검증, fallback 등을 미리 구현해서 고수준 함수로 제공합니다.</p>
+
+          <div className={s.grid2}>
+            <div className={s.archBox} style={{ borderTop: '3px solid #22d3ee', textAlign: 'left' }}>
+              <h4 style={{ textAlign: 'center' }}>SDK가 미리 구현해둔 것</h4>
+              <p>개발자가 <code>listTemplates()</code>, <code>checkAccess()</code>, <code>resolveTemplateData()</code> 같은 저수준 MCP 함수를 직접 조합할 필요가 없습니다.</p>
+              <div style={{ marginTop: 16, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                <span className={`${s.badge} ${s.badgeGreen}`}>MCP Client</span>
+                <span className={`${s.badge} ${s.badgeGreen}`}>Template 추천</span>
+                <span className={`${s.badge} ${s.badgeGreen}`}>Schema Validation</span>
+                <span className={`${s.badge} ${s.badgeGreen}`}>Action Routing</span>
+                <span className={`${s.badge} ${s.badgeGreen}`}>Text Fallback</span>
+                <span className={`${s.badge} ${s.badgeGreen}`}>Retry / Caching</span>
+              </div>
+            </div>
+            <div className={s.archBox} style={{ borderTop: '3px solid #a78bfa', textAlign: 'left' }}>
+              <h4 style={{ textAlign: 'center' }}>고수준 함수 3개</h4>
+              <p>내부적으로 MCP Server와 통신하며 템플릿 탐색 &rarr; 권한 체크 &rarr; resolver 실행 &rarr; 검증을 자동 수행합니다.</p>
+              <div style={{ marginTop: 16, display: 'grid', gap: 10 }}>
+                <div style={{ fontSize: 13 }}><code style={{ color: '#22d3ee' }}>renderOrFallback(ctx)</code><br/><span style={{ color: 'var(--console-text-secondary)', fontSize: 12 }}>surface 생성, 실패 시 텍스트 유지</span></div>
+                <div style={{ fontSize: 13 }}><code style={{ color: '#22d3ee' }}>maybeRenderA2UI(ctx)</code><br/><span style={{ color: 'var(--console-text-secondary)', fontSize: 12 }}>이번 턴이 A2UI 대상인지 판단</span></div>
+                <div style={{ fontSize: 13 }}><code style={{ color: '#22d3ee' }}>handleA2UIAction(event, ctx)</code><br/><span style={{ color: 'var(--console-text-secondary)', fontSize: 12 }}>UI 액션을 받아 다음 흐름으로 연결</span></div>
+              </div>
+            </div>
+          </div>
+
+          <h3 className={s.flowTitle}>renderOrFallback() 내부 동작</h3>
+          <Mermaid chart={`flowchart LR
+    A["renderOrFallback(context)"] --> B["템플릿 후보 탐색"]
+    B --> C["권한 체크"]
+    C --> D["MCP Server<br/>resolver 실행"]
+    D --> E["payload 검증"]
+    E --> F{{"성공?"}}
+    F -->|Yes| G["A2UI Surface 반환"]
+    F -->|No| H["기존 텍스트 응답 유지"]
+    style A stroke:#22d3ee,stroke-width:2px
+    style G stroke:#34c38f,stroke-width:2px
+    style H stroke:#fb923c,stroke-width:2px`} />
+
+          <h3 className={s.flowTitle}>기존 Agent에 어떻게 넣는가</h3>
+          <p style={{ fontSize: 14, color: 'var(--console-text-secondary)', marginBottom: 20, maxWidth: 680 }}>
+            기존 agent의 응답 흐름에 <code>renderOrFallback()</code> 한 줄만 추가합니다. 기존 planner, tool registry, memory는 전혀 건드리지 않습니다. A2UI는 &ldquo;새 엔진&rdquo;이 아니라 &ldquo;표현 계층 확장&rdquo;입니다.
+          </p>
+          <div className={s.grid3}>
+            <div className={s.overviewCard} style={{ borderTopColor: "#22d3ee" }}>
+              <h4>일반 API / Node</h4>
+              <p>응답 직전, <code>agent.run()</code> 결과를 <code>renderOrFallback()</code>에 넘기고 반환합니다.</p>
+            </div>
+            <div className={s.overviewCard} style={{ borderTopColor: "#5b8dee" }}>
+              <h4>LangChain</h4>
+              <p>chain invoke 이후 post-processor 또는 <code>A2UIRunnable</code> adapter로 연결합니다.</p>
+            </div>
+            <div className={s.overviewCard} style={{ borderTopColor: "#a78bfa" }}>
+              <h4>LangGraph</h4>
+              <p>tools와 respond 사이에 독립 <code>a2ui_node</code>를 추가합니다. 기존 graph 구조를 유지합니다.</p>
+            </div>
+          </div>
+
         </section>
 
         {/* ============================================================
-            VALUE
+            AGENT INTEGRATION
             ============================================================ */}
         <section className={s.section}>
-          <div className={s.sectionLabel}>Value Proposition</div>
-          <h2 className={s.sectionTitle}>A2UI는 언제 가치가 있나요?</h2>
-          <img src="/images/story-001.jpg" alt="A2UI 가치 제안 — 기존 시스템 수정이 어려울 때, 복잡할 때, 자주 쓰는 기능을 묶을 때" style={{ width: '100%', borderRadius: '12px', marginBottom: '28px' }} />
-          <div className={s.closingCard}>
-            <h3>A2UI는 DevOps 엔지니어가 찾아야 할 것을 AI가 먼저 준비합니다.</h3>
-            <p>반복적인 네비게이션을 없애고, 컨텍스트 스위칭을 줄이며, 긴박한 순간에도 정확한 정보와 즉각적인 실행을 제공합니다.</p>
+          <div className={s.sectionLabel} style={{ color: "#22d3ee" }}>Integration</div>
+          <h2 className={s.sectionTitle}>기존 Agent에 A2UI 붙이기</h2>
+          <p className={s.sectionDesc}>잘 동작하는 agent를 갈아엎지 않고, A2UI step 하나를 끼워 넣습니다. 기존 planner, tool, memory는 그대로 유지됩니다.</p>
+
+          <div className={s.storyBlock}>
+            <div className={s.storyText}>
+              <h3>MCP 함수 여러 개가 아니라, Step 하나</h3>
+              <p>기존 agent에서 A2UI가 &ldquo;템플릿 조회 → 권한 체크 → payload 조립 → MCP 호출&rdquo; 같은 저수준 작업의 집합으로 보이면 안 됩니다.</p>
+              <blockquote>이번 응답을 A2UI로 표현할지 판단하고, 가능하면 surface를 만들고, 실패하면 기존 텍스트로 fallback. 이게 전부입니다.</blockquote>
+            </div>
+            <div className={s.storyVisual}>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 12, color: '#22d3ee' }}>고수준 API</div>
+                <div style={{ fontSize: 13, lineHeight: 2, fontFamily: 'monospace' }}>
+                  <code>maybeRenderA2UI(context)</code><br/>
+                  <code>renderOrFallback(context)</code><br/>
+                  <code>handleA2UIAction(event, ctx)</code>
+                </div>
+              </div>
+            </div>
           </div>
+
+          <h3 className={s.flowTitle}>통합 삽입 포인트</h3>
+          <div className={s.grid3}>
+            <div className={s.overviewCard} style={{ borderTopColor: "#22d3ee" }}>
+              <div style={{ fontSize: 28, fontWeight: 800 }}>1</div>
+              <h4>응답 직전 삽입</h4>
+              <p>가장 단순한 방식. 기존 workflow 마지막에 A2UI step을 추가합니다. 기존 코드를 거의 건드리지 않습니다.</p>
+            </div>
+            <div className={s.overviewCard} style={{ borderTopColor: "#5b8dee" }}>
+              <div style={{ fontSize: 28, fontWeight: 800 }}>2</div>
+              <h4>Tool 실행 후 삽입</h4>
+              <p>tool 결과가 나온 뒤 UI로 보여줄 가치가 생길 때. 승인 목록 조회 후 inbox 표시, 배포 후보 조회 후 launchpad 표시.</p>
+            </div>
+            <div className={s.overviewCard} style={{ borderTopColor: "#a78bfa" }}>
+              <div style={{ fontSize: 28, fontWeight: 800 }}>3</div>
+              <h4>Action Loop 추가</h4>
+              <p>버튼 클릭, 선택 변경 등 UI 이벤트가 다시 agent 흐름으로 이어지는 경우. <code>handleA2UIAction()</code> 진입점을 추가합니다.</p>
+            </div>
+          </div>
+
+          <h3 className={s.flowTitle}>Before / After 코드 비교</h3>
+          <div className={s.codeCompare}>
+            <div className={s.codePanel}>
+              <div className={`${s.codePanelLabel} ${s.codePanelLabelBefore}`}>Before</div>
+              <pre>{`async function runAgentTurn(input) {
+  const intent = await resolveIntent(input);
+  const plan = await planner.plan(intent);
+  const toolResult = await executor.run(plan);
+  const memory = await memoryStore.recall(input.session);
+  const answer = await narrator.generate({
+    intent, toolResult, memory,
+  });
+
+  return Response.json({
+    text: answer,
+    sources: toolResult.sources,
+  });
+}`}</pre>
+            </div>
+            <div className={s.codePanel}>
+              <div className={`${s.codePanelLabel} ${s.codePanelLabelAfter}`}>After</div>
+              <pre>{`async function runAgentTurn(input) {
+  const intent = await resolveIntent(input);
+  const plan = await planner.plan(intent);
+  const toolResult = await executor.run(plan);
+  const memory = await memoryStore.recall(input.session);
+  const answer = await narrator.generate({
+    intent, toolResult, memory,
+  });
+`}<span className={s.codeHighlight}>{`
+  return a2uiAgent.renderOrFallback({
+    userInput: input,
+    workflowState: { intent, plan },
+    toolResult,
+    text: answer,
+  });`}</span>{`
+}`}</pre>
+            </div>
+          </div>
+
+
         </section>
+
 
       </div>
     </AppFrame>
