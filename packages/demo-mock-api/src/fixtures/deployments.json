@@ -1,0 +1,12 @@
+{
+  "images": [
+    { "id": "img-payments-2318", "repository": "payments-api", "imageTag": "v2.3.18-rc1", "buildStatus": "push_verified", "pushedAt": "2026-03-25 12:10 KST", "services": ["payments-api"] },
+    { "id": "img-checkout-1842", "repository": "checkout", "imageTag": "v1.8.42", "buildStatus": "registered", "pushedAt": "2026-03-25 11:48 KST", "services": ["checkout"] },
+    { "id": "img-catalog-421", "repository": "catalog-api", "imageTag": "v4.2.1", "buildStatus": "registered", "pushedAt": "2026-03-25 09:20 KST", "services": ["catalog-api"] }
+  ],
+  "history": [
+    { "id": "deploy-001", "service": "payments-api", "version": "v2.3.18", "environment": "production", "status": "success", "deployedBy": "김배포", "deployedAt": "2026-03-30 00:15 KST" },
+    { "id": "deploy-002", "service": "payments-api", "version": "v2.3.16", "environment": "production", "status": "success", "deployedBy": "김배포", "deployedAt": "2026-03-28 14:30 KST" },
+    { "id": "deploy-003", "service": "checkout", "version": "v1.8.42", "environment": "production", "status": "success", "deployedBy": "이개발", "deployedAt": "2026-03-29 20:00 KST" }
+  ]
+}

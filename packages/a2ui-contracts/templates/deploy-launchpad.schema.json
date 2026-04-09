@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "deploy-launchpad",
+  "title": "DeployLaunchpadPayload",
+  "description": "Deploy Launchpad 템플릿의 payload schema",
+  "type": "object",
+  "required": ["templateId", "state", "service", "environment", "targetVersion", "strategy"],
+  "properties": {
+    "templateId": {
+      "type": "string",
+      "const": "deploy_launchpad"
+    },
+    "state": {
+      "type": "string",
+      "enum": ["ready", "deploying", "done"]
+    },
+    "service": {
+      "type": "string",
+      "description": "서비스명"
+    },
+    "environment": {
+      "type": "string",
+      "enum": ["production", "staging", "development"]
+    },
+    "recommendedVersion": {
+      "type": "string",
+      "description": "추천 버전"
+    },
+    "targetVersion": {
+      "type": "string",
+      "description": "배포 대상 버전"
+    },
+    "strategy": {
+      "type": "string",
+      "enum": ["rolling", "bluegreen", "canary"]
+    },
+    "impactSummary": {
+      "type": "string",
+      "description": "배포 영향 요약"
+    },
+    "preflightChecks": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "helperText": { "type": "string" },
+    "primaryActionLabel": { "type": "string" },
+    "secondaryActionLabel": { "type": "string" },
+    "imageDetail": {
+      "type": "object",
+      "properties": {
+        "repository": { "type": "string" },
+        "imageTag": { "type": "string" },
+        "imageUri": { "type": "string" },
+        "gitRef": { "type": "string" },
+        "commitSha": { "type": "string" },
+        "imageDigest": { "type": "string" },
+        "buildStatus": { "type": "string" },
+        "pushedAt": { "type": "string" }
+      }
+    },
+    "requestDetail": {
+      "type": "object",
+      "properties": {
+        "cpu": { "type": "string" },
+        "memory": { "type": "string" },
+        "containerPort": { "type": "string" },
+        "desiredCount": { "type": "string" },
+        "minimumHealthyPercent": { "type": "string" },
+        "maximumPercent": { "type": "string" },
+        "deploymentStrategy": { "type": "string" },
+        "rollbackBaseline": { "type": "string" },
+        "requestedBy": { "type": "string" }
+      }
+    },
+    "riskSummary": {
+      "type": "string",
+      "description": "LLM resolver가 생성하는 배포 리스크 요약"
+    }
+  },
+  "additionalProperties": false
+}

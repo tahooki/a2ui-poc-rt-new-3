@@ -19,7 +19,13 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@a2ui/contracts": ["./packages/a2ui-contracts"],
+      "@a2ui/contracts/*": ["./packages/a2ui-contracts/*"],
+      "@a2ui/ui": ["./packages/a2ui-ui/src"],
+      "@a2ui/ui/*": ["./packages/a2ui-ui/src/*"],
+      "@a2ui/agent-node": ["./packages/a2ui-agent-node/src"],
+      "@a2ui/agent-node/*": ["./packages/a2ui-agent-node/src/*"]
     }
   },
   "include": [

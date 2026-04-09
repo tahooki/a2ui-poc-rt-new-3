@@ -1,0 +1,65 @@
+{
+  "services": ["payments-api", "checkout", "catalog-api"],
+  "details": {
+    "payments-api": {
+      "name": "payments-api",
+      "environments": ["production", "staging", "development"],
+      "currentVersion": "v2.3.18",
+      "healthStatus": "degraded",
+      "recommendedVersion": "v2.3.18-rc1",
+      "availableImages": [
+        {
+          "id": "img-payments-2318",
+          "repository": "payments-api",
+          "imageTag": "v2.3.18-rc1",
+          "imageUri": "123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/payments-api:v2.3.18-rc1",
+          "gitRef": "refs/heads/release/payments-2.3",
+          "commitSha": "a18fe902",
+          "imageDigest": "sha256:9e6dd0c3c7ad91e5fe7a1187a1f3c4be",
+          "buildStatus": "push_verified",
+          "pushedAt": "2026-03-25 12:10 KST"
+        }
+      ]
+    },
+    "checkout": {
+      "name": "checkout",
+      "environments": ["production", "staging"],
+      "currentVersion": "v1.8.42",
+      "healthStatus": "warning",
+      "recommendedVersion": "v1.8.42",
+      "availableImages": [
+        {
+          "id": "img-checkout-1842",
+          "repository": "checkout",
+          "imageTag": "v1.8.42",
+          "imageUri": "123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/checkout:v1.8.42",
+          "gitRef": "refs/heads/main",
+          "commitSha": "b29cd881",
+          "imageDigest": "sha256:4f7e2a1d8c3b0e9f6a5d",
+          "buildStatus": "registered",
+          "pushedAt": "2026-03-25 11:48 KST"
+        }
+      ]
+    },
+    "catalog-api": {
+      "name": "catalog-api",
+      "environments": ["production", "staging", "development"],
+      "currentVersion": "v4.2.1",
+      "healthStatus": "healthy",
+      "recommendedVersion": "v4.2.1",
+      "availableImages": [
+        {
+          "id": "img-catalog-421",
+          "repository": "catalog-api",
+          "imageTag": "v4.2.1",
+          "imageUri": "123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/catalog-api:v4.2.1",
+          "gitRef": "refs/heads/main",
+          "commitSha": "c3de7f90",
+          "imageDigest": "sha256:8b2c4e6d1a3f5g7h9i0j",
+          "buildStatus": "registered",
+          "pushedAt": "2026-03-25 09:20 KST"
+        }
+      ]
+    }
+  }
+}
