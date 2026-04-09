@@ -52,6 +52,11 @@ export async function POST(request: Request) {
           },
         );
 
+        // Stream surface envelope separately if present
+        if (result.surface) {
+          controller.enqueue(encoder.encode(createSseEvent("surface", result.surface)));
+        }
+
         controller.enqueue(encoder.encode(createSseEvent("result", result)));
         controller.enqueue(encoder.encode(createSseEvent("done", {})));
         controller.close();
