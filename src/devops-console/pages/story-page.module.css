@@ -11,6 +11,7 @@
 .heroLabel { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: rgba(76,141,255,.82); font-weight: 700; margin-bottom: 6px; }
 .heroTitle { font-size: clamp(28px,4vw,44px); font-weight: 800; line-height: 1.15; margin-bottom: 12px; background: linear-gradient(135deg, #93b4ff, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 .heroSub { font-size: 16px; color: var(--console-text-secondary); max-width: 640px; }
+.heroImage { width: 100%; height: auto; border-radius: 12px; margin-top: 28px; }
 .badgeRow { margin-top: 20px; display: flex; gap: 8px; flex-wrap: wrap; }
 
 /* ---- Chapter divider ---- */
@@ -23,6 +24,7 @@
 .sectionLabel { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: rgba(76,141,255,.82); font-weight: 700; margin-bottom: 6px; }
 .sectionTitle { font-size: clamp(22px,3vw,32px); font-weight: 800; margin-bottom: 8px; color: var(--console-text); }
 .sectionDesc { font-size: 15px; color: var(--console-text-secondary); max-width: 680px; margin-bottom: 28px; }
+.sectionImage { width: 100%; height: auto; border-radius: 12px; margin-bottom: 28px; }
 
 /* ---- Badge ---- */
 .badge { display: inline-block; font-size: 12px; font-weight: 600; padding: 4px 14px; border-radius: 12px; }
@@ -71,6 +73,156 @@
 .archBox { background: var(--console-bg-raised, #111a2a); border: 1px solid var(--console-border, rgba(37,50,68,.76)); border-radius: 10px; padding: 24px; text-align: center; }
 .archBox h4 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
 .archBox p { font-size: 13px; color: var(--console-text-secondary); }
+.productDetailCard { padding: 28px 24px; }
+.productDetailTitle { font-size: 24px !important; line-height: 1.25; margin-bottom: 14px !important; }
+.productDetailNote { margin-top: 16px; font-size: 13px; color: var(--console-text-secondary); }
+.storyImageFrame { margin-bottom: 28px; border: 1px solid var(--console-border, rgba(37,50,68,.76)); border-radius: 16px; overflow: hidden; background: rgba(15,23,34,.7); box-shadow: 0 18px 40px rgba(0,0,0,.22); }
+.storySectionImage { display: block; width: 100%; height: auto; }
+
+.processBoard {
+  margin-bottom: 28px;
+  padding: 24px;
+  border: 1px solid var(--console-border, rgba(37,50,68,.76));
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at top left, rgba(91,141,238,.08), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(167,139,250,.08), transparent 26%),
+    #0d1520;
+}
+
+.processLane {
+  display: grid;
+  gap: 14px;
+}
+
+.processLaneLabel {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(91,141,238,.12);
+  color: #93b4ff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.processLaneLabelWarm {
+  background: rgba(251,146,60,.12);
+  color: #ffb067;
+}
+
+.processLaneSteps {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+}
+
+.processStep {
+  min-height: 128px;
+  padding: 18px 18px 16px;
+  border: 1px solid rgba(120, 138, 163, .24);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.03);
+}
+
+.processStepBlue {
+  border-color: rgba(91,141,238,.38);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.03), 0 0 0 1px rgba(91,141,238,.08);
+}
+
+.processStepPurple {
+  border-color: rgba(167,139,250,.38);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.03), 0 0 0 1px rgba(167,139,250,.08);
+}
+
+.processStepOrange {
+  border-color: rgba(251,146,60,.4);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.03), 0 0 0 1px rgba(251,146,60,.08);
+}
+
+.processStepNeutral {
+  border-color: rgba(148,163,184,.3);
+}
+
+.processStepNumber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.06);
+  color: var(--console-text-secondary);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  margin-bottom: 12px;
+}
+
+.processStep h4 {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-bottom: 6px;
+  color: var(--console-text);
+}
+
+.processStep p {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--console-text-secondary);
+}
+
+.processArrow {
+  color: rgba(147,180,255,.7);
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.processConnector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin: 14px 0;
+}
+
+.processConnectorLine {
+  width: 1px;
+  height: 18px;
+  background: linear-gradient(180deg, rgba(167,139,250,.5), rgba(251,146,60,.5));
+}
+
+.processConnectorArrow {
+  color: rgba(255,176,103,.8);
+  font-size: 22px;
+  line-height: 1;
+}
+
+@media (max-width: 800px) {
+  .processBoard {
+    padding: 20px;
+  }
+
+  .processLaneSteps {
+    grid-template-columns: 1fr;
+  }
+
+  .processArrow,
+  .processConnector {
+    display: none;
+  }
+
+  .processStep {
+    min-height: 0;
+  }
+}
 
 /* ---- Insight / Decision / Benefit ---- */
 .insightCard { background: var(--console-bg-raised, #111a2a); border: 1px solid var(--console-border, rgba(37,50,68,.76)); border-left: 3px solid #a78bfa; border-radius: 10px; padding: 24px; margin-bottom: 20px; }
