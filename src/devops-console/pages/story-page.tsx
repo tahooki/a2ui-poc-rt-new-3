@@ -718,6 +718,19 @@ export function StoryPage() {
 
         </section>
 
+        {/* ============================================================
+            VALUE
+            ============================================================ */}
+        <section className={s.section}>
+          <div className={s.sectionLabel}>Value Proposition</div>
+          <h2 className={s.sectionTitle}>A2UI는 언제 가치가 있나요?</h2>
+          <img src="/images/story-001.jpg" alt="A2UI 가치 제안 — 기존 시스템 수정이 어려울 때, 복잡할 때, 자주 쓰는 기능을 묶을 때" style={{ width: '100%', borderRadius: '12px', marginBottom: '28px' }} />
+          <div className={s.closingCard}>
+            <h3>A2UI는 DevOps 엔지니어가 찾아야 할 것을 AI가 먼저 준비합니다.</h3>
+            <p>반복적인 네비게이션을 없애고, 컨텍스트 스위칭을 줄이며, 긴박한 순간에도 정확한 정보와 즉각적인 실행을 제공합니다.</p>
+          </div>
+        </section>
+
 
       </div>
     </AppFrame>
