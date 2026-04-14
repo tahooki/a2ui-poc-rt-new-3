@@ -96,23 +96,12 @@ export function StoryPage() {
 
         <div className={s.chapterDivider}><h2 className={s.chapterTitle}>A2UI 사례 소개</h2></div>
 
-        {/* CASES */}
-        <section className={s.section}>
-          <div className={s.sectionLabel}>Cases</div>
-          <h2 className={s.sectionTitle}>A2UI로 풀어본 3가지 사례</h2>
-          <p className={s.sectionDesc}>여러 단계를 거쳐야 하거나, 여러 페이지에서 확인해야 하는 정보를 한번에 풀 수 있도록 개선합니다.</p>
-          <div className={s.grid3}>
-            <div className={s.overviewCard} style={{ borderTopColor: "#5b8dee" }}><div style={{ fontSize: 28, fontWeight: 800 }}>1</div><h4>배포 (Deploy)</h4><p>도커 이미지 생성 &rarr; Request 등록 &rarr; Deploy 실행. 3단계 배포를 AI가 맥락에 맞는 화면으로 간소화합니다.</p></div>
-            <div className={s.overviewCard} style={{ borderTopColor: "#34c38f" }}><div style={{ fontSize: 28, fontWeight: 800 }}>2</div><h4>승인 (Approval)</h4><p>임시 접근, 설정 변경, 데이터 작업 등 다양한 타입의 승인 요청을 한곳에서 처리합니다.</p></div>
-            <div className={s.overviewCard} style={{ borderTopColor: "#fb923c" }}><div style={{ fontSize: 28, fontWeight: 800 }}>3</div><h4>롤백 (Rollback)</h4><p>문제 발생 시 안정 버전 식별 &rarr; Dry Run &rarr; 확인 &rarr; 실행. 긴박한 인시던트 대응을 가속합니다.</p></div>
-          </div>
-        </section>
 
         {/* ============================================================
             PART 1 — DEPLOY
             ============================================================ */}
         <section className={s.section}>
-          <div className={s.sectionLabel} style={{ color: "#5b8dee" }}>Part 1 &mdash; Deploy</div>
+          <div className={s.sectionLabel} style={{ color: "#5b8dee" }}>Deploy</div>
           <h2 className={s.sectionTitle}>김배포 선임의 배포 일지</h2>
           <p className={s.sectionDesc}>Platform Engineer. 도커 이미지 기반 배포 파이프라인을 운영하며, 매번 여러 단계를 거쳐야 하는 배포 프로세스를 담당합니다.</p>
 
@@ -184,191 +173,6 @@ export function StoryPage() {
           <button className={`${s.demoButton} ${s.demoButtonAccent}`} onClick={() => openDemo("/deploy/image")} type="button">
             <span style={{ fontSize: 24 }}>▶</span>
             <div><div className={s.demoLabel} style={{ color: "#93b4ff" }}>A2UI Deploy 시연</div><div className={s.demoDesc}>흩어진 정보를 한 화면에서 배포</div></div>
-            <span style={{ fontSize: 12, opacity: 0.5, marginLeft: "auto" }}>새 창에서 열기</span>
-          </button>
-        </section>
-
-        {/* ============================================================
-            PART 2 — APPROVAL
-            ============================================================ */}
-        <section className={s.section}>
-          <div className={s.sectionLabel} style={{ color: "#34c38f" }}>Part 2 &mdash; Approval</div>
-          <h2 className={s.sectionTitle}>이승인 팀장의 오후</h2>
-          <p className={s.sectionDesc}>DevOps Team Lead. 임시 접근, 설정 변경, 데이터 작업 등 다양한 승인 요청을 관리합니다.</p>
-
-          <div className={s.storyBlock}>
-            <div className={s.storyText}>
-              <h3>쌓여가는 승인 큐</h3>
-              <p>점심 미팅을 마치고 자리에 앉으면, 먼저 승인 대기 건수부터 확인합니다. 세 가지 질문에 답하려면 필터를 세 번 바꿔야 합니다.</p>
-              <blockquote>지금 pending이 몇 건이지? config change는 따로 있나? 고위험 건은?</blockquote>
-            </div>
-            <div className={s.storyVisual}><div style={{ fontSize: 48, marginBottom: 12 }}>📋</div><div>승인 큐 페이지<br/>필터 변경, 긴 리스트, 유형 분류 없음</div></div>
-          </div>
-
-          <h3 className={s.flowTitle}>이런 일이 있을 수 있습니다.</h3>
-          <div className={s.grid2}>
-            <div className={s.painCard}><h4>대기/보류/고위험 현황 파악이 어려움</h4><p>승인 대기 건수, 보류 건수, 고위험 건수를 한눈에 볼 수 없어 리스트를 직접 세야 합니다.</p></div>
-            <div className={s.painCard}><h4>고위험 요청이 묻힘</h4><p>danger 등급의 break-glass 요청이나 데이터 작업이 일반 요청 사이에 섞여 놓치기 쉽습니다.</p></div>
-            <div className={s.painCard}><h4>리스크 정보를 따로 확인해야 함</h4><p>영향 범위, 복구 방법, 검증 상태를 보려면 각 요청을 하나씩 열어봐야 합니다.</p></div>
-            <div className={s.painCard}><h4>승인/보류를 건별로 처리</h4><p>요청마다 상세 페이지에 들어가서 개별적으로 승인하거나 보류해야 합니다.</p></div>
-          </div>
-
-          <h3 className={s.flowTitle}>기존 승인 흐름</h3>
-          <Mermaid chart={`flowchart LR
-    A["1. 승인 페이지\\n진입"] --> B["2. 필터: pending\\n건수 확인"]
-    B --> C["3. 필터: type별\\n분류 확인"]
-    C --> D["4. 고위험 건\\n눈으로 스캔"]
-    D --> E["5. 개별 요청\\n상세 진입"]
-    E --> F["6. 승인/보류\\n처리"]
-    style F stroke:#34c38f,stroke-width:2px`} />
-
-          <button className={s.demoButton} onClick={() => openDemo("/approve")} type="button">
-            <span style={{ fontSize: 24 }}>▶</span>
-            <div><div className={s.demoLabel}>기존 Approval Admin 시연</div><div className={s.demoDesc}>필터 변경 3회, 개별 요청 진입 필요</div></div>
-            <span style={{ fontSize: 12, opacity: 0.5, marginLeft: "auto" }}>새 창에서 열기</span>
-          </button>
-
-          {/* A2UI Solution */}
-          <div className={s.a2uiSolutionBlock}>
-            <div className={s.chatMock}>
-              <div className={s.chatMsg}><div className={`${s.chatAvatar} ${s.chatAvatarUser}`}>이</div><div className={`${s.chatBubble} ${s.chatBubbleUser}`}>승인 요청 확인해줘</div></div>
-              <div className={s.chatMsg}><div className={`${s.chatAvatar} ${s.chatAvatarAi}`}>AI</div>
-                <div className={`${s.chatBubble} ${s.chatBubbleAi}`}>
-                  승인 큐를 준비했습니다.
-                  <div className={s.surfacePreview}>
-                    <div className={s.surfaceTitle}>Approval Queue Inbox</div>
-                    <div style={{ margin: "6px 0" }}>
-                      <span className={`${s.badge} ${s.badgeRed}`} style={{ marginRight: 4 }}>HIGH</span> payments-prod read access<br/>
-                      <span className={`${s.badge} ${s.badgeYellow}`} style={{ marginRight: 4 }}>MED</span> payments timeout tuning<br/>
-                      <span className={`${s.badge} ${s.badgeGreen}`} style={{ marginRight: 4 }}>LOW</span> search feature flag enable
-                    </div>
-                    <span className={s.surfaceBtnGreen}>승인</span>
-                    <span className={s.surfaceBtnGhost}>보류</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className={s.solutionText}>
-              <span className={`${s.badge} ${s.badgeGreen}`}>A2UI Solution</span>
-              <h3 className={s.solutionTitle}>한 번의 질문으로 전체 현황</h3>
-              <p className={s.solutionDesc}>대기 건수, 유형별 분류, 고위험 건 알림을 한 번에 받고, 큐 Surface에서 바로 승인/보류 처리합니다.</p>
-              <p className={s.solutionHighlight}><strong>필터 3번이 질문 1번으로.</strong></p>
-            </div>
-          </div>
-
-          <h3 className={s.flowTitle}>A2UI 승인 흐름</h3>
-          <Mermaid chart={`flowchart LR
-    A["1. 자연어 입력\\n승인 확인해줘"] --> B["2. 큐 Surface\\n렌더링"]
-    B --> C["3. 클릭 한 번\\n승인 / 보류"]
-    style A stroke:#34c38f,stroke-width:2px
-    style B stroke:#34c38f,stroke-width:2px
-    style C stroke:#34c38f,stroke-width:2px`} />
-
-          <button className={`${s.demoButton} ${s.demoButtonAccent}`} onClick={() => openDemo("/approve")} type="button">
-            <span style={{ fontSize: 24 }}>▶</span>
-            <div><div className={s.demoLabel} style={{ color: "#34c38f" }}>A2UI Approval 시연</div><div className={s.demoDesc}>한 번에 현황 파악 + 즉시 처리</div></div>
-            <span style={{ fontSize: 12, opacity: 0.5, marginLeft: "auto" }}>새 창에서 열기</span>
-          </button>
-        </section>
-
-        {/* ============================================================
-            PART 3 — ROLLBACK
-            ============================================================ */}
-        <section className={s.section}>
-          <div className={s.sectionLabel} style={{ color: "#fb923c" }}>Part 3 &mdash; Rollback</div>
-          <h2 className={s.sectionTitle}>박대응 대리의 긴박한 밤</h2>
-          <p className={s.sectionDesc}>인프라 엔지니어. 같은 팀이라 서비스 배포 권한은 있지만, payments-api를 직접 배포한 적은 없습니다. 새벽 2시, PagerDuty 알림.</p>
-
-          <div className={s.storyBlock}>
-            <div className={s.storyText}>
-              <h3>새벽 2시, 알림이 울립니다</h3>
-              <p>payments-api에 severity HIGH 인시던트. 에러율이 급등하고 있습니다. 배포한 김배포 선임에게 연락했지만 응답이 없습니다. 서비스 접근 권한은 있지만, 이 서비스를 직접 배포한 적이 없는 박대응 대리는 뭐가 바뀌어서 문제인지 알 수 없습니다.</p>
-              <blockquote>나는 이 서비스 배포한 적 없는데... 뭐가 바뀌어서 터진 거지? 어떤 버전으로 돌려야 안전한 거야?</blockquote>
-            </div>
-            <div className={s.storyVisual}><div style={{ fontSize: 48, marginBottom: 12 }}>🚨</div><div>새벽 인시던트 대응<br/>배포자 부재, 원인 파악 불가<br/>권한은 있지만 맥락이 없는 상황</div></div>
-          </div>
-
-          <h3 className={s.flowTitle}>이런 일이 있을 수 있습니다.</h3>
-          <div className={s.grid2}>
-            <div className={s.painCard}><h4>배포자가 아니라 원인 특정 불가</h4><p>어떤 변경이 들어갔는지, 왜 문제가 생겼는지 배포 맥락이 없어 원인을 파악할 수 없습니다.</p></div>
-            <div className={s.painCard}><h4>담당자 연락까지 대기</h4><p>배포한 사람이 응답할 때까지 기다리거나, 혼자서 배포 이력을 하나씩 뒤져야 합니다.</p></div>
-            <div className={s.painCard}><h4>롤백 대상 선택이 어려움</h4><p>어떤 버전이 안전한지 판단할 근거가 부족합니다. eligible 여부, health 상태를 직접 비교해야 합니다.</p></div>
-            <div className={s.painCard}><h4>실행에 대한 불안감</h4><p>서비스를 잘 모르는 상태에서 롤백을 실행하면 더 큰 문제가 생기지 않을까 망설이게 됩니다.</p></div>
-          </div>
-
-          <h3 className={s.flowTitle}>기존 롤백 흐름</h3>
-          <Mermaid chart={`flowchart LR
-    A["1. 모니터링\\n확인"] --> B["2. 인시던트\\n페이지 확인"]
-    B --> C["3. 롤백 페이지\\n이동"]
-    C --> D["4. 버전 목록\\n스캔 + 판단"]
-    D --> E["5. 위키에서\\n절차 확인"]
-    E --> F["6. 롤백 실행"]
-    style F stroke:#fb923c,stroke-width:2px`} />
-
-          <button className={s.demoButton} onClick={() => openDemo("/rollback")} type="button">
-            <span style={{ fontSize: 24 }}>▶</span>
-            <div><div className={s.demoLabel}>기존 Rollback Admin 시연 &mdash; 서비스 현황 확인</div><div className={s.demoDesc}>서비스 현황 페이지에서 에러율, 응답시간, 인시던트 확인</div></div>
-            <span style={{ fontSize: 12, opacity: 0.5, marginLeft: "auto" }}>새 창에서 열기</span>
-          </button>
-
-          {/* A2UI Solution */}
-          <div className={s.a2uiSolutionBlock}>
-            <div className={s.chatMock}>
-              <div className={s.chatMsg}><div className={`${s.chatAvatar} ${s.chatAvatarUser}`}>박</div><div className={`${s.chatBubble} ${s.chatBubbleUser}`}>payments-api에 인시던트 떴는데, 원인이 뭐야?</div></div>
-              <div className={s.chatMsg}><div className={`${s.chatAvatar} ${s.chatAvatarAi}`}>AI</div>
-                <div className={`${s.chatBubble} ${s.chatBubbleAi}`}>
-                  payments-api 인시던트를 분석했습니다.
-                  <div className={s.surfacePreview}>
-                    <div className={s.surfaceTitle} style={{ color: "#f46a6a" }}>Incident Alert &middot; CRITICAL</div>
-                    <div style={{ fontSize: 11, margin: "4px 0", opacity: 0.7 }}>
-                      INC-842: card timeout spike<br/>
-                      에러율 12.4% (평소 0.3%) &middot; p99 4,200ms (평소 320ms)
-                    </div>
-                    <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", marginTop: 8, paddingTop: 8 }}>
-                      <div className={s.surfaceTitle} style={{ color: "#fb923c" }}>원인 분석</div>
-                      <div style={{ fontSize: 11, margin: "4px 0", opacity: 0.7 }}>
-                        v2.3.18-rc1 배포 후 card-processing 모듈의 timeout 설정 변경이 원인으로 추정됩니다. 이전 안정 버전 대비 connection pool 설정이 변경되었습니다.
-                      </div>
-                    </div>
-                    <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", marginTop: 8, paddingTop: 8 }}>
-                      <div className={s.surfaceTitle}>Rollback Target List</div>
-                      <div style={{ margin: "4px 0", fontSize: 12 }}>
-                        <span className={`${s.badge} ${s.badgeGreen}`}>추천</span> v2.3.16 &mdash; 24h stable, low risk<br/>
-                        <span className={`${s.badge} ${s.badgeYellow}`} style={{ marginTop: 4, display: "inline-block" }}>대안</span> v2.3.14 &mdash; stable, medium risk
-                      </div>
-                    </div>
-                    <span className={s.surfaceBtnOrange}>이 버전으로 롤백</span>
-                  </div>
-                </div>
-              </div>
-              <div className={s.chatMsg}><div className={`${s.chatAvatar} ${s.chatAvatarUser}`}>박</div><div className={`${s.chatBubble} ${s.chatBubbleUser}`}>v2.3.16으로 롤백해줘</div></div>
-              <div className={s.chatMsg}><div className={`${s.chatAvatar} ${s.chatAvatarAi}`}>AI</div>
-                <div className={`${s.chatBubble} ${s.chatBubbleAi}`}>
-                  v2.3.16으로 롤백이 완료되었습니다. 에러율이 0.3%로 정상화되었습니다.
-                </div>
-              </div>
-            </div>
-            <div className={s.solutionText}>
-              <span className={`${s.badge} ${s.badgeOrange}`}>A2UI Solution</span>
-              <h3 className={s.solutionTitle}>AI가 원인을 특정하고, 안전한 버전을 추천합니다</h3>
-              <p className={s.solutionDesc}>배포자가 아니어도 괜찮습니다. AI가 배포 이력을 분석해 원인을 특정하고, 안정성이 검증된 롤백 버전을 추천합니다. 서비스 맥락을 몰라도 근거 있는 판단이 가능합니다.</p>
-              <p className={s.solutionHighlight}><strong>서비스 이해도가 부족해도, A2UI가 있다면 빠르고 안전하게 롤백할 수 있습니다.</strong></p>
-            </div>
-          </div>
-
-          <h3 className={s.flowTitle}>A2UI 롤백 흐름</h3>
-          <Mermaid chart={`flowchart LR
-    A["1. 자연어 입력\\n원인이 뭐야?"] --> B["2. AI 원인 분석\\n+ 버전 추천"]
-    B --> C["3. 롤백 요청\\n롤백해줘"]
-    C --> D["4. 롤백 완료\\n정상화 확인"]
-    style A stroke:#fb923c,stroke-width:2px
-    style B stroke:#fb923c,stroke-width:2px
-    style C stroke:#fb923c,stroke-width:2px
-    style D stroke:#34c38f,stroke-width:2px`} />
-
-          <button className={`${s.demoButton} ${s.demoButtonAccent}`} onClick={() => openDemo("/rollback")} type="button">
-            <span style={{ fontSize: 24 }}>▶</span>
-            <div><div className={s.demoLabel} style={{ color: "#fb923c" }}>A2UI Rollback 시연</div><div className={s.demoDesc}>배포자가 아니어도 AI가 원인 분석 + 롤백 추천</div></div>
             <span style={{ fontSize: 12, opacity: 0.5, marginLeft: "auto" }}>새 창에서 열기</span>
           </button>
         </section>
@@ -462,6 +266,10 @@ export function StoryPage() {
           <h3 className={s.flowTitle} style={{ fontSize: 22 }}>A2UI Chatbot UI Library</h3>
           <p className={s.sectionDesc}>Material UI나 Ant Design처럼, 챗봇 안에서 A2UI 화면을 구성하기 위한 전용 컴포넌트 라이브러리입니다.</p>
 
+          <div style={{ margin: '2rem 0', borderRadius: 16, overflow: 'hidden' }}>
+            <img src="/images/story-004.jpg" alt="UI Library → templateId → Admin 데이터 연결 흐름" style={{ width: '100%', display: 'block' }} />
+          </div>
+
           <div className={s.grid3}>
             <div className={`${s.archBox} ${s.productDetailCard}`} style={{ borderTop: '3px solid #5b8dee' }}>
               <h4 className={s.productDetailTitle}>라이브러리가 제공하는 것</h4>
@@ -474,14 +282,7 @@ export function StoryPage() {
             <div className={`${s.archBox} ${s.productDetailCard}`} style={{ borderTop: '3px solid #fb923c' }}>
               <h4 className={s.productDetailTitle}>Admin과의 연동</h4>
               <p>완성된 템플릿에 <code>templateId</code>를 부여하면 Admin에 등록됩니다. Admin이 데이터 공급 방식을 설정하면, 런타임에서 payload가 자동으로 채워져 렌더링됩니다.</p>
-              <div className={s.productDetailNote}>
-                <code>templateId</code>가 라이브러리와 Admin을 잇는 핵심 고리
-              </div>
             </div>
-          </div>
-
-          <div style={{ margin: '2rem 0', borderRadius: 16, overflow: 'hidden' }}>
-            <img src="/images/story-004.jpg" alt="UI Library → templateId → Admin 데이터 연결 흐름" style={{ width: '100%', display: 'block' }} />
           </div>
 
           {/* ============ Product 2: Admin + MCP Server ============ */}
@@ -557,88 +358,19 @@ export function StoryPage() {
             <img src="/images/story-006.jpg" alt="Agent Toolkit에서 A2UI를 파이프라인에 끼워넣는 흐름" style={{ width: '100%', display: 'block' }} />
           </div>
 
-          <div className={s.grid2}>
-            <div className={s.archBox} style={{ borderTop: '3px solid #22d3ee', textAlign: 'left' }}>
-              <h4 style={{ textAlign: 'center' }}>SDK가 미리 구현해둔 것</h4>
-              <p>개발자가 <code>listTemplates()</code>, <code>checkAccess()</code>, <code>resolveTemplateData()</code> 같은 저수준 MCP 함수를 직접 조합할 필요가 없습니다.</p>
-              <div style={{ marginTop: 16, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                <span className={`${s.badge} ${s.badgeGreen}`}>MCP Client</span>
-                <span className={`${s.badge} ${s.badgeGreen}`}>Template 추천</span>
-                <span className={`${s.badge} ${s.badgeGreen}`}>Schema Validation</span>
-                <span className={`${s.badge} ${s.badgeGreen}`}>Action Routing</span>
-                <span className={`${s.badge} ${s.badgeGreen}`}>Text Fallback</span>
-                <span className={`${s.badge} ${s.badgeGreen}`}>Retry / Caching</span>
-              </div>
-            </div>
-            <div className={s.archBox} style={{ borderTop: '3px solid #a78bfa', textAlign: 'left' }}>
-              <h4 style={{ textAlign: 'center' }}>고수준 함수 3개</h4>
-              <p>내부적으로 MCP Server와 통신하며 템플릿 탐색 &rarr; 권한 체크 &rarr; resolver 실행 &rarr; 검증을 자동 수행합니다.</p>
-              <div style={{ marginTop: 16, display: 'grid', gap: 10 }}>
-                <div style={{ fontSize: 13 }}><code style={{ color: '#22d3ee' }}>renderOrFallback(ctx)</code><br/><span style={{ color: 'var(--console-text-secondary)', fontSize: 12 }}>surface 생성, 실패 시 텍스트 유지</span></div>
-                <div style={{ fontSize: 13 }}><code style={{ color: '#22d3ee' }}>maybeRenderA2UI(ctx)</code><br/><span style={{ color: 'var(--console-text-secondary)', fontSize: 12 }}>이번 턴이 A2UI 대상인지 판단</span></div>
-                <div style={{ fontSize: 13 }}><code style={{ color: '#22d3ee' }}>handleA2UIAction(event, ctx)</code><br/><span style={{ color: 'var(--console-text-secondary)', fontSize: 12 }}>UI 액션을 받아 다음 흐름으로 연결</span></div>
-              </div>
-            </div>
-          </div>
-
-          <h3 className={s.flowTitle}>renderOrFallback() 내부 동작</h3>
-          <Mermaid chart={`flowchart LR
-    A["renderOrFallback(context)"] --> B["템플릿 후보 탐색"]
-    B --> C["권한 체크"]
-    C --> D["MCP Server<br/>resolver 실행"]
-    D --> E["payload 검증"]
-    E --> F{{"성공?"}}
-    F -->|Yes| G["A2UI Surface 반환"]
-    F -->|No| H["기존 텍스트 응답 유지"]
-    style A stroke:#22d3ee,stroke-width:2px
-    style G stroke:#34c38f,stroke-width:2px
-    style H stroke:#fb923c,stroke-width:2px`} />
-
-
-        </section>
-
-        {/* ============================================================
-            AGENT INTEGRATION
-            ============================================================ */}
-        <section className={s.section}>
-          <div className={s.sectionLabel} style={{ color: "#22d3ee" }}>Integration</div>
-          <h2 className={s.sectionTitle}>기존 Agent에 A2UI 붙이기</h2>
-          <p className={s.sectionDesc}>잘 동작하는 agent를 갈아엎지 않고, A2UI step 하나를 끼워 넣습니다. 기존 planner, tool, memory는 그대로 유지됩니다.</p>
-
           <div className={s.storyBlock}>
             <div className={s.storyText}>
-              <h3>MCP 함수 여러 개가 아니라, Step 하나</h3>
-              <p>기존 agent에서 A2UI가 &ldquo;템플릿 조회 → 권한 체크 → payload 조립 → MCP 호출&rdquo; 같은 저수준 작업의 집합으로 보이면 안 됩니다.</p>
-              <blockquote>이번 응답을 A2UI로 표현할지 판단하고, 가능하면 surface를 만들고, 실패하면 기존 텍스트로 fallback. 이게 전부입니다.</blockquote>
+              <h3>초반에 A2UI 응답을 먼저 시도</h3>
+              <p>발표용 예시에서는 <code>shouldRespond()</code>와 <code>respond()</code>를 따로 보여주기보다, 둘을 하나의 helper로 합친 쪽이 더 자연스럽습니다. 먼저 A2UI 응답을 시도하고, 성공하면 바로 반환하고, 아니면 기존 agent workflow를 그대로 탑니다.</p>
+              <blockquote>핵심은 "판단과 응답을 한 helper로 묶고, 초반에 한 번 시도해본다"는 그림입니다.</blockquote>
             </div>
             <div className={s.storyVisual}>
               <div>
                 <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 12, color: '#22d3ee' }}>고수준 API</div>
                 <div style={{ fontSize: 13, lineHeight: 2, fontFamily: 'monospace' }}>
-                  <code>maybeRenderA2UI(context)</code><br/>
-                  <code>renderOrFallback(context)</code><br/>
-                  <code>handleA2UIAction(event, ctx)</code>
+                  <code>nfxAgentToolkits.renderA2UI()</code><br/>
                 </div>
               </div>
-            </div>
-          </div>
-
-          <h3 className={s.flowTitle}>통합 삽입 포인트</h3>
-          <div className={s.grid3}>
-            <div className={s.overviewCard} style={{ borderTopColor: "#22d3ee" }}>
-              <div style={{ fontSize: 28, fontWeight: 800 }}>1</div>
-              <h4>응답 직전 삽입</h4>
-              <p>가장 단순한 방식. 기존 workflow 마지막에 A2UI step을 추가합니다. 기존 코드를 거의 건드리지 않습니다.</p>
-            </div>
-            <div className={s.overviewCard} style={{ borderTopColor: "#5b8dee" }}>
-              <div style={{ fontSize: 28, fontWeight: 800 }}>2</div>
-              <h4>Tool 실행 후 삽입</h4>
-              <p>tool 결과가 나온 뒤 UI로 보여줄 가치가 생길 때. 승인 목록 조회 후 inbox 표시, 배포 후보 조회 후 launchpad 표시.</p>
-            </div>
-            <div className={s.overviewCard} style={{ borderTopColor: "#a78bfa" }}>
-              <div style={{ fontSize: 28, fontWeight: 800 }}>3</div>
-              <h4>Action Loop 추가</h4>
-              <p>버튼 클릭, 선택 변경 등 UI 이벤트가 다시 agent 흐름으로 이어지는 경우. <code>handleA2UIAction()</code> 진입점을 추가합니다.</p>
             </div>
           </div>
 
@@ -647,12 +379,12 @@ export function StoryPage() {
             <div className={s.codePanel}>
               <div className={`${s.codePanelLabel} ${s.codePanelLabelBefore}`}>Before</div>
               <pre>{`async function runAgentTurn(input) {
-  const intent = await resolveIntent(input);
-  const plan = await planner.plan(intent);
+  const requestType = await resolveIntent(input);
+  const plan = await planner.plan(requestType);
   const toolResult = await executor.run(plan);
   const memory = await memoryStore.recall(input.session);
   const answer = await narrator.generate({
-    intent, toolResult, memory,
+    requestType, toolResult, memory,
   });
 
   return Response.json({
@@ -663,24 +395,44 @@ export function StoryPage() {
             </div>
             <div className={s.codePanel}>
               <div className={`${s.codePanelLabel} ${s.codePanelLabelAfter}`}>After</div>
-              <pre>{`async function runAgentTurn(input) {
-  const intent = await resolveIntent(input);
-  const plan = await planner.plan(intent);
+              <pre><span className={s.codeHighlight}>{`import { nfxAgentToolkits } from "@NFX-toolkits";`}</span>{`
+
+async function runAgentTurn(input) {
+  const requestType = await resolveIntent(input);
+`}<span className={s.codeHighlight}>{`
+  const a2uiResponse = await nfxAgentToolkits.renderA2UI({
+    input, requestType,
+  });
+
+  if (a2uiResponse) return a2uiResponse;`}</span>{`
+    
+  const plan = await planner.plan(requestType);
   const toolResult = await executor.run(plan);
   const memory = await memoryStore.recall(input.session);
   const answer = await narrator.generate({
-    intent, toolResult, memory,
+    requestType, toolResult, memory,
   });
-`}<span className={s.codeHighlight}>{`
-  return a2uiAgent.renderOrFallback({
-    userInput: input,
-    workflowState: { intent, plan },
-    toolResult,
+
+  return Response.json({
     text: answer,
-  });`}</span>{`
+    sources: toolResult.sources,
+  });
 }`}</pre>
             </div>
           </div>
+
+
+          <h3 className={s.flowTitle}>A2UI 초기 시도 흐름</h3>
+          <Mermaid chart={`flowchart LR
+    A["입력 수신"] --> B["requestType 해석"]
+    B --> C["A2UI 응답 시도"]
+    C -->|성공| E["A2UI 응답 반환"]
+    C -->|실패| F["기존 workflow 계속 실행"]
+    F --> G["기존 텍스트 응답"]
+    style B stroke:#22d3ee,stroke-width:2px
+    style C stroke:#22d3ee,stroke-width:2px
+    style E stroke:#34c38f,stroke-width:2px
+    style G stroke:#fb923c,stroke-width:2px`} />
 
 
         </section>

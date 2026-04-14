@@ -23,7 +23,7 @@
 .section { padding: 80px 0; border-top: 1px solid var(--console-border, rgba(37,50,68,.76)); }
 .sectionLabel { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: rgba(76,141,255,.82); font-weight: 700; margin-bottom: 6px; }
 .sectionTitle { font-size: clamp(22px,3vw,32px); font-weight: 800; margin-bottom: 8px; color: var(--console-text); }
-.sectionDesc { font-size: 15px; color: var(--console-text-secondary); max-width: 680px; margin-bottom: 28px; }
+.sectionDesc { font-size: 15px; color: var(--console-text-secondary); margin-bottom: 28px; }
 .sectionImage { width: 100%; height: auto; border-radius: 12px; margin-bottom: 28px; }
 
 /* ---- Badge ---- */
@@ -74,7 +74,7 @@
 .archBox h4 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
 .archBox p { font-size: 13px; color: var(--console-text-secondary); }
 .productDetailCard { padding: 28px 24px; }
-.productDetailTitle { font-size: 24px !important; line-height: 1.25; margin-bottom: 14px !important; }
+.productDetailTitle { font-size: 20px !important; line-height: 1.25; margin-bottom: 14px !important; }
 .productDetailNote { margin-top: 16px; font-size: 13px; color: var(--console-text-secondary); }
 .storyImageFrame { margin-bottom: 28px; border: 1px solid var(--console-border, rgba(37,50,68,.76)); border-radius: 16px; overflow: hidden; background: rgba(15,23,34,.7); box-shadow: 0 18px 40px rgba(0,0,0,.22); }
 .storySectionImage { display: block; width: 100%; height: auto; }
