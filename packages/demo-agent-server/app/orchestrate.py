@@ -27,6 +27,27 @@ from .a2ui_agent import render_or_fallback
 MAX_ITERATIONS = 3
 
 
+def _surface_ready_text(intent_key: str, facts: dict[str, str]) -> str:
+    """Return deterministic copy when an A2UI surface is ready."""
+    service_name = facts.get("serviceName")
+    environment = facts.get("environment") or "production"
+    target_version = facts.get("recommendedVersion") or facts.get("targetVersion")
+
+    if intent_key == "deploy.start":
+        target = f" {target_version}" if target_version else ""
+        service = service_name or "선택한 서비스"
+        return f"{service}{target} 배포 런치패드를 준비했습니다."
+
+    if intent_key == "approval.review":
+        return "승인 요청 목록을 A2UI 화면으로 준비했습니다."
+
+    if intent_key == "rollback.start":
+        service = service_name or "선택한 서비스"
+        return f"{service} {environment} 롤백 후보 화면을 준비했습니다."
+
+    return "A2UI 화면을 준비했습니다."
+
+
 class ChatRequest(BaseModel):
     """Incoming chat request."""
 
@@ -106,7 +127,7 @@ async def orchestrate_chat_turn(request: ChatRequest) -> ChatResponse:
 
     # Step 7: Text response generation
     tool_summary = "\n".join(t["summary"] for t in tool_results) if tool_results else None
-    text = await generate_response(request.input, request.context, tool_summary)
+    text = ""
 
     # Step 8: A2UI surface generation
     surface = None
@@ -117,14 +138,22 @@ async def orchestrate_chat_turn(request: ChatRequest) -> ChatResponse:
         )
         if a2ui_result.type == "surface":
             surface = a2ui_result.surface
-            text = f"{text}\n\n필요한 정보가 모두 준비되었습니다."
+            text = _surface_ready_text(intent_result.intent_key, facts)
         elif a2ui_result.type == "followup":
             text = a2ui_result.reason or "추가 정보가 필요합니다."
+        else:
+            text = a2ui_result.text or await generate_response(
+                request.input,
+                request.context,
+                tool_summary,
+            )
     elif decision.mode == "ask_followup":
         if "serviceName" in decision.missing_facts:
             text = "어떤 서비스를 배포할까요? 예: payments-api, checkout, catalog-api"
         else:
             text = f"추가 정보가 필요합니다: {', '.join(decision.missing_facts)}"
+    else:
+        text = await generate_response(request.input, request.context, tool_summary)
 
     return ChatResponse(
         request_id=request_id,

@@ -23,23 +23,96 @@ class A2UIResponse(BaseModel):
 
 
 class A2UIMcpClient:
-    """Python MCP client that communicates via HTTP (not full MCP protocol).
-
-    For PoC, we call the MCP server's tools via direct HTTP POST to /mcp.
-    In production, this would use the proper MCP SSE client.
-    """
+    """Python MCP client that communicates with Streamable HTTP."""
 
     def __init__(self, server_url: Optional[str] = None):
         self.server_url = server_url or settings.mcp_server_url
         self._session_id: Optional[str] = None
+        self._request_id = 0
+
+    def _next_id(self) -> int:
+        self._request_id += 1
+        return self._request_id
+
+    def _headers(self) -> dict[str, str]:
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json, text/event-stream",
+        }
+        if self._session_id:
+            headers["mcp-session-id"] = self._session_id
+        return headers
+
+    def _decode_response(self, resp: httpx.Response) -> dict:
+        """Decode JSON or single-message SSE responses from MCP."""
+        content_type = resp.headers.get("content-type", "")
+        text = resp.text.strip()
+
+        if "text/event-stream" in content_type:
+            for line in text.splitlines():
+                if line.startswith("data:"):
+                    return json.loads(line[5:].strip())
+            return {}
+
+        if not text:
+            return {}
+
+        return resp.json()
+
+    async def _ensure_initialized(self, client: httpx.AsyncClient) -> Optional[dict]:
+        """Initialize MCP session before the first tool call."""
+        if self._session_id:
+            return None
+
+        init_body = {
+            "jsonrpc": "2.0",
+            "id": self._next_id(),
+            "method": "initialize",
+            "params": {
+                "protocolVersion": "2025-03-26",
+                "capabilities": {},
+                "clientInfo": {
+                    "name": "a2ui-demo-python-agent",
+                    "version": "0.1.0",
+                },
+            },
+        }
+
+        resp = await client.post(self.server_url, json=init_body, headers=self._headers())
+        if "mcp-session-id" in resp.headers:
+            self._session_id = resp.headers["mcp-session-id"]
+
+        if resp.status_code != 200:
+            return {"error": f"MCP initialize returned {resp.status_code}: {resp.text}"}
+
+        decoded = self._decode_response(resp)
+        if "error" in decoded:
+            return {"error": decoded["error"].get("message", "MCP initialize failed")}
+
+        # MCP requires initialized notification after initialize.
+        await client.post(
+            self.server_url,
+            json={
+                "jsonrpc": "2.0",
+                "method": "notifications/initialized",
+                "params": {},
+            },
+            headers=self._headers(),
+        )
+
+        return None
 
     async def call_tool(self, tool_name: str, args: dict) -> dict:
         """Call an MCP tool via HTTP."""
         async with httpx.AsyncClient() as client:
+            init_error = await self._ensure_initialized(client)
+            if init_error:
+                return init_error
+
             # MCP Streamable HTTP protocol: send JSON-RPC request
             body = {
                 "jsonrpc": "2.0",
-                "id": 1,
+                "id": self._next_id(),
                 "method": "tools/call",
                 "params": {
                     "name": tool_name,
@@ -47,20 +120,16 @@ class A2UIMcpClient:
                 },
             }
 
-            headers = {"Content-Type": "application/json", "Accept": "application/json"}
-            if self._session_id:
-                headers["mcp-session-id"] = self._session_id
-
-            resp = await client.post(self.server_url, json=body, headers=headers)
+            resp = await client.post(self.server_url, json=body, headers=self._headers())
 
             # Extract session ID from response
             if "mcp-session-id" in resp.headers:
                 self._session_id = resp.headers["mcp-session-id"]
 
             if resp.status_code != 200:
-                return {"error": f"MCP server returned {resp.status_code}"}
+                return {"error": f"MCP server returned {resp.status_code}: {resp.text}"}
 
-            result = resp.json()
+            result = self._decode_response(resp)
 
             # Handle JSON-RPC response
             if "result" in result:
@@ -111,7 +180,7 @@ async def render_or_fallback(
         if mode != "render_surface" or not decision.get("templateId"):
             return A2UIResponse(
                 type="text_fallback",
-                text=decision.get("reason", "이 요청에 대한 A2UI 템플릿이 없습니다."),
+                text=decision.get("reason") or decision.get("error") or "이 요청에 대한 A2UI 템플릿이 없습니다.",
             )
 
         # Step 2: Resolve template data
