@@ -22,8 +22,22 @@ INTENT_PATTERNS: list[tuple[str, list[str], float]] = [
 ]
 
 # Slot extraction patterns
+SERVICE_ALIASES: dict[str, str] = {
+    "payment-api": "payments-api",
+    "payment api": "payments-api",
+    "payments api": "payments-api",
+    "payments-api": "payments-api",
+    "checkout": "checkout",
+    "catalog-api": "catalog-api",
+    "catalog api": "catalog-api",
+    "search-api": "search-api",
+    "search api": "search-api",
+    "billing-api": "billing-api",
+    "billing api": "billing-api",
+}
 SERVICE_PATTERN = re.compile(
-    r"(payments-api|checkout|catalog-api|search-api|billing-api)"
+    r"(payments?-api|payments?\s+api|checkout|catalog-api|catalog\s+api|search-api|search\s+api|billing-api|billing\s+api)",
+    re.IGNORECASE,
 )
 ENV_PATTERN = re.compile(
     r"(production|staging|development|프로덕션|스테이징|prod|stg|dev)"
@@ -44,11 +58,11 @@ def resolve_intent(
 ) -> IntentResult:
     """Resolve intent from user input using rule-based matching."""
     lower = user_input.lower()
+    slots = _extract_slots(user_input)
 
     # Match intent
     for intent_key, keywords, confidence in INTENT_PATTERNS:
         if any(kw in lower for kw in keywords):
-            slots = _extract_slots(user_input)
             return IntentResult(
                 intent_key=intent_key,
                 confidence=confidence,
@@ -60,6 +74,7 @@ def resolve_intent(
     return IntentResult(
         intent_key=current_intent or "general",
         confidence=0.3,
+        slots=slots,
         source="fallback",
     )
 
@@ -70,7 +85,8 @@ def _extract_slots(user_input: str) -> dict[str, str]:
 
     svc_match = SERVICE_PATTERN.search(user_input)
     if svc_match:
-        slots["serviceName"] = svc_match.group(1)
+        raw_service = svc_match.group(1).lower().replace("_", "-")
+        slots["serviceName"] = SERVICE_ALIASES.get(raw_service, raw_service.replace(" ", "-"))
 
     env_match = ENV_PATTERN.search(user_input.lower())
     if env_match:

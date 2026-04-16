@@ -56,6 +56,8 @@ async def health():
         "service": "demo-agent-server",
         "mcp_url": settings.mcp_server_url,
         "mock_api_url": settings.mock_api_url,
+        "llm_available": bool(settings.openai_api_key),
+        "openai_model": settings.openai_model,
     }
 
 

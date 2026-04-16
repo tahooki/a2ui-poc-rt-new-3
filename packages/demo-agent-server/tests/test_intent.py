@@ -30,3 +30,14 @@ def test_environment_extraction():
     result = resolve_intent("payments-api production에 배포")
     assert result.slots.get("serviceName") == "payments-api"
     assert result.slots.get("environment") == "production"
+
+
+def test_service_alias_normalization():
+    result = resolve_intent("payment-api")
+    assert result.slots.get("serviceName") == "payments-api"
+
+
+def test_extract_slots_when_carrying_current_intent():
+    result = resolve_intent("payment-api", current_intent="deploy.start")
+    assert result.intent_key == "deploy.start"
+    assert result.slots.get("serviceName") == "payments-api"

@@ -7,7 +7,7 @@
  *
  * 실행: npx vitest run packages/a2ui-admin/__tests__/integration.test.ts
  * 사전 조건: 두 서버가 기동되어 있어야 함
- *   npm run dev -w demo-mock-api
+ *   npm run dev -w @a2ui/demo-mock-api
  *   npm run dev -w @a2ui/admin
  *
  * 또는 이 테스트가 서버를 자동 기동/종료합니다.

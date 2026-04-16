@@ -121,7 +121,10 @@ async def orchestrate_chat_turn(request: ChatRequest) -> ChatResponse:
         elif a2ui_result.type == "followup":
             text = a2ui_result.reason or "추가 정보가 필요합니다."
     elif decision.mode == "ask_followup":
-        text = f"추가 정보가 필요합니다: {', '.join(decision.missing_facts)}"
+        if "serviceName" in decision.missing_facts:
+            text = "어떤 서비스를 배포할까요? 예: payments-api, checkout, catalog-api"
+        else:
+            text = f"추가 정보가 필요합니다: {', '.join(decision.missing_facts)}"
 
     return ChatResponse(
         request_id=request_id,

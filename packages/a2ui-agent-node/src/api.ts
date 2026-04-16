@@ -5,7 +5,7 @@
  * handleA2UIAction: UI 액션 실행
  */
 
-import type { A2UIMcpClient } from "./mcp-client.js";
+import type { A2UIMcpClient } from "./mcp-client";
 
 export type RenderResult =
   | { type: "surface"; envelope: Record<string, unknown> }
