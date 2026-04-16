@@ -141,10 +141,13 @@ export type SurfaceIntentCandidate = {
 
 export type SurfaceEnvelope = {
   templateId: string;
+  version?: string;
   payload: Record<string, unknown>;
+  actions?: Array<Record<string, unknown>>;
   sourceIntent: string;
   updatedAt: string;
   freshnessKey?: string;
+  meta?: Record<string, unknown>;
   bindingTrace?: {
     usedFacts: string[];
     missingFacts: string[];

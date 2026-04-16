@@ -1,8 +1,19 @@
+import { SurfaceRenderer } from "@a2ui/ui";
+import { registerBuiltinTemplates } from "@a2ui/ui/templates/register-all";
+import type { SurfaceEnvelope as A2UISurfaceEnvelope } from "@a2ui/ui";
 import styles from "@/devops-console/console-page.module.css";
 import { EmptyState } from "@/devops-console/foundation/empty-state";
 import { TemplateRenderer } from "@/devops-chat/templates/template-renderer";
 import type { TemplateEnvelope } from "@/devops-chat/types/templates";
 import type { SurfaceEnvelope } from "@/devops-chat/types/conversation";
+
+registerBuiltinTemplates();
+
+const A2UI_TEMPLATE_IDS = new Set([
+  "deploy_launchpad",
+  "approval_queue_inbox",
+  "rollback_summary",
+]);
 
 type TemplateSurfaceProps = {
   /** Legacy: direct template envelope from view-model (selected item based) */
@@ -26,9 +37,26 @@ export function TemplateSurface({
   onSecondaryAction,
   onDismiss,
 }: TemplateSurfaceProps) {
+  const shouldRenderA2UI = activeSurface
+    ? A2UI_TEMPLATE_IDS.has(activeSurface.templateId)
+    : false;
+
+  const a2uiEnvelope: A2UISurfaceEnvelope | null = activeSurface && shouldRenderA2UI
+    ? {
+        templateId: activeSurface.templateId,
+        version: activeSurface.version ?? "1.0.0",
+        payload: activeSurface.payload,
+        actions: activeSurface.actions,
+        sourceIntent: activeSurface.sourceIntent,
+        updatedAt: activeSurface.updatedAt,
+        freshnessKey: activeSurface.freshnessKey,
+        meta: activeSurface.meta,
+      }
+    : null;
+
   // Prefer activeSurface (conversation-driven) over legacy template (selected item)
   const resolvedTemplate: TemplateEnvelope | null =
-    activeSurface
+    activeSurface && !shouldRenderA2UI
       ? (activeSurface.payload as unknown as TemplateEnvelope)
       : template ?? null;
 
@@ -45,7 +73,12 @@ export function TemplateSurface({
           </button>
         ) : null}
       </div>
-      {resolvedTemplate ? (
+      {a2uiEnvelope ? (
+        <SurfaceRenderer
+          envelope={a2uiEnvelope}
+          onAction={(event) => onAction?.(event.actionId, event.params)}
+        />
+      ) : resolvedTemplate ? (
         <TemplateRenderer
           onAction={onAction}
           onPrimaryAction={onPrimaryAction}

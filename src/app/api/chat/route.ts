@@ -69,9 +69,12 @@ function normalizeSurface(surface: PythonChatResponse["surface"]): SurfaceEnvelo
 
   return {
     templateId,
+    version: (surface.version as string | undefined) ?? "1.0.0",
     payload: (surface.payload as Record<string, unknown> | undefined) ?? {},
+    actions: (surface.actions as Array<Record<string, unknown>> | undefined) ?? [],
     sourceIntent: (surface.sourceIntent as string | undefined) ?? templateId,
     updatedAt: (surface.updatedAt as string | undefined) ?? new Date().toISOString(),
+    meta: (surface.meta as Record<string, unknown> | undefined) ?? {},
   };
 }
 
