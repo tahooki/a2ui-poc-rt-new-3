@@ -27,6 +27,11 @@ type PythonChatResponse = {
   tool_results?: Array<{ tool_name?: string; summary?: string }>;
 };
 
+type ParsedSseEvent = {
+  event: string;
+  data: string;
+};
+
 const VALID_INTENTS = new Set<IntentKey>([
   "deploy.start",
   "deploy.history.lookup",
@@ -75,31 +80,41 @@ function normalizeSurface(surface: PythonChatResponse["surface"]): SurfaceEnvelo
   };
 }
 
-async function runPythonAgentTurn(
-  body: AssistantTurnRequest,
-  input: string,
-  fallbackRequestId: string,
-): Promise<AssistantTurnResponse> {
-  const baseUrl = process.env.PYTHON_AGENT_URL ?? "http://localhost:8000";
-  const response = await fetch(`${baseUrl.replace(/\/$/, "")}/chat`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      conversation_id: body.conversationId ?? "default",
-      input,
-      context: {
-        contextSnapshot: body.contextSnapshot,
-        history: body.history ?? [],
-        facts: body.facts ?? {},
-      },
-    }),
-  });
+function parseSseEvent(rawEvent: string): ParsedSseEvent {
+  const lines = rawEvent.split("\n");
+  let event = "message";
+  const dataLines: string[] = [];
 
-  if (!response.ok) {
-    throw new Error(`Python agent returned ${response.status}`);
+  for (const line of lines) {
+    if (line.startsWith("event:")) {
+      event = line.slice(6).trim();
+      continue;
+    }
+
+    if (line.startsWith("data:")) {
+      dataLines.push(line.slice(5).trimStart());
+    }
   }
 
-  const pythonResult = await response.json() as PythonChatResponse;
+  return { event, data: dataLines.join("\n") };
+}
+
+function createPythonAgentPayload(body: AssistantTurnRequest, input: string) {
+  return {
+    conversation_id: body.conversationId ?? "default",
+    input,
+    context: {
+      contextSnapshot: body.contextSnapshot,
+      history: body.history ?? [],
+      facts: body.facts ?? {},
+    },
+  };
+}
+
+function buildPythonAssistantResult(
+  pythonResult: PythonChatResponse,
+  fallbackRequestId: string,
+): AssistantTurnResponse {
   const text = pythonResult.text?.trim() || "Python agent returned an empty response.";
   const mode = normalizeDecisionMode(pythonResult.decision_mode);
 
@@ -125,6 +140,105 @@ async function runPythonAgentTurn(
   };
 }
 
+async function streamPythonAgentTurn(
+  body: AssistantTurnRequest,
+  input: string,
+  fallbackRequestId: string,
+  controller: ReadableStreamDefaultController<Uint8Array>,
+  encoder: TextEncoder,
+): Promise<void> {
+  const baseUrl = process.env.PYTHON_AGENT_URL ?? "http://localhost:8000";
+  const response = await fetch(`${baseUrl.replace(/\/$/, "")}/chat/stream`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(createPythonAgentPayload(body, input)),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Python agent returned ${response.status}`);
+  }
+
+  if (!response.body) {
+    throw new Error("Python agent streaming response body is not available.");
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let text = "";
+  let surface: Record<string, unknown> | null = null;
+  let intent: string | null = null;
+  let decisionMode: string | null = null;
+  let resultSent = false;
+
+  function sendResult() {
+    if (resultSent) return;
+    resultSent = true;
+
+    const result = buildPythonAssistantResult(
+      {
+        request_id: fallbackRequestId,
+        text,
+        surface,
+        intent,
+        decision_mode: decisionMode,
+      },
+      fallbackRequestId,
+    );
+
+    if (result.surface) {
+      controller.enqueue(encoder.encode(createSseEvent("surface", result.surface)));
+    }
+    controller.enqueue(encoder.encode(createSseEvent("result", result)));
+    controller.enqueue(encoder.encode(createSseEvent("done", {})));
+  }
+
+  try {
+    while (true) {
+      const { value, done } = await reader.read();
+      buffer += decoder.decode(value ?? new Uint8Array(), { stream: !done });
+      buffer = buffer.replace(/\r/g, "");
+
+      let boundary = buffer.indexOf("\n\n");
+      while (boundary >= 0) {
+        const rawEvent = buffer.slice(0, boundary).trim();
+        buffer = buffer.slice(boundary + 2);
+
+        if (rawEvent) {
+          const parsed = parseSseEvent(rawEvent);
+          const data = parsed.data ? JSON.parse(parsed.data) as Record<string, unknown> : {};
+
+          if (parsed.event === "text") {
+            const chunk = typeof data.chunk === "string" ? data.chunk : "";
+            if (chunk) {
+              text += chunk;
+              controller.enqueue(encoder.encode(createSseEvent("delta", { text: chunk })));
+            }
+          } else if (parsed.event === "surface") {
+            surface = data;
+          } else if (parsed.event === "state") {
+            if (typeof data.intent === "string") intent = data.intent;
+            if (typeof data.decision_mode === "string") decisionMode = data.decision_mode;
+          } else if (parsed.event === "done") {
+            sendResult();
+          } else if (parsed.event === "error") {
+            const message = typeof data.message === "string" ? data.message : "Python agent stream failed.";
+            throw new Error(message);
+          }
+        }
+
+        boundary = buffer.indexOf("\n\n");
+      }
+
+      if (done) break;
+    }
+
+    sendResult();
+  } finally {
+    reader.releaseLock();
+  }
+}
+
 export async function POST(request: Request) {
   const body = (await request.json()) as AssistantTurnRequest;
   const input = body.input?.trim();
@@ -139,9 +253,13 @@ export async function POST(request: Request) {
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
       try {
-        const result = process.env.ASSISTANT_BACKEND === "python"
-          ? await runPythonAgentTurn(body, input, requestId)
-          : await orchestrateChatTurn(
+        if (process.env.ASSISTANT_BACKEND === "python") {
+          await streamPythonAgentTurn(body, input, requestId, controller, encoder);
+          controller.close();
+          return;
+        }
+
+        const result = await orchestrateChatTurn(
               {
                 requestId,
                 conversationId: body.conversationId,
@@ -170,10 +288,6 @@ export async function POST(request: Request) {
                 },
               },
             );
-
-        if (process.env.ASSISTANT_BACKEND === "python") {
-          controller.enqueue(encoder.encode(createSseEvent("delta", { text: result.message.text })));
-        }
 
         // Stream surface envelope separately if present
         if (result.surface) {
