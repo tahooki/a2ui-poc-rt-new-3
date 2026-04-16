@@ -58,10 +58,7 @@ function normalizeDecisionMode(mode: string | null | undefined): ConversationDec
 }
 
 function normalizeSurface(surface: PythonChatResponse["surface"]): SurfaceEnvelope | null {
-  // For the initial Python-agent chat smoke test we keep A2UI rendering disabled
-  // unless explicitly enabled, because MCP template IDs use the @a2ui/ui renderer
-  // while the existing console chat renderer still uses the legacy template map.
-  if (process.env.PYTHON_AGENT_ENABLE_SURFACES !== "true") return null;
+  if (process.env.PYTHON_AGENT_ENABLE_SURFACES === "false") return null;
   if (!surface || typeof surface !== "object") return null;
 
   const templateId = surface.templateId;
