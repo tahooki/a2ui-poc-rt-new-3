@@ -5,7 +5,8 @@ import { SurfaceCard } from "../primitives/SurfaceCard";
 import { StatusBadge } from "../primitives/StatusBadge";
 import { ActionButton } from "../primitives/ActionButton";
 import { DataTable } from "../primitives/DataTable";
-import type { ActionCallback } from "../types/action-event";
+import type { ActionCallback, TemplateAction } from "../types/action-event";
+import { emitAction, isActionDisabled, resolveActions } from "./action-utils";
 
 type ApprovalItem = {
   id: string;
@@ -41,13 +42,19 @@ const statusToLevel: Record<string, "success" | "warning" | "danger" | "info" | 
 
 export function ApprovalQueueInbox({
   payload,
+  actions,
   onAction,
 }: {
   payload: Record<string, unknown>;
+  actions?: TemplateAction[];
   onAction: ActionCallback;
 }) {
   const p = payload as unknown as ApprovalQueuePayload;
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const renderedActions = resolveActions(actions, [
+    { actionId: "approve.selected", label: "선택 항목 승인", variant: "primary", kind: "submit" },
+    { actionId: "approve.hold", label: "보류", variant: "ghost", kind: "submit" },
+  ]);
 
   const toggleSelect = (id: string) => {
     setSelected((prev) => {
@@ -147,28 +154,15 @@ export function ApprovalQueueInbox({
 
       {/* Actions */}
       <div style={{ marginTop: 16, display: "flex", gap: 8, alignItems: "center" }}>
-        <ActionButton
-          label={`선택 항목 승인 (${selected.size})`}
-          variant="primary"
-          onClick={() =>
-            onAction({
-              actionId: "approve.selected",
-              kind: "submit",
-              params: { selectedIds: Array.from(selected) },
-            })
-          }
-        />
-        <ActionButton
-          label="보류"
-          variant="ghost"
-          onClick={() =>
-            onAction({
-              actionId: "approve.hold",
-              kind: "submit",
-              params: { selectedIds: Array.from(selected) },
-            })
-          }
-        />
+        {renderedActions.map((action) => (
+          <ActionButton
+            key={action.actionId}
+            label={action.actionId === "approve.selected" ? `${action.label} (${selected.size})` : action.label}
+            variant={action.variant}
+            disabled={isActionDisabled(action, payload)}
+            onClick={() => emitAction(action, onAction, { selectedIds: Array.from(selected) })}
+          />
+        ))}
       </div>
     </SurfaceCard>
   );

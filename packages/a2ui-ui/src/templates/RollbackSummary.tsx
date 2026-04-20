@@ -5,7 +5,8 @@ import { StatusBadge } from "../primitives/StatusBadge";
 import { ActionButton } from "../primitives/ActionButton";
 import { DataTable } from "../primitives/DataTable";
 import { PropertyList } from "../primitives/PropertyList";
-import type { ActionCallback } from "../types/action-event";
+import type { ActionCallback, TemplateAction } from "../types/action-event";
+import { emitAction, isActionDisabled, resolveActions } from "./action-utils";
 
 type EligibleVersion = {
   id: string;
@@ -68,12 +69,24 @@ const riskToLevel: Record<string, "success" | "warning" | "danger" | "info" | "n
 
 export function RollbackSummary({
   payload,
+  actions,
   onAction,
 }: {
   payload: Record<string, unknown>;
+  actions?: TemplateAction[];
   onAction: ActionCallback;
 }) {
   const p = payload as unknown as RollbackPayload;
+  const renderedActions = resolveActions(actions, [
+    { actionId: "rollback.execute", label: "롤백 실행", variant: "danger", kind: "submit" },
+    { actionId: "rollback.viewLogs", label: "로그 보기", variant: "ghost", kind: "navigate" },
+  ]);
+  const rollbackParams = {
+    candidates: p.candidates.map((candidate) => ({
+      service: candidate.service,
+      targetVersion: candidate.recommendedRollbackVersion,
+    })),
+  };
 
   return (
     <SurfaceCard
@@ -211,27 +224,15 @@ export function RollbackSummary({
 
       {/* Actions */}
       <div style={{ marginTop: 16, display: "flex", gap: 8 }}>
-        <ActionButton
-          label="롤백 실행"
-          variant="danger"
-          onClick={() =>
-            onAction({
-              actionId: "rollback.execute",
-              kind: "submit",
-              params: {
-                candidates: p.candidates.map((c) => ({
-                  service: c.service,
-                  targetVersion: c.recommendedRollbackVersion,
-                })),
-              },
-            })
-          }
-        />
-        <ActionButton
-          label="로그 보기"
-          variant="ghost"
-          onClick={() => onAction({ actionId: "rollback.viewLogs", kind: "navigate" })}
-        />
+        {renderedActions.map((action) => (
+          <ActionButton
+            key={action.actionId}
+            label={action.label}
+            variant={action.variant}
+            disabled={isActionDisabled(action, payload)}
+            onClick={() => emitAction(action, onAction, action.actionId === "rollback.execute" ? rollbackParams : undefined)}
+          />
+        ))}
       </div>
     </SurfaceCard>
   );

@@ -13,6 +13,7 @@ const A2UI_TEMPLATE_IDS = new Set([
   "deploy_launchpad",
   "approval_queue_inbox",
   "rollback_summary",
+  "component_smoke_test",
 ]);
 
 type TemplateSurfaceProps = {
@@ -46,7 +47,7 @@ export function TemplateSurface({
         templateId: activeSurface.templateId,
         version: activeSurface.version ?? "1.0.0",
         payload: activeSurface.payload,
-        actions: activeSurface.actions,
+        actions: activeSurface.actions as A2UISurfaceEnvelope["actions"],
         sourceIntent: activeSurface.sourceIntent,
         updatedAt: activeSurface.updatedAt,
         freshnessKey: activeSurface.freshnessKey,

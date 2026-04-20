@@ -9,11 +9,11 @@ import {
 describe("Template Catalog", () => {
   it("등록된 템플릿 목록을 반환한다", () => {
     const templates = listTemplateSummaries();
-    expect(templates.map((template) => template.templateId)).toEqual([
+    expect(templates.map((template) => template.templateId)).toEqual(expect.arrayContaining([
       "deploy_launchpad",
       "approval_queue_inbox",
       "rollback_summary",
-    ]);
+    ]));
   });
 
   it("intent에서 템플릿 등록 정보를 찾는다", () => {
@@ -24,7 +24,8 @@ describe("Template Catalog", () => {
 
   it("resolver와 binding recipe를 템플릿 등록 정보에서 제공한다", () => {
     const template = getTemplateRegistration("deploy_launchpad");
-    expect(template?.resolver.kind).toBe("deploy_service");
+    expect(template?.resolvers[0]?.kind).toBe("http_get");
+    expect(template?.resolvers[0]?.requiredFacts).toContain("serviceName");
     expect(template?.bindingRecipe.templateId).toBe("deploy_launchpad");
     expect(template?.actions[0]?.actionId).toBe("deploy.start");
   });
@@ -33,7 +34,7 @@ describe("Template Catalog", () => {
     const contract = getTemplateContract("deploy_launchpad");
     expect(contract).toMatchObject({
       templateId: "deploy_launchpad",
-      requiredFields: ["service", "environment", "targetVersion", "strategy", "state"],
+      requiredFields: ["templateId", "state", "service", "environment", "targetVersion", "strategy"],
     });
   });
 });

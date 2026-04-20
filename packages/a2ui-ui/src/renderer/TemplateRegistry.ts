@@ -1,5 +1,5 @@
 import type { ComponentType } from "react";
-import type { ActionCallback } from "../types/action-event";
+import type { ActionCallback, TemplateAction } from "../types/action-event";
 
 export type TemplateDefinition = {
   templateId: string;
@@ -7,6 +7,7 @@ export type TemplateDefinition = {
   component: ComponentType<{
     payload: Record<string, unknown>;
     onAction: ActionCallback;
+    actions?: TemplateAction[];
   }>;
 };
 

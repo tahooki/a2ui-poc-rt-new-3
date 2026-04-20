@@ -1,7 +1,7 @@
 "use client";
 
 import type { SurfaceEnvelope } from "../types/surface-envelope";
-import type { ActionCallback } from "../types/action-event";
+import type { ActionCallback, TemplateAction } from "../types/action-event";
 import { getTemplate } from "./TemplateRegistry";
 
 export type SurfaceRendererProps = {
@@ -35,5 +35,5 @@ export function SurfaceRenderer({ envelope, onAction }: SurfaceRendererProps) {
   }
 
   const Component = def.component;
-  return <Component payload={envelope.payload} onAction={onAction} />;
+  return <Component payload={envelope.payload} actions={envelope.actions as TemplateAction[] | undefined} onAction={onAction} />;
 }

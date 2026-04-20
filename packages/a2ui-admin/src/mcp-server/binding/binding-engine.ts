@@ -55,6 +55,8 @@ export const DEPLOY_LAUNCHPAD_RECIPE: BindingRecipe = {
     { targetField: "imageDetail", sourceKey: "imageDetail" },
     { targetField: "requestDetail", sourceKey: "requestDetail" },
     { targetField: "riskSummary", sourceKey: "riskSummary" },
+    { targetField: "lastDeployment", sourceKey: "lastDeployment" },
+    { targetField: "deploymentHistory", sourceKey: "deploymentHistory", defaultValue: [] },
   ],
 };
 
@@ -81,5 +83,21 @@ export const ROLLBACK_SUMMARY_RECIPE: BindingRecipe = {
     { targetField: "serviceHealth", sourceKey: "serviceHealth", defaultValue: [] },
     { targetField: "causeSummary", sourceKey: "causeSummary" },
     { targetField: "recommendation", sourceKey: "recommendation" },
+  ],
+};
+
+export const COMPONENT_SMOKE_TEST_RECIPE: BindingRecipe = {
+  templateId: "component_smoke_test",
+  staticValues: {
+    templateId: "component_smoke_test",
+  },
+  rules: [
+    { targetField: "headline", sourceKey: "headline" },
+    { targetField: "summary", sourceKey: "summary" },
+    { targetField: "metricLabel", sourceKey: "metricLabel" },
+    { targetField: "metricValue", sourceKey: "metricValue" },
+    { targetField: "statusTone", sourceKey: "statusTone", defaultValue: "success" },
+    { targetField: "rows", sourceKey: "rows", defaultValue: [] },
+    { targetField: "footerNote", sourceKey: "footerNote" },
   ],
 };

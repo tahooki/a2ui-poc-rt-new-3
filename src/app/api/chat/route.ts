@@ -32,6 +32,12 @@ type ParsedSseEvent = {
   data: string;
 };
 
+type A2UITemplateSummary = {
+  templateId: string;
+  title?: string;
+  status?: string;
+};
+
 const VALID_INTENTS = new Set<IntentKey>([
   "deploy.start",
   "deploy.history.lookup",
@@ -97,6 +103,112 @@ function parseSseEvent(rawEvent: string): ParsedSseEvent {
   }
 
   return { event, data: dataLines.join("\n") };
+}
+
+function getA2UIMcpUrl(): string {
+  return process.env.A2UI_MCP_URL ?? "http://localhost:3100/mcp";
+}
+
+function normalizeMatchText(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9가-힣]+/g, "");
+}
+
+function findMentionedTemplate(input: string, templates: A2UITemplateSummary[]): A2UITemplateSummary | null {
+  const normalizedInput = normalizeMatchText(input);
+  const exactMatch = templates.find((template) => {
+    const id = template.templateId;
+    const title = template.title ?? "";
+    return (
+      input.includes(id) ||
+      (!!title && input.includes(title)) ||
+      normalizedInput.includes(normalizeMatchText(id)) ||
+      (!!title && normalizedInput.includes(normalizeMatchText(title)))
+    );
+  });
+
+  if (exactMatch) return exactMatch;
+
+  const asksForRecentTemplate = /등록했던|방금|최근|테스트\s*컴포넌트|smoke/i.test(input);
+  if (!asksForRecentTemplate) return null;
+
+  const newestFirst = [...templates].reverse();
+  return newestFirst.find((template) => /smoke|test/i.test(`${template.templateId} ${template.title ?? ""}`))
+    ?? newestFirst.find((template) => template.status === "draft")
+    ?? null;
+}
+
+async function tryResolveExplicitA2UITemplate(input: string): Promise<SurfaceEnvelope | null> {
+  const { A2UIMcpClient } = await import("@a2ui/agent-node");
+  const client = new A2UIMcpClient({ serverUrl: getA2UIMcpUrl() });
+
+  try {
+    await client.connect();
+    const summaries = await client.callTool("a2ui.listTemplates", {});
+    const templates = Array.isArray(summaries)
+      ? summaries as A2UITemplateSummary[]
+      : [];
+    const template = findMentionedTemplate(input, templates);
+
+    if (!template) return null;
+
+    const envelope = await client.callTool("a2ui.resolveTemplateData", {
+      templateId: template.templateId,
+      context: {
+        intentKey: `${template.templateId}.start`,
+      },
+    });
+
+    if (envelope.error || typeof envelope.templateId !== "string") return null;
+
+    return {
+      templateId: envelope.templateId,
+      version: (envelope.version as string | undefined) ?? "1.0.0",
+      payload: (envelope.payload as Record<string, unknown> | undefined) ?? {},
+      actions: (envelope.actions as Array<Record<string, unknown>> | undefined) ?? [],
+      sourceIntent: (envelope.sourceIntent as string | undefined) ?? `${template.templateId}.start`,
+      updatedAt: (envelope.updatedAt as string | undefined) ?? new Date().toISOString(),
+      freshnessKey: envelope.freshnessKey as string | undefined,
+      meta: (envelope.meta as Record<string, unknown> | undefined) ?? {},
+    };
+  } catch {
+    return null;
+  } finally {
+    await client.disconnect().catch(() => {});
+  }
+}
+
+function buildExplicitTemplateResult(
+  requestId: string,
+  surface: SurfaceEnvelope,
+): AssistantTurnResponse {
+  const catalogTemplateId =
+    typeof surface.meta?.catalogTemplateId === "string"
+      ? surface.meta.catalogTemplateId
+      : surface.templateId;
+
+  return {
+    requestId,
+    message: {
+      role: "assistant",
+      text: `${catalogTemplateId} 템플릿을 catalog에서 resolve했습니다.`,
+    },
+    surface,
+    intent: null,
+    workflow: null,
+    awaiting: null,
+    pendingTool: null,
+    decision: {
+      mode: "render_surface",
+      reason: "사용자가 Admin catalog template을 직접 지정했습니다.",
+    },
+    decisionTrace: null,
+    surfaceIntent: {
+      family: "a2ui.catalog",
+      intentKey: surface.sourceIntent,
+      readiness: "ready",
+    },
+    factsPatch: {},
+  };
 }
 
 function createPythonAgentPayload(body: AssistantTurnRequest, input: string) {
@@ -255,6 +367,17 @@ export async function POST(request: Request) {
       try {
         if (process.env.ASSISTANT_BACKEND === "python") {
           await streamPythonAgentTurn(body, input, requestId, controller, encoder);
+          controller.close();
+          return;
+        }
+
+        const explicitSurface = await tryResolveExplicitA2UITemplate(input);
+        if (explicitSurface) {
+          const result = buildExplicitTemplateResult(requestId, explicitSurface);
+          controller.enqueue(encoder.encode(createSseEvent("delta", { text: result.message.text })));
+          controller.enqueue(encoder.encode(createSseEvent("surface", explicitSurface)));
+          controller.enqueue(encoder.encode(createSseEvent("result", result)));
+          controller.enqueue(encoder.encode(createSseEvent("done", {})));
           controller.close();
           return;
         }

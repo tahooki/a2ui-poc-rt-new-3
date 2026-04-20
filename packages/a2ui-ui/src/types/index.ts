@@ -1,2 +1,2 @@
 export type { SurfaceEnvelope, SurfaceAction } from "./surface-envelope";
-export type { ActionEvent, ActionCallback } from "./action-event";
+export type { ActionEvent, ActionCallback, TemplateAction } from "./action-event";

@@ -3,6 +3,7 @@
  */
 
 import Ajv from "ajv";
+import type { GeneratedValidation } from "../catalog/template-store.js";
 
 export type ValidationResult = {
   valid: boolean;
@@ -29,6 +30,8 @@ const TEMPLATE_SCHEMAS: Record<string, object> = {
       preflightChecks: { type: "array", items: { type: "string" } },
       imageDetail: { type: "object" },
       requestDetail: { type: "object" },
+      lastDeployment: { type: "object" },
+      deploymentHistory: { type: "array" },
     },
     additionalProperties: true,
   },
@@ -88,6 +91,32 @@ const TEMPLATE_SCHEMAS: Record<string, object> = {
     },
     additionalProperties: true,
   },
+  component_smoke_test: {
+    type: "object",
+    required: ["templateId", "headline", "metricLabel", "metricValue", "statusTone", "rows"],
+    properties: {
+      templateId: { type: "string", const: "component_smoke_test" },
+      headline: { type: "string" },
+      summary: { type: "string" },
+      metricLabel: { type: "string" },
+      metricValue: { type: "string" },
+      statusTone: { type: "string", enum: ["success", "warning", "danger", "info", "neutral"] },
+      rows: {
+        type: "array",
+        items: {
+          type: "object",
+          required: ["name", "value", "status"],
+          properties: {
+            name: { type: "string" },
+            value: { type: "string" },
+            status: { type: "string", enum: ["success", "warning", "danger", "info", "neutral"] },
+          },
+        },
+      },
+      footerNote: { type: "string" },
+    },
+    additionalProperties: true,
+  },
 };
 
 // 컴파일된 validator 캐시
@@ -105,7 +134,13 @@ function getValidator(templateId: string) {
 export function validatePayload(
   templateId: string,
   payload: Record<string, unknown>,
+  generatedValidation?: Pick<GeneratedValidation, "renderRequiredPayloadFields">,
 ): ValidationResult {
+  const generatedErrors = validateGeneratedPayloadRules(payload, generatedValidation);
+  if (generatedErrors.length > 0) {
+    return { valid: false, errors: generatedErrors };
+  }
+
   const validate = getValidator(templateId);
 
   if (!validate) {
@@ -123,4 +158,33 @@ export function validatePayload(
   );
 
   return { valid: false, errors };
+}
+
+function getByPath(value: unknown, path: string): unknown {
+  return path.split(".").reduce<unknown>((current, part) => {
+    if (current === undefined || current === null) return undefined;
+    if (Array.isArray(current) && /^\d+$/.test(part)) {
+      return current[Number(part)];
+    }
+    if (typeof current === "object") {
+      return (current as Record<string, unknown>)[part];
+    }
+    return undefined;
+  }, value);
+}
+
+function hasValue(value: unknown): boolean {
+  if (value === undefined || value === null) return false;
+  if (typeof value === "string") return value.length > 0;
+  return true;
+}
+
+function validateGeneratedPayloadRules(
+  payload: Record<string, unknown>,
+  generatedValidation?: Pick<GeneratedValidation, "renderRequiredPayloadFields">,
+): string[] {
+  if (!generatedValidation) return [];
+  return generatedValidation.renderRequiredPayloadFields
+    .filter((field) => !hasValue(getByPath(payload, field)))
+    .map((field) => `/${field}: is required by generated validation`);
 }

@@ -1,0 +1,572 @@
+[
+  {
+    "schemaVersion": 2,
+    "templateId": "deploy_launchpad",
+    "version": "1.0.0",
+    "title": "Deploy Launchpad",
+    "status": "published",
+    "description": "서비스명 기반 배포 준비 정보를 카드로 보여주는 A2UI 템플릿",
+    "intents": [
+      {
+        "intentKey": "deploy.start",
+        "requiredFacts": [],
+        "optionalFacts": [
+          "environment",
+          "targetVersion"
+        ]
+      }
+    ],
+    "resolvers": [
+      {
+        "id": "service",
+        "kind": "http_get",
+        "label": "Service detail",
+        "phase": "blocking",
+        "requiredFacts": [
+          "serviceName"
+        ],
+        "optionalFacts": [
+          "environment"
+        ],
+        "endpoint": "/api/services/{serviceName}",
+        "outputAlias": "service",
+        "requiredOutputs": [
+          "recommendedVersion",
+          "availableImages"
+        ],
+        "assign": {
+          "recommendedVersion": "service.recommendedVersion",
+          "availableImages": "service.availableImages",
+          "environments": "service.environments"
+        }
+      },
+      {
+        "id": "deployDefaults",
+        "kind": "static_defaults",
+        "label": "Deploy defaults",
+        "phase": "blocking",
+        "outputAlias": "defaults",
+        "values": {
+          "environment": "production",
+          "requestDetail": {
+            "cpu": "1024",
+            "memory": "2048",
+            "desiredCount": "4",
+            "deploymentStrategy": "rolling",
+            "requestedBy": "AI Assistant"
+          },
+          "impactSummaryTemplate": "{serviceName} {environment} 환경에 {recommendedVersion} 배포",
+          "strategy": "rolling"
+        }
+      },
+      {
+        "id": "deployments",
+        "kind": "http_get",
+        "label": "Deployment history source",
+        "phase": "optional",
+        "requiredFacts": [],
+        "optionalFacts": [],
+        "endpoint": "/api/deployments",
+        "outputAlias": "deployments",
+        "requiredOutputs": []
+      },
+      {
+        "id": "deploymentHistory",
+        "kind": "transform_filter",
+        "label": "Filter history by service",
+        "phase": "optional",
+        "requiredFacts": [
+          "serviceName"
+        ],
+        "inputPath": "deployments.history",
+        "filter": {
+          "field": "service",
+          "fact": "serviceName"
+        },
+        "outputAlias": "deploymentHistory",
+        "requiredOutputs": [],
+        "assign": {
+          "deploymentHistory": "deploymentHistory",
+          "lastDeployment": "deploymentHistory.0"
+        }
+      },
+      {
+        "id": "riskSummary",
+        "kind": "llm_summary",
+        "label": "Risk summary",
+        "phase": "optional",
+        "requiredFacts": [],
+        "optionalFacts": [],
+        "outputAlias": "llm",
+        "requiredOutputs": []
+      }
+    ],
+    "bindingRecipeId": "deploy_launchpad",
+    "actions": [
+      {
+        "actionId": "deploy.start",
+        "label": "배포 시작",
+        "variant": "primary",
+        "kind": "submit",
+        "requiredPayloadFields": [
+          "service",
+          "environment",
+          "targetVersion"
+        ],
+        "enableWhen": {
+          "field": "state",
+          "equals": "ready"
+        }
+      },
+      {
+        "actionId": "deploy.refresh",
+        "label": "초안 새로 고침",
+        "variant": "ghost",
+        "kind": "refresh",
+        "requiredPayloadFields": [],
+        "enableWhen": null
+      }
+    ],
+    "generatedValidation": {
+      "requiredFacts": [
+        "serviceName"
+      ],
+      "renderRequiredPayloadFields": [
+        "templateId",
+        "state",
+        "service",
+        "environment",
+        "targetVersion",
+        "strategy"
+      ],
+      "actionRequiredPayloadFields": {
+        "deploy.start": [
+          "service",
+          "environment",
+          "targetVersion"
+        ],
+        "deploy.refresh": []
+      },
+      "requiredResolverOutputs": {
+        "service": [
+          "recommendedVersion",
+          "availableImages"
+        ]
+      }
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "templateId": "approval_queue_inbox",
+    "version": "1.0.0",
+    "title": "Approval Queue Inbox",
+    "status": "published",
+    "description": "승인 대기 항목과 상태별 요약을 보여주는 A2UI 템플릿",
+    "intents": [
+      {
+        "intentKey": "approval.review",
+        "requiredFacts": []
+      }
+    ],
+    "resolvers": [
+      {
+        "id": "approvals",
+        "kind": "http_get",
+        "label": "Approval queue",
+        "phase": "blocking",
+        "requiredFacts": [],
+        "optionalFacts": [],
+        "endpoint": "/api/approvals",
+        "outputAlias": "approvals",
+        "requiredOutputs": [
+          "items"
+        ],
+        "assign": {
+          "items": "approvals.items",
+          "byStatus": "approvals.byStatus",
+          "byType": "approvals.byType"
+        }
+      },
+      {
+        "id": "queueSummary",
+        "kind": "llm_summary",
+        "label": "Queue summary",
+        "phase": "optional",
+        "requiredFacts": [],
+        "optionalFacts": [],
+        "outputAlias": "llm",
+        "requiredOutputs": []
+      }
+    ],
+    "bindingRecipeId": "approval_queue_inbox",
+    "actions": [
+      {
+        "actionId": "approve.selected",
+        "label": "선택 항목 승인",
+        "variant": "primary",
+        "kind": "submit",
+        "requiredPayloadFields": [
+          "items"
+        ],
+        "enableWhen": null
+      },
+      {
+        "actionId": "approve.hold",
+        "label": "보류",
+        "variant": "ghost",
+        "kind": "submit",
+        "requiredPayloadFields": [
+          "items"
+        ],
+        "enableWhen": null
+      }
+    ],
+    "generatedValidation": {
+      "requiredFacts": [],
+      "renderRequiredPayloadFields": [
+        "templateId",
+        "items"
+      ],
+      "actionRequiredPayloadFields": {
+        "approve.selected": [
+          "items"
+        ],
+        "approve.hold": [
+          "items"
+        ]
+      },
+      "requiredResolverOutputs": {
+        "approvals": [
+          "items"
+        ]
+      }
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "templateId": "rollback_summary",
+    "version": "1.0.0",
+    "title": "Rollback Summary",
+    "status": "published",
+    "description": "인시던트 기반 롤백 후보와 권장 사항을 보여주는 A2UI 템플릿",
+    "intents": [
+      {
+        "intentKey": "rollback.start",
+        "requiredFacts": [
+          "serviceName"
+        ]
+      }
+    ],
+    "resolvers": [
+      {
+        "id": "incidents",
+        "kind": "http_get",
+        "label": "Rollback incidents",
+        "phase": "blocking",
+        "requiredFacts": [],
+        "optionalFacts": [
+          "serviceName"
+        ],
+        "endpoint": "/api/incidents",
+        "outputAlias": "incidents",
+        "requiredOutputs": [
+          "candidates"
+        ],
+        "assign": {
+          "candidates": "incidents.candidates",
+          "serviceHealth": "incidents.serviceHealth"
+        }
+      },
+      {
+        "id": "rollbackAnalysis",
+        "kind": "llm_summary",
+        "label": "Rollback analysis",
+        "phase": "optional",
+        "requiredFacts": [],
+        "optionalFacts": [],
+        "outputAlias": "llm",
+        "requiredOutputs": []
+      }
+    ],
+    "bindingRecipeId": "rollback_summary",
+    "actions": [
+      {
+        "actionId": "rollback.execute",
+        "label": "롤백 실행",
+        "variant": "danger",
+        "kind": "submit",
+        "requiredPayloadFields": [
+          "candidates"
+        ],
+        "enableWhen": null
+      },
+      {
+        "actionId": "rollback.viewLogs",
+        "label": "로그 보기",
+        "variant": "ghost",
+        "kind": "navigate",
+        "requiredPayloadFields": [],
+        "enableWhen": null
+      }
+    ],
+    "generatedValidation": {
+      "requiredFacts": [],
+      "renderRequiredPayloadFields": [
+        "templateId",
+        "candidates"
+      ],
+      "actionRequiredPayloadFields": {
+        "rollback.execute": [
+          "candidates"
+        ],
+        "rollback.viewLogs": []
+      },
+      "requiredResolverOutputs": {
+        "incidents": [
+          "candidates"
+        ]
+      }
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "templateId": "codex_click_test_template",
+    "version": "1.0.0",
+    "title": "Codex Click Test Template",
+    "status": "draft",
+    "description": "Draft template copied from Deploy Launchpad",
+    "intents": [
+      {
+        "intentKey": "codex_click_test_template.start",
+        "requiredFacts": [],
+        "optionalFacts": []
+      }
+    ],
+    "resolvers": [
+      {
+        "id": "service",
+        "kind": "http_get",
+        "label": "Service detail",
+        "phase": "blocking",
+        "requiredFacts": [
+          "serviceName"
+        ],
+        "optionalFacts": [
+          "environment"
+        ],
+        "endpoint": "/api/services/{serviceName}",
+        "outputAlias": "service",
+        "requiredOutputs": [
+          "recommendedVersion",
+          "availableImages"
+        ],
+        "assign": {
+          "recommendedVersion": "service.recommendedVersion",
+          "availableImages": "service.availableImages",
+          "environments": "service.environments"
+        }
+      },
+      {
+        "id": "deployDefaults",
+        "kind": "static_defaults",
+        "label": "Deploy defaults",
+        "phase": "blocking",
+        "outputAlias": "defaults",
+        "values": {
+          "environment": "production",
+          "requestDetail": {
+            "cpu": "1024",
+            "memory": "2048",
+            "desiredCount": "4",
+            "deploymentStrategy": "rolling",
+            "requestedBy": "AI Assistant"
+          },
+          "impactSummaryTemplate": "{serviceName} {environment} 환경에 {recommendedVersion} 배포",
+          "strategy": "rolling"
+        }
+      },
+      {
+        "id": "deployments",
+        "kind": "http_get",
+        "label": "Deployment history source",
+        "phase": "optional",
+        "requiredFacts": [],
+        "optionalFacts": [],
+        "endpoint": "/api/deployments",
+        "outputAlias": "deployments",
+        "requiredOutputs": []
+      },
+      {
+        "id": "deploymentHistory",
+        "kind": "transform_filter",
+        "label": "Filter history by service",
+        "phase": "optional",
+        "requiredFacts": [
+          "serviceName"
+        ],
+        "inputPath": "deployments.history",
+        "filter": {
+          "field": "service",
+          "fact": "serviceName"
+        },
+        "outputAlias": "deploymentHistory",
+        "requiredOutputs": [],
+        "assign": {
+          "deploymentHistory": "deploymentHistory",
+          "lastDeployment": "deploymentHistory.0"
+        }
+      },
+      {
+        "id": "riskSummary",
+        "kind": "llm_summary",
+        "label": "Risk summary",
+        "phase": "optional",
+        "requiredFacts": [],
+        "optionalFacts": [],
+        "outputAlias": "llm",
+        "requiredOutputs": []
+      }
+    ],
+    "bindingRecipeId": "deploy_launchpad",
+    "actions": [
+      {
+        "actionId": "deploy.start",
+        "label": "배포 시작",
+        "variant": "primary",
+        "kind": "submit",
+        "requiredPayloadFields": [
+          "service",
+          "environment",
+          "targetVersion"
+        ],
+        "enableWhen": {
+          "field": "state",
+          "equals": "ready"
+        }
+      },
+      {
+        "actionId": "deploy.refresh",
+        "label": "초안 새로 고침",
+        "variant": "ghost",
+        "kind": "refresh",
+        "requiredPayloadFields": [],
+        "enableWhen": null
+      }
+    ],
+    "generatedValidation": {
+      "requiredFacts": [
+        "serviceName"
+      ],
+      "renderRequiredPayloadFields": [
+        "templateId",
+        "state",
+        "service",
+        "environment",
+        "targetVersion",
+        "strategy"
+      ],
+      "actionRequiredPayloadFields": {
+        "deploy.start": [
+          "service",
+          "environment",
+          "targetVersion"
+        ],
+        "deploy.refresh": []
+      },
+      "requiredResolverOutputs": {
+        "service": [
+          "recommendedVersion",
+          "availableImages"
+        ]
+      }
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "templateId": "component_smoke_fulltest",
+    "version": "1.0.0",
+    "title": "Component Smoke Full Test",
+    "status": "draft",
+    "description": "Draft template copied from Deploy Launchpad",
+    "intents": [
+      {
+        "intentKey": "component_smoke_fulltest.start",
+        "requiredFacts": [],
+        "optionalFacts": []
+      }
+    ],
+    "resolvers": [
+      {
+        "id": "smokeData",
+        "kind": "static_defaults",
+        "label": "Admin-bound smoke test data",
+        "phase": "blocking",
+        "outputAlias": "smoke",
+        "values": {
+          "headline": "Admin data binding is live",
+          "summary": "This payload was authored in the Admin catalog and resolved through MCP.",
+          "metricLabel": "Smoke score",
+          "metricValue": "100%",
+          "statusTone": "success",
+          "rows": [
+            {
+              "name": "Admin catalog",
+              "value": "template saved",
+              "status": "success"
+            },
+            {
+              "name": "MCP resolve",
+              "value": "payload generated",
+              "status": "success"
+            },
+            {
+              "name": "React renderer",
+              "value": "component mounted",
+              "status": "info"
+            }
+          ],
+          "footerNote": "Created by the component smoke full test."
+        }
+      }
+    ],
+    "bindingRecipeId": "component_smoke_test",
+    "actions": [
+      {
+        "actionId": "smoke.ack",
+        "label": "Acknowledge",
+        "variant": "primary",
+        "kind": "submit",
+        "requiredPayloadFields": [
+          "headline"
+        ],
+        "enableWhen": null
+      },
+      {
+        "actionId": "smoke.refresh",
+        "label": "Refresh",
+        "variant": "ghost",
+        "kind": "refresh",
+        "requiredPayloadFields": [],
+        "enableWhen": null
+      }
+    ],
+    "generatedValidation": {
+      "requiredFacts": [],
+      "renderRequiredPayloadFields": [
+        "templateId",
+        "headline",
+        "metricLabel",
+        "metricValue",
+        "statusTone",
+        "rows"
+      ],
+      "actionRequiredPayloadFields": {
+        "smoke.ack": [
+          "headline"
+        ],
+        "smoke.refresh": []
+      },
+      "requiredResolverOutputs": {}
+    }
+  }
+]

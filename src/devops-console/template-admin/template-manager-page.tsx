@@ -4,17 +4,15 @@ import { useState } from "react";
 import styles from "@/devops-console/console-page.module.css";
 import { getRegistryDefinition } from "@/devops-chat/template-registry/template-registry";
 import { TemplateListPanel } from "./template-list-panel";
-import { TemplateContractViewer } from "./template-contract-viewer";
 import { ExamplePayloadEditor } from "./example-payload-editor";
 import { TemplateLivePreview } from "./template-live-preview";
-import { SelectionPolicyViewer } from "./selection-policy-viewer";
 import { DecisionSimulator } from "./decision-simulator";
 
-type TabKey = "contract" | "preview" | "policy" | "simulator";
+type TabKey = "editor" | "simulate";
 
 export function TemplateManagerPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<TabKey>("contract");
+  const [activeTab, setActiveTab] = useState<TabKey>("editor");
   const [payloadJson, setPayloadJson] = useState("{}");
   const [parseError, setParseError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
@@ -45,10 +43,8 @@ export function TemplateManagerPage() {
   }
 
   const TABS: { key: TabKey; label: string }[] = [
-    { key: "contract", label: "Contract" },
-    { key: "preview", label: "Preview" },
-    { key: "policy", label: "Policy" },
-    { key: "simulator", label: "Simulator" },
+    { key: "editor", label: "Editor" },
+    { key: "simulate", label: "Simulate" },
   ];
 
   return (
@@ -78,11 +74,7 @@ export function TemplateManagerPage() {
               ))}
             </div>
 
-            {activeTab === "contract" ? (
-              <TemplateContractViewer definition={definition} />
-            ) : null}
-
-            {activeTab === "preview" ? (
+            {activeTab === "editor" ? (
               <div className={styles.templatePreviewSplit}>
                 <ExamplePayloadEditor
                   definition={definition}
@@ -98,11 +90,7 @@ export function TemplateManagerPage() {
               </div>
             ) : null}
 
-            {activeTab === "policy" ? (
-              <SelectionPolicyViewer definition={definition} />
-            ) : null}
-
-            {activeTab === "simulator" ? (
+            {activeTab === "simulate" ? (
               <DecisionSimulator />
             ) : null}
           </>

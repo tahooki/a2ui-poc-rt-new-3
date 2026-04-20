@@ -2,7 +2,10 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import express from "express";
 import { randomUUID } from "node:crypto";
+import { resolve } from "node:path";
+import { readFileSync } from "node:fs";
 import { registerTools } from "./tools/register-tools.js";
+import { adminRouter } from "./admin-routes.js";
 
 const PORT = Number(process.env.PORT ?? 3100);
 
@@ -17,7 +20,18 @@ function createMcpServer(): McpServer {
 
 // Express app
 const app = express();
+
+// Serve admin UI
+const adminHtml = readFileSync(resolve(process.cwd(), "public/index.html"), "utf-8");
+app.get("/", function(_req, res) {
+  res.type("html").send(adminHtml);
+});
+
+// JSON body parsing for API routes
 app.use(express.json());
+
+// Admin REST API
+app.use(adminRouter);
 
 // Session → transport mapping
 const transports = new Map<string, StreamableHTTPServerTransport>();
@@ -78,5 +92,7 @@ app.get("/health", (_req, res) => res.json({ status: "ok", tools: "registered" }
 
 app.listen(PORT, () => {
   console.log(`A2UI MCP Server running on http://localhost:${PORT}`);
+  console.log(`  Admin UI:     http://localhost:${PORT}`);
+  console.log(`  Admin API:    http://localhost:${PORT}/admin/templates`);
   console.log(`  MCP endpoint: POST http://localhost:${PORT}/mcp`);
 });

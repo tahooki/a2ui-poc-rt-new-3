@@ -3,6 +3,8 @@
 import { useState } from "react";
 import styles from "@/devops-console/console-page.module.css";
 import { runTemplateSimulator, type SimulatorResult } from "@/devops-chat/template-registry/run-template-simulator";
+import { TemplateLivePreview } from "./template-live-preview";
+import { getRegistryDefinition } from "@/devops-chat/template-registry/template-registry";
 
 export function DecisionSimulator() {
   const [intentKey, setIntentKey] = useState("deploy.start");
@@ -22,6 +24,14 @@ export function DecisionSimulator() {
     }
   }
 
+  const selectedDef = result?.selectedTemplateId
+    ? getRegistryDefinition(result.selectedTemplateId)
+    : null;
+
+  const previewPayload = selectedDef?.previewCases[0]
+    ? JSON.stringify(selectedDef.previewCases[0].payload, null, 2)
+    : "{}";
+
   return (
     <div>
       <div className={styles.sectionEyebrow}>Decision Simulator</div>
@@ -34,69 +44,76 @@ export function DecisionSimulator() {
           <option value="general.qna">general.qna</option>
         </select>
         <button className={styles.chatAwaitingChip} onClick={handleRun} type="button">
-          Run Simulator
+          Run
         </button>
       </div>
       <textarea
         className={styles.payloadEditor}
         onChange={(e) => setFactsJson(e.target.value)}
         placeholder='{"slots": {"deploy.serviceName": {"value": "payments-api", "source": "user", "confidence": 1, "updatedAt": ""}}}'
-        rows={8}
+        rows={6}
         spellCheck={false}
         value={factsJson}
       />
       {error ? <div className={styles.editorError}>{error}</div> : null}
       {result ? (
         <div style={{ marginTop: 12 }}>
-          <table className={styles.contractTable}>
-            <tbody>
-              <tr>
-                <td><strong>Decision</strong></td>
-                <td>{result.decisionMode}</td>
-              </tr>
-              <tr>
-                <td><strong>Reason</strong></td>
-                <td>{result.decisionReason}</td>
-              </tr>
-              <tr>
-                <td><strong>Matched</strong></td>
-                <td>{result.decisionMatched.join(", ") || "—"}</td>
-              </tr>
-              <tr>
-                <td><strong>Missing</strong></td>
-                <td>{result.decisionMissing.join(", ") || "—"}</td>
-              </tr>
-              <tr>
-                <td><strong>Selected Template</strong></td>
-                <td>{result.selectedTemplateId ?? "none"}</td>
-              </tr>
-            </tbody>
-          </table>
-          <div className={styles.sectionEyebrow} style={{ marginTop: 12 }}>Candidates</div>
-          <table className={styles.contractTable}>
-            <thead>
-              <tr>
-                <th>Template</th>
-                <th>Eligible</th>
-                <th>Score</th>
-                <th>Matched</th>
-                <th>Missing</th>
-                <th>Reason</th>
-              </tr>
-            </thead>
-            <tbody>
-              {result.selectionCandidates.map((c) => (
-                <tr key={c.templateId}>
-                  <td><code>{c.templateId}</code></td>
-                  <td>{c.eligible ? "Y" : ""}</td>
-                  <td>{c.score}</td>
-                  <td>{c.matched.join(", ")}</td>
-                  <td>{c.missing.join(", ")}</td>
-                  <td>{c.reason}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div
+            style={{
+              padding: "10px 14px",
+              background: result.decisionMode === "render_surface"
+                ? "rgba(52,195,143,.08)"
+                : result.decisionMode === "ask_followup"
+                  ? "rgba(240,179,90,.08)"
+                  : "rgba(125,139,159,.08)",
+              border: `1px solid ${
+                result.decisionMode === "render_surface"
+                  ? "rgba(52,195,143,.3)"
+                  : result.decisionMode === "ask_followup"
+                    ? "rgba(240,179,90,.3)"
+                    : "rgba(125,139,159,.3)"
+              }`,
+              borderRadius: "var(--console-radius)",
+              fontSize: 13,
+              marginBottom: 16,
+            }}
+          >
+            <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 4 }}>
+              <span
+                style={{
+                  fontSize: 11,
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  letterSpacing: ".04em",
+                  color: result.decisionMode === "render_surface"
+                    ? "var(--console-success)"
+                    : result.decisionMode === "ask_followup"
+                      ? "var(--console-warning)"
+                      : "var(--console-text-muted)",
+                }}
+              >
+                {result.decisionMode}
+              </span>
+              {result.selectedTemplateId ? (
+                <span style={{ color: "var(--console-info)", fontWeight: 600 }}>
+                  {result.selectedTemplateId}
+                </span>
+              ) : null}
+            </div>
+            <div style={{ color: "var(--console-text-secondary)" }}>{result.decisionReason}</div>
+            {result.decisionMissing.length > 0 ? (
+              <div style={{ color: "var(--console-warning)", marginTop: 4 }}>
+                Missing: {result.decisionMissing.join(", ")}
+              </div>
+            ) : null}
+          </div>
+
+          {result.decisionMode === "render_surface" && result.selectedTemplateId && selectedDef ? (
+            <TemplateLivePreview
+              templateId={result.selectedTemplateId}
+              payloadJson={previewPayload}
+            />
+          ) : null}
         </div>
       ) : null}
     </div>

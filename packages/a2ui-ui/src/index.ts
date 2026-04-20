@@ -25,4 +25,4 @@ export type { TemplateDefinition } from "./renderer/TemplateRegistry";
 export { createActionEvent } from "./renderer/ActionEmitter";
 
 // Types
-export type { SurfaceEnvelope, SurfaceAction, ActionEvent, ActionCallback } from "./types";
+export type { SurfaceEnvelope, SurfaceAction, ActionEvent, ActionCallback, TemplateAction } from "./types";
