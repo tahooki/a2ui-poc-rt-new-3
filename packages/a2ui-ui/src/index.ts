@@ -35,6 +35,30 @@ export type {
   SurfaceConfig,
   SurfaceConfigValue,
 } from "./dynamic/schema";
+export {
+  A2UI_ALLOWED_BINDING_ROOTS,
+  A2UI_PART_DEFINITIONS,
+  createDefaultPart,
+  createPartPreviewSurfaceConfig,
+  getA2UIPartDefinition,
+  getA2UIPartEditorFields,
+  getA2UIPartPreviewPayload,
+  isAllowedBindingPath,
+  isKnownA2UIPartDefinition,
+  listA2UIPartDefinitionTypes,
+  listA2UIPartDefinitions,
+  listAllowedPropsForPart,
+  listRequiredPayloadFieldsForSurfaceConfig,
+  staticValue,
+} from "./parts/catalog";
+export type {
+  A2UIPartCategory,
+  A2UIPartDefinition,
+  A2UIPartDefinitionFilter,
+  A2UIPartEditorField,
+  PartPreviewSurfaceConfig,
+  PartPreviewSurfaceOptions,
+} from "./parts/catalog";
 
 // Types
 export type { SurfaceEnvelope, SurfaceAction, ActionEvent, ActionCallback, TemplateAction } from "./types";

@@ -35,7 +35,16 @@ describe("Template Catalog", () => {
     const contract = getTemplateContract("deploy_launchpad");
     expect(contract).toMatchObject({
       templateId: "deploy_launchpad",
-      requiredFields: ["templateId", "state", "service", "environment", "targetVersion", "strategy"],
     });
+    expect(contract.requiredFields).toEqual(expect.arrayContaining([
+      "templateId",
+      "state",
+      "service",
+      "environment",
+      "targetVersion",
+      "strategy",
+      "imageDetail",
+      "requestDetail",
+    ]));
   });
 });

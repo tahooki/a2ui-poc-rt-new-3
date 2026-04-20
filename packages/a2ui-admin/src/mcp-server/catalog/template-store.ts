@@ -9,6 +9,15 @@
 import { existsSync, mkdirSync, readFileSync, renameSync, statSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  getA2UIPartDefinition,
+  isAllowedBindingPath,
+  isKnownA2UIPartDefinition,
+  listAllowedPropsForPart,
+  listRequiredPayloadFieldsForSurfaceConfig,
+  type A2UIPartEditorField,
+  type SurfaceConfig,
+} from "@a2ui/ui";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const CATALOG_PATH = resolve(__dirname, "../../../data/template-catalog.json");
@@ -139,25 +148,12 @@ const RENDER_REQUIRED_FIELDS: Record<string, string[]> = {
   component_smoke_test: ["templateId", "headline", "metricLabel", "metricValue", "statusTone", "rows"],
 };
 
-const KNOWN_A2UI_PART_TYPES = new Set([
-  "KeyValueSummary",
-  "DataTableBlock",
-  "MetricGridBlock",
-  "StepProgressBlock",
-  "ChecklistBlock",
-  "AlertBlock",
-  "TimelineBlock",
-  "ActionListBlock",
-  "DeployTargetSummaryBlock",
-  "DeployArtifactBlock",
-  "DeployRequestConfigBlock",
-  "DeployPreflightChecklistBlock",
-  "DeployRolloutProgressBlock",
-  "DeploymentHistoryBlock",
-]);
-
 function isRecord(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === "object" && !Array.isArray(value);
+}
+
+function isSurfaceConfigLike(value: unknown): value is SurfaceConfig {
+  return isRecord(value) && value.kind === "a2ui_card" && Array.isArray(value.parts);
 }
 
 function stringArray(value: unknown): string[] {
@@ -307,8 +303,12 @@ export function buildGeneratedValidation(template: StoredTemplateRegistration): 
 
   return {
     requiredFacts,
-    renderRequiredPayloadFields:
-      RENDER_REQUIRED_FIELDS[template.bindingRecipeId] ?? template.contract?.requiredFields ?? [],
+    renderRequiredPayloadFields: unique([
+      ...(RENDER_REQUIRED_FIELDS[template.bindingRecipeId] ?? template.contract?.requiredFields ?? []),
+      ...(isSurfaceConfigLike(template.surfaceConfig)
+        ? listRequiredPayloadFieldsForSurfaceConfig(template.surfaceConfig)
+        : []),
+    ]),
     actionRequiredPayloadFields,
     requiredResolverOutputs,
   };
@@ -487,6 +487,132 @@ function validateAction(action: unknown, index: number, seenIds: Set<string>, er
   }
 }
 
+function readStaticValue(value: unknown): unknown {
+  if (isRecord(value) && value.type === "static" && "value" in value) return value.value;
+  return value;
+}
+
+function validateBindingPath(pathValue: unknown, path: string, errors: string[]): void {
+  if (typeof pathValue !== "string" || !pathValue) {
+    errors.push(`${path}.path must be a non-empty string`);
+    return;
+  }
+  if (!isAllowedBindingPath(pathValue)) {
+    errors.push(`${path}.path must start with payload, actions, meta, or context`);
+  }
+}
+
+function validateSurfaceConfigValue(value: unknown, path: string, errors: string[]): void {
+  if (value === undefined || value === null) return;
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => validateSurfaceConfigValue(item, `${path}[${index}]`, errors));
+    return;
+  }
+  if (!isRecord(value)) return;
+
+  if ("type" in value) {
+    if (value.type === "binding") {
+      validateBindingPath(value.path, path, errors);
+      return;
+    }
+    if (value.type === "static") {
+      if (!("value" in value)) errors.push(`${path}.value is required for static config values`);
+      return;
+    }
+  }
+
+  for (const [key, child] of Object.entries(value)) {
+    validateSurfaceConfigValue(child, `${path}.${key}`, errors);
+  }
+}
+
+function validateStringListStaticValue(value: unknown, path: string, errors: string[]): void {
+  const raw = readStaticValue(value);
+  if (!Array.isArray(raw)) {
+    errors.push(`${path} must be a static string array`);
+    return;
+  }
+  raw.forEach((item, index) => {
+    if (typeof item !== "string" || !item) {
+      errors.push(`${path}[${index}] must be a non-empty string`);
+    }
+  });
+}
+
+function validateStaticTextValue(value: unknown, path: string, errors: string[]): void {
+  const raw = readStaticValue(value);
+  if (typeof raw !== "string") {
+    errors.push(`${path} must be static text`);
+  }
+}
+
+function validateSelectValue(
+  value: unknown,
+  field: Extract<A2UIPartEditorField, { kind: "select" }>,
+  path: string,
+  errors: string[],
+): void {
+  const raw = readStaticValue(value);
+  if (typeof raw !== "string" || !field.options.some((option) => option.value === raw)) {
+    errors.push(`${path} must be one of: ${field.options.map((option) => option.value).join(", ")}`);
+  }
+}
+
+function validatePartFieldValue(
+  value: unknown,
+  field: A2UIPartEditorField,
+  path: string,
+  errors: string[],
+): void {
+  if (value === undefined) {
+    if (field.required) errors.push(`${path} is required`);
+    return;
+  }
+
+  switch (field.kind) {
+    case "bindingPath":
+      if (!isRecord(value) || value.type !== "binding") {
+        errors.push(`${path} must be a binding value`);
+        return;
+      }
+      validateBindingPath(value.path, path, errors);
+      return;
+    case "staticStringList":
+      validateStringListStaticValue(value, path, errors);
+      return;
+    case "staticText":
+      validateStaticTextValue(value, path, errors);
+      return;
+    case "select":
+      validateSelectValue(value, field, path, errors);
+      return;
+    case "staticJson":
+      validateSurfaceConfigValue(value, path, errors);
+      return;
+  }
+}
+
+function validatePartProps(
+  type: string,
+  props: Record<string, unknown> | undefined,
+  path: string,
+  errors: string[],
+): void {
+  const definition = getA2UIPartDefinition(type);
+  if (!definition) return;
+
+  const knownProps = new Set(listAllowedPropsForPart(type));
+  for (const prop of Object.keys(props ?? {})) {
+    if (!knownProps.has(prop)) {
+      errors.push(`${path}.props.${prop} is not declared for ${type}`);
+    }
+  }
+
+  for (const field of definition.editorFields) {
+    validatePartFieldValue(props?.[field.prop], field, `${path}.props.${field.prop}`, errors);
+  }
+}
+
 function validateSurfaceConfig(surfaceConfig: unknown, errors: string[]): void {
   if (surfaceConfig === undefined) return;
   if (!isRecord(surfaceConfig)) {
@@ -499,6 +625,13 @@ function validateSurfaceConfig(surfaceConfig: unknown, errors: string[]): void {
   if (!Array.isArray(surfaceConfig.parts)) {
     errors.push("surfaceConfig.parts must be an array");
     return;
+  }
+  if (surfaceConfig.card !== undefined) {
+    if (!isRecord(surfaceConfig.card)) {
+      errors.push("surfaceConfig.card must be an object");
+    } else {
+      validateSurfaceConfigValue(surfaceConfig.card, "surfaceConfig.card", errors);
+    }
   }
   const partIds = new Set<string>();
   surfaceConfig.parts.forEach((part, index) => {
@@ -516,11 +649,13 @@ function validateSurfaceConfig(surfaceConfig: unknown, errors: string[]): void {
     }
     if (typeof part.type !== "string" || !part.type) {
       errors.push(`${path}.type is required`);
-    } else if (!KNOWN_A2UI_PART_TYPES.has(part.type)) {
+    } else if (!isKnownA2UIPartDefinition(part.type)) {
       errors.push(`${path}.type is unknown: ${part.type}`);
     }
     if (part.props !== undefined && !isRecord(part.props)) {
       errors.push(`${path}.props must be an object`);
+    } else if (typeof part.type === "string") {
+      validatePartProps(part.type, part.props as Record<string, unknown> | undefined, path, errors);
     }
   });
 }

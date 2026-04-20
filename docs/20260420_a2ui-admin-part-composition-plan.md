@@ -344,6 +344,30 @@ else:
   render registered code template by templateId
 ```
 
+## Shared Renderer and Part Manifest
+
+Implementation update on 2026-04-20:
+
+Admin preview and chat now share the same render entrypoint:
+
+```text
+surfaceConfig + payload + actions
+-> SurfaceRenderer
+-> DynamicA2UICardRenderer
+-> explicit part registry
+-> A2UI part component
+```
+
+Admin does not import or branch on deploy React components directly. It reads the shared part definition manifest exported by `@a2ui/ui`, then uses that manifest to populate:
+
+- available part list
+- default part props
+- generated editor fields
+- per-part preview payload
+- required payload path validation
+
+The renderer remains the runtime display path. The manifest is the Admin/runtime edit and validation contract.
+
 ## Admin UX
 
 Admin should separate template editing into conceptual areas:
@@ -468,10 +492,11 @@ Required runtime changes:
 
 - Preserve `surfaceConfig` from stored template catalog.
 - Include `surfaceConfig` in the resolved envelope.
-- Validate that `surfaceConfig.parts[*].type` is known.
-- Optionally generate `renderRequiredPayloadFields` from binding paths.
+- Validate that `surfaceConfig.parts[*].type` is known through the shared part manifest.
+- Validate declared part props and binding roots from the same manifest.
+- Generate `renderRequiredPayloadFields` from part definitions and binding paths.
 
-Python does not need major logic changes for this phase. Python/MCP clients should continue receiving an envelope and can ignore `surfaceConfig` if they are not rendering UI.
+Python remains rule-based orchestration plus MCP render in this phase. Python/MCP clients preserve the returned envelope, including `surfaceConfig`; clients that do not render UI can still ignore it.
 
 ## Migration Strategy
 
@@ -588,73 +613,73 @@ Mitigation:
 
 ### Design
 
-- [ ] Define the first `surfaceConfig` JSON schema.
-- [ ] Decide final field name: `surfaceConfig`, `renderConfig`, or `cardConfig`.
-- [ ] Define base card shell fields and binding support.
-- [ ] Define the first A2UI part contracts.
-- [ ] Define deploy-specific part contracts.
-- [ ] Confirm Ant Design remains excluded from the first implementation.
-- [ ] Decide how actions attach to the base card shell.
-- [ ] Decide where `surfaceConfig` appears in MCP envelopes.
+- [x] Define the first `surfaceConfig` JSON schema.
+- [x] Decide final field name: `surfaceConfig`, `renderConfig`, or `cardConfig`.
+- [x] Define base card shell fields and binding support.
+- [x] Define the first A2UI part contracts.
+- [x] Define deploy-specific part contracts.
+- [x] Confirm Ant Design remains excluded from the first implementation.
+- [x] Decide how actions attach to the base card shell.
+- [x] Decide where `surfaceConfig` appears in MCP envelopes.
 
 ### A2UI UI Package
 
-- [ ] Add `packages/a2ui-ui/src/dynamic/schema.ts`.
-- [ ] Add safe binding resolver for `payload.*`, `actions`, and `meta.*`.
-- [ ] Add `A2UICardShell`.
-- [ ] Add `DynamicA2UICardRenderer`.
-- [ ] Add explicit A2UI part registry.
-- [ ] Implement `KeyValueSummary`.
-- [ ] Implement `DataTableBlock`.
-- [ ] Implement `ChecklistBlock`.
-- [ ] Implement `MetricGridBlock`.
-- [ ] Implement `StepProgressBlock`.
-- [ ] Implement `DeployTargetSummaryBlock`.
-- [ ] Implement `DeployArtifactBlock`.
-- [ ] Implement `DeployRequestConfigBlock`.
-- [ ] Implement `DeployPreflightChecklistBlock`.
-- [ ] Implement `DeployRolloutProgressBlock`.
-- [ ] Add unknown-part fallback UI.
-- [ ] Add unit tests for binding resolution.
-- [ ] Add unit tests for dynamic renderer fallback behavior.
+- [x] Add `packages/a2ui-ui/src/dynamic/schema.ts`.
+- [x] Add safe binding resolver for `payload.*`, `actions`, and `meta.*`.
+- [x] Add `A2UICardShell`.
+- [x] Add `DynamicA2UICardRenderer`.
+- [x] Add explicit A2UI part registry.
+- [x] Implement `KeyValueSummary`.
+- [x] Implement `DataTableBlock`.
+- [x] Implement `ChecklistBlock`.
+- [x] Implement `MetricGridBlock`.
+- [x] Implement `StepProgressBlock`.
+- [x] Implement `DeployTargetSummaryBlock`.
+- [x] Implement `DeployArtifactBlock`.
+- [x] Implement `DeployRequestConfigBlock`.
+- [x] Implement `DeployPreflightChecklistBlock`.
+- [x] Implement `DeployRolloutProgressBlock`.
+- [x] Add unknown-part fallback UI.
+- [x] Add unit tests for binding resolution.
+- [x] Add unit tests for dynamic renderer fallback behavior.
 
 ### Admin
 
-- [ ] Add `surfaceConfig` to stored template model.
-- [ ] Add validation for known part types.
-- [ ] Add Surface tab to Admin UI.
-- [ ] Add base card shell editor.
-- [ ] Add part list editor.
-- [ ] Add `+ Add part` flow using A2UI part types.
-- [ ] Add per-part form editor for `KeyValueSummary`.
-- [ ] Add per-part form editor for `DataTableBlock`.
-- [ ] Add per-part form editor for deploy parts.
-- [ ] Add generated JSON preview for surfaceConfig.
-- [ ] Show missing binding path warnings in Simulate.
+- [x] Add `surfaceConfig` to stored template model.
+- [x] Add validation for known part types.
+- [x] Add Surface tab to Admin UI.
+- [x] Add base card shell editor.
+- [x] Add part list editor.
+- [x] Add `+ Add part` flow using A2UI part types.
+- [x] Add per-part form editor for `KeyValueSummary`.
+- [x] Add per-part form editor for `DataTableBlock`.
+- [x] Add per-part form editor for deploy parts.
+- [x] Add generated JSON preview for surfaceConfig.
+- [x] Show missing binding path warnings in Simulate.
 
 ### MCP Runtime
 
-- [ ] Preserve `surfaceConfig` when reading/writing templates.
-- [ ] Return `surfaceConfig` from `a2ui.resolveTemplateData`.
-- [ ] Ensure chat explicit template resolve passes through `surfaceConfig`.
-- [ ] Add tests for `surfaceConfig` in resolved envelope.
-- [ ] Add validation errors for unknown part types.
+- [x] Preserve `surfaceConfig` when reading/writing templates.
+- [x] Return `surfaceConfig` from `a2ui.resolveTemplateData`.
+- [x] Ensure chat explicit template resolve passes through `surfaceConfig`.
+- [x] Add tests for `surfaceConfig` in resolved envelope.
+- [x] Add validation errors for unknown part types.
 
 ### Migration
 
-- [ ] Rebuild `quick_deploy_launchpad` as dynamic card config.
-- [ ] Verify "배포하고싶어" routes to `deploy.start`.
-- [ ] Verify service follow-up still works when service name is missing.
-- [ ] Verify `quick_deploy_launchpad` in Admin simulation.
-- [ ] Verify `quick_deploy_launchpad` through Python MCP call.
-- [ ] Verify `quick_deploy_launchpad` in Deploy chat panel with Computer Use.
-- [ ] Convert one real operational block from `deploy_launchpad` to dynamic parts.
+- [x] Rebuild `quick_deploy_launchpad` as dynamic card config.
+- [x] Verify "배포하고싶어" routes to `deploy.start`.
+- [x] Verify service follow-up still works when service name is missing.
+- [x] Verify `quick_deploy_launchpad` in Admin simulation.
+- [x] Verify `quick_deploy_launchpad` through Python MCP call.
+- [ ] Verify `quick_deploy_launchpad` in Deploy chat panel with Computer Use. Current attempt was blocked by local Computer Use approval denial; HTTP route/build smoke passed.
+- [x] Convert one real operational block from `deploy_launchpad` to dynamic parts.
 
 ### Verification
 
-- [ ] Run targeted unit tests.
-- [ ] Run full `npm test`.
-- [ ] Run targeted eslint on changed files.
-- [ ] Run Computer Use browser flow for Admin edit -> save -> simulate.
-- [ ] Run Computer Use browser flow for chat -> registered template render.
-- [ ] Document current known build/lint blockers separately if they still exist.
+- [x] Run targeted unit tests.
+- [x] Run full `npm test`.
+- [x] Run targeted eslint on changed files.
+- [ ] Run Computer Use browser flow for Admin edit -> save -> simulate. Current attempt was blocked by local Computer Use approval denial; Admin REST save/simulate path was verified by HTTP smoke.
+- [ ] Run Computer Use browser flow for chat -> registered template render. Current attempt was blocked by local Computer Use approval denial; `/assistant` and `/a2ui-test` returned 200 from built Next server.
+- [x] Document current known build/lint blockers separately if they still exist.
