@@ -13,6 +13,7 @@ import {
   type GeneratedValidation,
   type LegacyResolverRegistration,
   type ResolverConfig,
+  type SurfaceConfigRecord,
   type StoredTemplateAction,
   type StoredTemplateRegistration,
   type TemplateIntentRegistration,
@@ -35,6 +36,7 @@ export type TemplateRegistration = {
   bindingRecipe: BindingRecipe;
   bindingRecipeId: string;
   actions: TemplateActionRegistration[];
+  surfaceConfig?: SurfaceConfigRecord;
   generatedValidation: GeneratedValidation;
 };
 
@@ -69,6 +71,7 @@ function hydrateRegistration(stored: StoredTemplateRegistration): TemplateRegist
     bindingRecipeId: normalized.bindingRecipeId,
     bindingRecipe: recipe,
     actions: normalized.actions,
+    surfaceConfig: normalized.surfaceConfig,
     generatedValidation: normalized.generatedValidation ?? buildGeneratedValidation(normalized),
   };
 }

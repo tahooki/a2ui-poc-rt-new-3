@@ -28,6 +28,7 @@ describe("Template Catalog", () => {
     expect(template?.resolvers[0]?.requiredFacts).toContain("serviceName");
     expect(template?.bindingRecipe.templateId).toBe("deploy_launchpad");
     expect(template?.actions[0]?.actionId).toBe("deploy.start");
+    expect(template?.surfaceConfig?.kind).toBe("a2ui_card");
   });
 
   it("contract도 템플릿 등록 정보에서 제공한다", () => {

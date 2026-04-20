@@ -47,6 +47,8 @@ export type QuickDeployTemplateData = {
   actions?: unknown[];
   imageDetail?: DeployImageDetail;
   requestDetail?: DeployRequestDetail;
+  lastDeployment?: { version: string; deployedBy: string; deployedAt: string; status: string };
+  deploymentHistory?: { version: string; deployedBy: string; deployedAt: string; status: string }[];
 };
 
 export type DeploymentApprovalTemplateData = {

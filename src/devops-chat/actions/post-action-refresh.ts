@@ -21,6 +21,29 @@ export type PostActionRefreshResult = {
   userFacingMessage: string | null;
 };
 
+function mergeFactsPatch(currentFacts: ConversationFacts, factsPatch?: Record<string, unknown>): ConversationFacts {
+  if (!factsPatch) return currentFacts;
+  const merged: ConversationFacts = { ...currentFacts, ...factsPatch };
+  for (const key of ["deploy", "approval", "rollback"] as const) {
+    const currentValue = currentFacts[key];
+    const patchValue = factsPatch[key];
+    if (
+      currentValue &&
+      patchValue &&
+      typeof currentValue === "object" &&
+      typeof patchValue === "object" &&
+      !Array.isArray(currentValue) &&
+      !Array.isArray(patchValue)
+    ) {
+      merged[key] = {
+        ...(currentValue as Record<string, unknown>),
+        ...(patchValue as Record<string, unknown>),
+      };
+    }
+  }
+  return merged;
+}
+
 export function refreshAfterAction(
   actionResult: ActionExecutionResult,
   currentFacts: ConversationFacts,
@@ -28,9 +51,7 @@ export function refreshAfterAction(
   intentKey: string | null,
 ): PostActionRefreshResult {
   // 1. Merge facts patch
-  const updatedFacts: ConversationFacts = actionResult.factsPatch
-    ? { ...currentFacts, ...actionResult.factsPatch }
-    : currentFacts;
+  const updatedFacts = mergeFactsPatch(currentFacts, actionResult.factsPatch);
 
   // 2. Try to refresh the surface if we have an intent
   let updatedSurface = currentSurface;

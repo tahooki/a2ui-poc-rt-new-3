@@ -4,6 +4,7 @@ import { useState } from "react";
 import { SurfaceRenderer } from "@a2ui/ui";
 import { registerBuiltinTemplates } from "@a2ui/ui/templates/register-all";
 import type { SurfaceEnvelope } from "@a2ui/ui";
+import { deployLaunchpadSurfaceConfig } from "@/devops-chat/templates/surface-configs/deploy-launchpad";
 
 // Register all 3 templates
 registerBuiltinTemplates();
@@ -45,8 +46,9 @@ const deployEnvelope: SurfaceEnvelope = {
   },
   actions: [
     { actionId: "deploy.start", label: "배포 시작", variant: "primary", kind: "submit" },
-    { actionId: "deploy.refresh", label: "초안 새로 고침", variant: "ghost", kind: "refresh" },
+    { actionId: "deploy.refresh_draft", label: "초안 새로 고침", variant: "ghost", kind: "refresh" },
   ],
+  surfaceConfig: deployLaunchpadSurfaceConfig,
 };
 
 const approvalEnvelope: SurfaceEnvelope = {

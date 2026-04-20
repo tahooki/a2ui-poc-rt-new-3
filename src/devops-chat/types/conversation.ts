@@ -144,6 +144,7 @@ export type SurfaceEnvelope = {
   version?: string;
   payload: Record<string, unknown>;
   actions?: Array<Record<string, unknown>>;
+  surfaceConfig?: Record<string, unknown>;
   sourceIntent: string;
   updatedAt: string;
   freshnessKey?: string;

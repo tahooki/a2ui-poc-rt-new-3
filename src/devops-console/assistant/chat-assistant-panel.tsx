@@ -21,6 +21,9 @@ import {
   ChatProtocolError,
   type ChatStreamRequest,
 } from "@/devops-chat/lib/chat-api";
+import { executeSurfaceAction } from "@/devops-chat/actions/action-bridge";
+import { refreshAfterAction } from "@/devops-chat/actions/post-action-refresh";
+import type { SurfaceActionDescriptor } from "@/devops-chat/actions/action-types";
 import { buildContextSnapshot } from "@/devops-chat/lib/context-snapshot";
 import type { ApprovalItem, DeployItem, PageKey, RollbackItem } from "@/devops-chat/types/domain";
 import type { ConversationMessage } from "@/devops-chat/types/conversation";
@@ -49,6 +52,7 @@ export function ChatAssistantPanel({
   const failAssistantTurn = useConversationStore((s) => s.failAssistantTurn);
   const setPendingTool = useConversationStore((s) => s.setPendingTool);
   const mergeFacts = useConversationStore((s) => s.mergeFacts);
+  const setActiveSurface = useConversationStore((s) => s.setActiveSurface);
   const clearError = useConversationStore((s) => s.clearError);
 
   const conversation = useConversationStore((s) => selectConversation(s, conversationId));
@@ -88,6 +92,51 @@ export function ChatAssistantPanel({
   function handleOptionSelect(value: string) {
     setComposerText(conversationId, "");
     void handleSubmit(value);
+  }
+
+  async function handleSurfaceAction(actionId: string, payload?: Record<string, unknown>) {
+    if (!conversation?.activeSurface) return;
+
+    const actions = [
+      ...(conversation.activeSurface.actions ?? []),
+      ...(((conversation.activeSurface.payload.actions as Array<Record<string, unknown>> | undefined) ?? [])),
+    ];
+    const action = actions.find((candidate) => candidate.actionId === actionId) as SurfaceActionDescriptor | undefined;
+    if (!action) return;
+
+    setPendingTool(conversationId, { toolName: actionId, status: "running" });
+    const result = await executeSurfaceAction({
+      conversationId,
+      activeSurface: conversation.activeSurface,
+      actionDescriptor: {
+        ...action,
+        payload: {
+          ...(action.payload ?? {}),
+          ...(payload ?? {}),
+        },
+      },
+      facts: conversation.facts,
+    });
+    const refresh = refreshAfterAction(
+      result,
+      conversation.facts,
+      conversation.activeSurface,
+      conversation.intent?.intentKey ?? conversation.activeSurface.sourceIntent,
+    );
+
+    mergeFacts(conversationId, refresh.updatedFacts);
+    setActiveSurface(conversationId, refresh.updatedSurface);
+    setPendingTool(conversationId, {
+      toolName: actionId,
+      status: "done",
+      summary: refresh.userFacingMessage ?? result.summary,
+    });
+    window.setTimeout(() => {
+      const latestPending = useConversationStore.getState().conversations[conversationId]?.pendingTool;
+      if (latestPending?.toolName === actionId && latestPending.status === "done") {
+        setPendingTool(conversationId, null);
+      }
+    }, 1200);
   }
 
   async function handleSubmit(directInput?: string) {
@@ -239,8 +288,7 @@ export function ChatAssistantPanel({
             <TemplateSurface
               activeSurface={activeSurface}
               onAction={(actionId, payload) => {
-                // TODO: wire to action bridge
-                console.log("surface action:", actionId, payload);
+                void handleSurfaceAction(actionId, payload);
               }}
               onDismiss={() => {
                 useConversationStore.getState().dismissSurface(conversationId);

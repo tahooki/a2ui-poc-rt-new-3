@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import styles from "@/devops-console/console-page.module.css";
 import { StatusChip } from "@/devops-console/foundation/status-chip";
 import type { QuickDeployTemplateData, DeployImageDetail, DeployRequestDetail } from "@/devops-chat/types/templates";
@@ -57,7 +57,7 @@ export function QuickDeployLaunchpad({
   }, []);
 
   // Step auto-advance
-  const advanceStep = useCallback((idx: number) => {
+  function advanceStep(idx: number) {
     if (idx >= DEPLOY_STEPS.length) {
       setTimeout(() => setPhase("done"), 500);
       return;
@@ -68,7 +68,7 @@ export function QuickDeployLaunchpad({
       setStepTimes((prev) => ({ ...prev, [idx]: DEPLOY_STEPS[idx].duration }));
       advanceStep(idx + 1);
     }, DEPLOY_STEPS[idx].duration * 1000);
-  }, []);
+  }
 
   function handleStart() {
     setPhase("deploying");

@@ -107,6 +107,8 @@ export type GeneratedValidation = {
   requiredResolverOutputs: Record<string, string[]>;
 };
 
+export type SurfaceConfigRecord = Record<string, unknown>;
+
 export type StoredTemplateRegistration = {
   schemaVersion?: number;
   templateId: string;
@@ -123,6 +125,7 @@ export type StoredTemplateRegistration = {
     optionalFields: string[];
   };
   actions: StoredTemplateAction[];
+  surfaceConfig?: SurfaceConfigRecord;
   generatedValidation?: GeneratedValidation;
 };
 
@@ -135,6 +138,23 @@ const RENDER_REQUIRED_FIELDS: Record<string, string[]> = {
   rollback_summary: ["templateId", "candidates"],
   component_smoke_test: ["templateId", "headline", "metricLabel", "metricValue", "statusTone", "rows"],
 };
+
+const KNOWN_A2UI_PART_TYPES = new Set([
+  "KeyValueSummary",
+  "DataTableBlock",
+  "MetricGridBlock",
+  "StepProgressBlock",
+  "ChecklistBlock",
+  "AlertBlock",
+  "TimelineBlock",
+  "ActionListBlock",
+  "DeployTargetSummaryBlock",
+  "DeployArtifactBlock",
+  "DeployRequestConfigBlock",
+  "DeployPreflightChecklistBlock",
+  "DeployRolloutProgressBlock",
+  "DeploymentHistoryBlock",
+]);
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === "object" && !Array.isArray(value);
@@ -467,6 +487,44 @@ function validateAction(action: unknown, index: number, seenIds: Set<string>, er
   }
 }
 
+function validateSurfaceConfig(surfaceConfig: unknown, errors: string[]): void {
+  if (surfaceConfig === undefined) return;
+  if (!isRecord(surfaceConfig)) {
+    errors.push("surfaceConfig must be an object");
+    return;
+  }
+  if (surfaceConfig.kind !== "a2ui_card") {
+    errors.push("surfaceConfig.kind must be a2ui_card");
+  }
+  if (!Array.isArray(surfaceConfig.parts)) {
+    errors.push("surfaceConfig.parts must be an array");
+    return;
+  }
+  const partIds = new Set<string>();
+  surfaceConfig.parts.forEach((part, index) => {
+    const path = `surfaceConfig.parts[${index}]`;
+    if (!isRecord(part)) {
+      errors.push(`${path} must be an object`);
+      return;
+    }
+    if (typeof part.id !== "string" || !part.id) {
+      errors.push(`${path}.id is required`);
+    } else if (partIds.has(part.id)) {
+      errors.push(`${path}.id must be unique`);
+    } else {
+      partIds.add(part.id);
+    }
+    if (typeof part.type !== "string" || !part.type) {
+      errors.push(`${path}.type is required`);
+    } else if (!KNOWN_A2UI_PART_TYPES.has(part.type)) {
+      errors.push(`${path}.type is unknown: ${part.type}`);
+    }
+    if (part.props !== undefined && !isRecord(part.props)) {
+      errors.push(`${path}.props must be an object`);
+    }
+  });
+}
+
 export function validateStoredTemplate(data: unknown): string[] {
   const errors: string[] = [];
   if (!isRecord(data)) return ["Template must be an object"];
@@ -507,6 +565,8 @@ export function validateStoredTemplate(data: unknown): string[] {
     const actionIds = new Set<string>();
     data.actions.forEach((action, index) => validateAction(action, index, actionIds, errors));
   }
+
+  validateSurfaceConfig(data.surfaceConfig, errors);
 
   return errors;
 }

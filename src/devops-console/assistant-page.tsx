@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { AppFrame } from "@/devops-console/shell/app-frame";
+import { TemplateManagerPage } from "@/devops-console/template-admin/template-manager-page";
 
 export function AssistantPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -18,21 +19,7 @@ export function AssistantPage() {
       pageTitle="Template Admin"
       sidebarOpen={sidebarOpen}
     >
-      <div style={{ padding: "48px 24px", textAlign: "center", color: "var(--console-text-muted)" }}>
-        <p style={{ fontSize: 16, marginBottom: 8 }}>Template Admin has moved.</p>
-        <p style={{ fontSize: 14 }}>
-          Open{" "}
-          <a
-            href="http://localhost:3100"
-            style={{ color: "var(--console-info)" }}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            http://localhost:3100
-          </a>
-          {" "}to access the admin console.
-        </p>
-      </div>
+      <TemplateManagerPage />
     </AppFrame>
   );
 }

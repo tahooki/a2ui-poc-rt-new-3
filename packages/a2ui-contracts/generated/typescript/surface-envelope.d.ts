@@ -23,6 +23,12 @@ export interface SurfaceEnvelope {
    */
   actions?: SurfaceAction[];
   /**
+   * Admin-authored dynamic A2UI card configuration
+   */
+  surfaceConfig?: {
+    [k: string]: unknown;
+  };
+  /**
    * 이 surface를 생성한 intent key
    */
   sourceIntent: string;

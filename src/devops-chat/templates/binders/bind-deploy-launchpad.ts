@@ -8,6 +8,7 @@ import type { ConversationFacts, BindingResult } from "@/devops-chat/types/conve
 import type { QuickDeployTemplateData } from "@/devops-chat/types/templates";
 import { getSlotValue } from "@/devops-chat/server/orchestration/slot-memory";
 import { DEPLOY_ACTION_IDS, type SurfaceActionDescriptor } from "@/devops-chat/actions/action-types";
+import { deployLaunchpadSurfaceConfig } from "@/devops-chat/templates/surface-configs/deploy-launchpad";
 
 export function bindDeployLaunchpad(
   facts: ConversationFacts,
@@ -37,6 +38,13 @@ export function bindDeployLaunchpad(
 
   const environments = (context!.environments as string[]) ?? [];
   const availableImages = (context!.availableImages as Array<Record<string, unknown>>) ?? [];
+  const deployStatus = (facts.deploy as Record<string, unknown> | undefined)?.status;
+  const state =
+    deployStatus === "deploying"
+      ? "deploying"
+      : deployStatus === "succeeded"
+        ? "done"
+        : "ready";
 
   // Pick the best matching image for the target version
   const matchedImage = availableImages.find((img) => img.tag === targetVersion || img.imageTag === targetVersion) ?? availableImages[0];
@@ -66,36 +74,61 @@ export function bindDeployLaunchpad(
     requestedBy: "AI Assistant",
   };
 
+  const actions: SurfaceActionDescriptor[] =
+    state === "deploying"
+      ? [
+          {
+            actionId: DEPLOY_ACTION_IDS.COMPLETE,
+            label: "완료 반영",
+            variant: "primary",
+            targetRef: { entityType: "deploy", entityId: serviceName!, entityVersion: targetVersion },
+          },
+        ]
+      : state === "done"
+        ? [
+            {
+              actionId: DEPLOY_ACTION_IDS.REFRESH_DRAFT,
+              label: "새 배포 초안",
+              variant: "secondary",
+            },
+          ]
+        : [
+            {
+              actionId: DEPLOY_ACTION_IDS.START,
+              label: "배포 시작",
+              variant: "primary",
+              targetRef: { entityType: "deploy", entityId: serviceName!, entityVersion: targetVersion },
+            },
+            {
+              actionId: DEPLOY_ACTION_IDS.REFRESH_DRAFT,
+              label: "초안 새로 고침",
+              variant: "secondary",
+            },
+          ];
+
   const payload: QuickDeployTemplateData = {
     templateId: "quick_deploy_launchpad",
-    state: "ready",
+    state,
     service: serviceName!,
     environment,
     recommendedVersion,
     targetVersion,
     strategy: "rolling",
-    impactSummary: `${serviceName} ${environment} 환경에 ${targetVersion} 배포`,
+    impactSummary: state === "deploying"
+      ? `${serviceName} ${environment} 환경에 ${targetVersion} 배포 진행 중`
+      : state === "done"
+        ? `${serviceName} ${environment} 환경에 ${targetVersion} 배포 완료`
+        : `${serviceName} ${environment} 환경에 ${targetVersion} 배포`,
     preflightChecks: environments.length > 0
       ? [`${environments.length}개 환경 확인됨`, `${availableImages.length}개 이미지 사용 가능`]
       : ["환경 정보 확인 중"],
-    helperText: "배포 준비 완료",
-    primaryActionLabel: "배포 시작",
-    secondaryActionLabel: "초안 새로 고침",
+    helperText: state === "deploying" ? "배포 진행 중" : state === "done" ? "배포 완료" : "배포 준비 완료",
+    primaryActionLabel: state === "deploying" ? "완료 반영" : state === "done" ? "완료됨" : "배포 시작",
+    secondaryActionLabel: state === "done" ? "새 배포 초안" : "초안 새로 고침",
     imageDetail,
     requestDetail,
-    actions: [
-      {
-        actionId: DEPLOY_ACTION_IDS.START,
-        label: "배포 시작",
-        variant: "primary",
-        targetRef: { entityType: "deploy", entityId: serviceName!, entityVersion: targetVersion },
-      },
-      {
-        actionId: DEPLOY_ACTION_IDS.REFRESH_DRAFT,
-        label: "초안 새로 고침",
-        variant: "secondary",
-      },
-    ] satisfies SurfaceActionDescriptor[],
+    deploymentHistory: ((facts.deploy as Record<string, unknown> | undefined)?.deploymentHistory as QuickDeployTemplateData["deploymentHistory"]) ?? [],
+    actions,
   };
 
   return {
@@ -103,6 +136,8 @@ export function bindDeployLaunchpad(
     surface: {
       templateId: "quick_deploy_launchpad",
       payload: payload as unknown as Record<string, unknown>,
+      actions: actions as unknown as Array<Record<string, unknown>>,
+      surfaceConfig: deployLaunchpadSurfaceConfig,
       sourceIntent: intentKey,
       updatedAt: new Date().toISOString(),
       freshnessKey: `deploy:${serviceName}:${environment}:${targetVersion}`,

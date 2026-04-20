@@ -39,7 +39,7 @@ export function TemplateSurface({
   onDismiss,
 }: TemplateSurfaceProps) {
   const shouldRenderA2UI = activeSurface
-    ? A2UI_TEMPLATE_IDS.has(activeSurface.templateId)
+    ? Boolean(activeSurface.surfaceConfig) || A2UI_TEMPLATE_IDS.has(activeSurface.templateId)
     : false;
 
   const a2uiEnvelope: A2UISurfaceEnvelope | null = activeSurface && shouldRenderA2UI
@@ -48,6 +48,7 @@ export function TemplateSurface({
         version: activeSurface.version ?? "1.0.0",
         payload: activeSurface.payload,
         actions: activeSurface.actions as A2UISurfaceEnvelope["actions"],
+        surfaceConfig: activeSurface.surfaceConfig as A2UISurfaceEnvelope["surfaceConfig"],
         sourceIntent: activeSurface.sourceIntent,
         updatedAt: activeSurface.updatedAt,
         freshnessKey: activeSurface.freshnessKey,

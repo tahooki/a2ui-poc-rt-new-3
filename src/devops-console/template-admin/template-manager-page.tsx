@@ -7,8 +7,9 @@ import { TemplateListPanel } from "./template-list-panel";
 import { ExamplePayloadEditor } from "./example-payload-editor";
 import { TemplateLivePreview } from "./template-live-preview";
 import { DecisionSimulator } from "./decision-simulator";
+import { SurfaceConfigEditor } from "./surface-config-editor";
 
-type TabKey = "editor" | "simulate";
+type TabKey = "editor" | "surface" | "simulate";
 
 export function TemplateManagerPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -42,8 +43,22 @@ export function TemplateManagerPage() {
     setValidationErrors([]);
   }
 
+  function handleApplySurfaceConfig(surfaceConfig: Record<string, unknown>) {
+    let nextPayload: Record<string, unknown> = {};
+    try {
+      const parsed = JSON.parse(payloadJson) as unknown;
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+        nextPayload = parsed as Record<string, unknown>;
+      }
+    } catch {
+      // Replace invalid editor content with an inspectable surface preview object.
+    }
+    handlePayloadChange(JSON.stringify({ ...nextPayload, surfaceConfig }, null, 2));
+  }
+
   const TABS: { key: TabKey; label: string }[] = [
     { key: "editor", label: "Editor" },
+    { key: "surface", label: "Surface" },
     { key: "simulate", label: "Simulate" },
   ];
 
@@ -88,6 +103,14 @@ export function TemplateManagerPage() {
                   templateId={definition.templateId}
                 />
               </div>
+            ) : null}
+
+            {activeTab === "surface" ? (
+              <SurfaceConfigEditor
+                definition={definition}
+                onApplyToEditor={handleApplySurfaceConfig}
+                payloadJson={payloadJson}
+              />
             ) : null}
 
             {activeTab === "simulate" ? (

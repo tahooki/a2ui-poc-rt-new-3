@@ -38,7 +38,7 @@ export function DeployLaunchpad({
   const p = payload as unknown as DeployLaunchpadPayload;
   const renderedActions = resolveActions(actions, [
     { actionId: "deploy.start", label: p.primaryActionLabel ?? "배포 시작", variant: "primary", kind: "submit" },
-    { actionId: "deploy.refresh", label: p.secondaryActionLabel ?? "새로 고침", variant: "ghost", kind: "refresh" },
+    { actionId: "deploy.refresh_draft", label: p.secondaryActionLabel ?? "새로 고침", variant: "ghost", kind: "refresh" },
   ]);
 
   const stateLabel =

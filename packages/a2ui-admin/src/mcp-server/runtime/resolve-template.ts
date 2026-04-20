@@ -25,6 +25,7 @@ export type ResolveTemplateResult = {
     updatedAt: string;
     payload: Record<string, unknown>;
     actions: StoredTemplateAction[];
+    surfaceConfig?: Record<string, unknown>;
     meta: {
       generatedAt: string;
       catalogTemplateId?: string;
@@ -110,7 +111,10 @@ function applyBuiltInDerivedFields(registration: TemplateRegistration, resolverD
     resolverData.imageDetail = {
       repository: images[0].repository,
       imageTag: images[0].imageTag,
+      imageUri: images[0].imageUri,
+      gitRef: images[0].gitRef,
       commitSha: images[0].commitSha,
+      imageDigest: images[0].imageDigest,
       buildStatus: images[0].buildStatus,
       pushedAt: images[0].pushedAt,
     };
@@ -281,6 +285,7 @@ export async function resolveTemplateRegistration(
       updatedAt: generatedAt,
       payload,
       actions,
+      surfaceConfig: registration.surfaceConfig,
       meta: {
         generatedAt,
         catalogTemplateId: registration.templateId,

@@ -25,8 +25,30 @@ describe("bind-deploy-launchpad", () => {
       expect(result.surface.templateId).toBe("quick_deploy_launchpad");
       expect(result.surface.payload.service).toBe("payments-api");
       expect(result.surface.payload.environment).toBe("production");
+      expect(result.surface.actions?.[0]?.actionId).toBe("deploy.start");
+      expect(result.surface.surfaceConfig?.kind).toBe("a2ui_card");
       expect(result.surface.freshnessKey).toContain("deploy:payments-api");
       expect(result.surface.bindingTrace!.usedFacts).toContain("deploy.serviceName");
+    }
+  });
+
+  it("reflects deploy action state in the dynamic surface", () => {
+    const facts: ConversationFacts = {
+      deploy: { status: "deploying" },
+      slots: {
+        "deploy.serviceName": { value: "payments-api", source: "user", confidence: 1, updatedAt: "" },
+        "deploy.selectedServiceContext": {
+          value: { recommendedVersion: "v1.2.3", environments: ["production"], availableImages: [{ tag: "v1.2.3" }] },
+          source: "tool", confidence: 1, updatedAt: "",
+        },
+      },
+    };
+
+    const result = bindDeployLaunchpad(facts, "deploy.start");
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.surface.payload.state).toBe("deploying");
+      expect(result.surface.actions?.[0]?.actionId).toBe("deploy.complete");
     }
   });
 

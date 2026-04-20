@@ -64,6 +64,7 @@ export async function tryRenderA2UISurface(
         updatedAt: (envelope.updatedAt as string) ?? new Date().toISOString(),
         version: (envelope.version as string) ?? "1.0.0",
         actions: (envelope.actions as Array<Record<string, unknown>>) ?? [],
+        surfaceConfig: envelope.surfaceConfig as Record<string, unknown> | undefined,
         meta: (envelope.meta as Record<string, unknown>) ?? {},
       } as SurfaceEnvelope;
     }

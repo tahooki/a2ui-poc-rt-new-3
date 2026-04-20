@@ -44,4 +44,24 @@ describe("Template Store validation", () => {
     expect(template.resolvers?.map((resolver) => resolver.id)).toContain("service");
     expect(template.generatedValidation?.requiredFacts).toContain("serviceName");
   });
+
+  it("rejects unknown surfaceConfig part types", () => {
+    const errors = validateStoredTemplate({
+      templateId: "deploy_launchpad",
+      version: "1.0.0",
+      title: "Deploy",
+      status: "published",
+      description: "bad surface",
+      intents: [{ intentKey: "deploy.start", requiredFacts: [] }],
+      bindingRecipeId: "deploy_launchpad",
+      resolvers: [],
+      actions: [{ actionId: "deploy.start", label: "Deploy", variant: "primary", kind: "submit" }],
+      surfaceConfig: {
+        kind: "a2ui_card",
+        parts: [{ id: "bad", type: "RawButton", props: {} }],
+      },
+    });
+
+    expect(errors).toContain("surfaceConfig.parts[0].type is unknown: RawButton");
+  });
 });

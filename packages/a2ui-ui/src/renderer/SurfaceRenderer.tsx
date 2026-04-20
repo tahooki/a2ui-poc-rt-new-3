@@ -2,6 +2,8 @@
 
 import type { SurfaceEnvelope } from "../types/surface-envelope";
 import type { ActionCallback, TemplateAction } from "../types/action-event";
+import { DynamicA2UICardRenderer } from "../dynamic/DynamicA2UICardRenderer";
+import type { DynamicA2UIEnvelope } from "../dynamic/schema";
 import { getTemplate } from "./TemplateRegistry";
 
 export type SurfaceRendererProps = {
@@ -10,6 +12,17 @@ export type SurfaceRendererProps = {
 };
 
 export function SurfaceRenderer({ envelope, onAction }: SurfaceRendererProps) {
+  if ((envelope as DynamicA2UIEnvelope).surfaceConfig) {
+    const dynamicEnvelope = envelope as DynamicA2UIEnvelope;
+    return (
+      <DynamicA2UICardRenderer
+        envelope={dynamicEnvelope}
+        onAction={onAction}
+        surfaceConfig={dynamicEnvelope.surfaceConfig!}
+      />
+    );
+  }
+
   const def = getTemplate(envelope.templateId);
 
   if (!def) {

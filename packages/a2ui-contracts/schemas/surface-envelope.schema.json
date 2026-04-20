@@ -27,6 +27,11 @@
         "$ref": "#/$defs/SurfaceAction"
       }
     },
+    "surfaceConfig": {
+      "type": "object",
+      "description": "Admin-authored dynamic A2UI card configuration",
+      "additionalProperties": true
+    },
     "sourceIntent": {
       "type": "string",
       "description": "이 surface를 생성한 intent key"
