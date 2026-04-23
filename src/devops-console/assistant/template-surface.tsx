@@ -1,13 +1,14 @@
-import { SurfaceRenderer } from "@a2ui/ui";
-import { registerBuiltinTemplates } from "@a2ui/ui/templates/register-all";
-import type { SurfaceEnvelope as A2UISurfaceEnvelope } from "@a2ui/ui";
+import {
+  A2UISurfaceHost,
+  normalizeA2UISurface,
+  type A2UIRenderableSurface,
+  type A2UISurfaceActionAdapter,
+} from "@a2ui/chat";
 import styles from "@/devops-console/console-page.module.css";
 import { EmptyState } from "@/devops-console/foundation/empty-state";
 import { TemplateRenderer } from "@/devops-chat/templates/template-renderer";
 import type { TemplateEnvelope } from "@/devops-chat/types/templates";
 import type { SurfaceEnvelope } from "@/devops-chat/types/conversation";
-
-registerBuiltinTemplates();
 
 const A2UI_TEMPLATE_IDS = new Set([
   "deploy_launchpad",
@@ -23,6 +24,9 @@ type TemplateSurfaceProps = {
   activeSurface?: SurfaceEnvelope | null;
   /** Phase 4: action descriptor callback */
   onAction?: (actionId: string, payload?: Record<string, unknown>) => void;
+  onSurfaceAction?: A2UISurfaceActionAdapter;
+  onSurfaceChange?: (surface: A2UIRenderableSurface | null) => void;
+  onFactsChange?: (facts: Record<string, unknown>) => void;
   /** @deprecated Use onAction */
   onPrimaryAction?: () => void;
   /** @deprecated Use onAction */
@@ -34,6 +38,9 @@ export function TemplateSurface({
   template,
   activeSurface,
   onAction,
+  onSurfaceAction,
+  onSurfaceChange,
+  onFactsChange,
   onPrimaryAction,
   onSecondaryAction,
   onDismiss,
@@ -42,19 +49,13 @@ export function TemplateSurface({
     ? Boolean(activeSurface.surfaceConfig) || A2UI_TEMPLATE_IDS.has(activeSurface.templateId)
     : false;
 
-  const a2uiEnvelope: A2UISurfaceEnvelope | null = activeSurface && shouldRenderA2UI
-    ? {
-        templateId: activeSurface.templateId,
-        version: activeSurface.version ?? "1.0.0",
-        payload: activeSurface.payload,
-        actions: activeSurface.actions as A2UISurfaceEnvelope["actions"],
-        surfaceConfig: activeSurface.surfaceConfig as A2UISurfaceEnvelope["surfaceConfig"],
-        sourceIntent: activeSurface.sourceIntent,
-        updatedAt: activeSurface.updatedAt,
-        freshnessKey: activeSurface.freshnessKey,
-        meta: activeSurface.meta,
+  const a2uiEnvelope = activeSurface && shouldRenderA2UI ? normalizeA2UISurface(activeSurface) : null;
+  const hostActionAdapter = onSurfaceAction ?? (onAction
+    ? async ({ actionId, params }) => {
+        await onAction(actionId, params);
+        return { message: "Action forwarded" };
       }
-    : null;
+    : undefined);
 
   // Prefer activeSurface (conversation-driven) over legacy template (selected item)
   const resolvedTemplate: TemplateEnvelope | null =
@@ -76,9 +77,11 @@ export function TemplateSurface({
         ) : null}
       </div>
       {a2uiEnvelope ? (
-        <SurfaceRenderer
-          envelope={a2uiEnvelope}
-          onAction={(event) => onAction?.(event.actionId, event.params)}
+        <A2UISurfaceHost
+          onAction={hostActionAdapter}
+          onFactsChange={onFactsChange}
+          onSurfaceChange={onSurfaceChange}
+          surface={a2uiEnvelope}
         />
       ) : resolvedTemplate ? (
         <TemplateRenderer

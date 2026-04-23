@@ -21,13 +21,12 @@ import {
   ChatProtocolError,
   type ChatStreamRequest,
 } from "@/devops-chat/lib/chat-api";
-import { executeSurfaceAction } from "@/devops-chat/actions/action-bridge";
-import { refreshAfterAction } from "@/devops-chat/actions/post-action-refresh";
-import type { SurfaceActionDescriptor } from "@/devops-chat/actions/action-types";
+import { executePocA2UISurfaceAction } from "@/devops-chat/integrations/a2ui-surface-action-adapter";
 import { buildContextSnapshot } from "@/devops-chat/lib/context-snapshot";
 import type { ApprovalItem, DeployItem, PageKey, RollbackItem } from "@/devops-chat/types/domain";
-import type { ConversationMessage } from "@/devops-chat/types/conversation";
+import type { ConversationFacts, ConversationMessage, SurfaceEnvelope } from "@/devops-chat/types/conversation";
 import { TemplateSurface } from "@/devops-console/assistant/template-surface";
+import type { A2UISurfaceActionAdapter } from "@a2ui/chat";
 
 type ChatAssistantPanelProps = {
   onClose: () => void;
@@ -94,50 +93,18 @@ export function ChatAssistantPanel({
     void handleSubmit(value);
   }
 
-  async function handleSurfaceAction(actionId: string, payload?: Record<string, unknown>) {
-    if (!conversation?.activeSurface) return;
-
-    const actions = [
-      ...(conversation.activeSurface.actions ?? []),
-      ...(((conversation.activeSurface.payload.actions as Array<Record<string, unknown>> | undefined) ?? [])),
-    ];
-    const action = actions.find((candidate) => candidate.actionId === actionId) as SurfaceActionDescriptor | undefined;
-    if (!action) return;
-
-    setPendingTool(conversationId, { toolName: actionId, status: "running" });
-    const result = await executeSurfaceAction({
+  const handleSurfaceAction: A2UISurfaceActionAdapter = async ({ actionId, params, payload }) => {
+    const latestConversation = useConversationStore.getState().conversations[conversationId] ?? conversation;
+    return executePocA2UISurfaceAction({
       conversationId,
-      activeSurface: conversation.activeSurface,
-      actionDescriptor: {
-        ...action,
-        payload: {
-          ...(action.payload ?? {}),
-          ...(payload ?? {}),
-        },
-      },
-      facts: conversation.facts,
+      activeSurface: latestConversation?.activeSurface ?? null,
+      actionId,
+      params,
+      payload,
+      facts: latestConversation?.facts ?? {},
+      intentKey: latestConversation?.intent?.intentKey ?? latestConversation?.activeSurface?.sourceIntent ?? null,
     });
-    const refresh = refreshAfterAction(
-      result,
-      conversation.facts,
-      conversation.activeSurface,
-      conversation.intent?.intentKey ?? conversation.activeSurface.sourceIntent,
-    );
-
-    mergeFacts(conversationId, refresh.updatedFacts);
-    setActiveSurface(conversationId, refresh.updatedSurface);
-    setPendingTool(conversationId, {
-      toolName: actionId,
-      status: "done",
-      summary: refresh.userFacingMessage ?? result.summary,
-    });
-    window.setTimeout(() => {
-      const latestPending = useConversationStore.getState().conversations[conversationId]?.pendingTool;
-      if (latestPending?.toolName === actionId && latestPending.status === "done") {
-        setPendingTool(conversationId, null);
-      }
-    }, 1200);
-  }
+  };
 
   async function handleSubmit(directInput?: string) {
     const input = directInput ?? composerText.trim();
@@ -287,9 +254,9 @@ export function ChatAssistantPanel({
           <div style={{ padding: "8px 0" }}>
             <TemplateSurface
               activeSurface={activeSurface}
-              onAction={(actionId, payload) => {
-                void handleSurfaceAction(actionId, payload);
-              }}
+              onFactsChange={(facts) => mergeFacts(conversationId, facts as Partial<ConversationFacts>)}
+              onSurfaceAction={handleSurfaceAction}
+              onSurfaceChange={(surface) => setActiveSurface(conversationId, surface as SurfaceEnvelope | null)}
               onDismiss={() => {
                 useConversationStore.getState().dismissSurface(conversationId);
               }}

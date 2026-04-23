@@ -7,6 +7,7 @@ export default defineConfig({
       "@": path.resolve(__dirname, "src"),
       "@a2ui/contracts": path.resolve(__dirname, "packages/a2ui-contracts"),
       "@a2ui/ui": path.resolve(__dirname, "packages/a2ui-ui/src"),
+      "@a2ui/chat": path.resolve(__dirname, "packages/a2ui-chat/src"),
     },
   },
   test: {

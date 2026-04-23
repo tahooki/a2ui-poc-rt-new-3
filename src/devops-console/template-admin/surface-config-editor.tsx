@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  SurfaceRenderer,
   createDefaultPart,
   createPartPreviewSurfaceConfig,
   getA2UIPartDefinition,
@@ -16,6 +15,7 @@ import {
   type SurfaceConfigValue,
   type SurfaceEnvelope,
 } from "@a2ui/ui";
+import { A2UISurfaceHost } from "@a2ui/chat";
 import styles from "@/devops-console/console-page.module.css";
 import { deployLaunchpadSurfaceConfig } from "@/devops-chat/templates/surface-configs/deploy-launchpad";
 import type { TemplateRegistryDefinition } from "@/devops-chat/template-registry/registry-types";
@@ -459,8 +459,10 @@ export function SurfaceConfigEditor({ definition, payloadJson, onApplyToEditor }
                 />
                 {previewOpen ? (
                   <div style={{ marginTop: 12 }}>
-                    <SurfaceRenderer
-                      envelope={{
+                    <A2UISurfaceHost
+                      readOnly
+                      renderStatus={() => null}
+                      surface={{
                         templateId: "admin_part_preview",
                         version: definition.version,
                         payload: partPreviewPayload,
@@ -469,7 +471,6 @@ export function SurfaceConfigEditor({ definition, payloadJson, onApplyToEditor }
                         sourceIntent: "admin.part.preview",
                         updatedAt: new Date().toISOString(),
                       }}
-                      onAction={() => {}}
                     />
                   </div>
                 ) : null}
@@ -572,9 +573,10 @@ export function SurfaceConfigEditor({ definition, payloadJson, onApplyToEditor }
             </div>
           ) : null}
         </div>
-        <SurfaceRenderer
-          envelope={fullPreviewEnvelope as unknown as SurfaceEnvelope}
-          onAction={() => {}}
+        <A2UISurfaceHost
+          readOnly
+          renderStatus={() => null}
+          surface={fullPreviewEnvelope as unknown as SurfaceEnvelope}
         />
       </div>
     </div>
