@@ -39,6 +39,10 @@ export interface DeployLaunchpadPayload {
     pushedAt?: string;
   };
   requestDetail?: {
+    selectedImageId?: string;
+    selectedImageUri?: string;
+    service?: string;
+    environment?: string;
     cpu?: string;
     memory?: string;
     containerPort?: string;
@@ -46,8 +50,12 @@ export interface DeployLaunchpadPayload {
     minimumHealthyPercent?: string;
     maximumPercent?: string;
     deploymentStrategy?: string;
+    healthCheckPath?: string;
+    healthCheckGracePeriod?: string;
     rollbackBaseline?: string;
     requestedBy?: string;
+    executionProfile?: string;
+    operatorNote?: string;
   };
   /**
    * LLM resolver가 생성하는 배포 리스크 요약

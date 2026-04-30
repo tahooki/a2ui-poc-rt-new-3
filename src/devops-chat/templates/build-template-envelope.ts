@@ -81,6 +81,10 @@ export function buildDeployTemplate(item: DeployItem): TemplateEnvelope {
       pushedAt: item.requestedAt,
     },
     requestDetail: {
+      selectedImageId: item.selectedImageId,
+      selectedImageUri: item.artifact,
+      service: item.service,
+      environment: item.environment,
       cpu: item.cpu,
       memory: item.memory,
       containerPort: item.containerPort,
@@ -88,8 +92,12 @@ export function buildDeployTemplate(item: DeployItem): TemplateEnvelope {
       minimumHealthyPercent: item.minimumHealthyPercent,
       maximumPercent: item.maximumPercent,
       deploymentStrategy: item.strategy,
+      healthCheckPath: item.healthCheckPath,
+      healthCheckGracePeriod: item.healthCheckGracePeriod,
       rollbackBaseline: item.rollbackBaseline,
       requestedBy: item.requestedBy,
+      executionProfile: item.executionProfile,
+      operatorNote: item.operatorNote,
     },
   };
 }

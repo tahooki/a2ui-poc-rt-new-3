@@ -1,8 +1,16 @@
 "use client";
 
-import { DataTable } from "../../primitives/DataTable";
-import { StatusBadge } from "../../primitives/StatusBadge";
 import { EmptyPartState, PartSection, isRecord, stringifyPartValue } from "../shared";
+import {
+  choiceButtonStyle,
+  choiceGridStyle,
+  fieldStyle,
+  formGridStyle,
+  inputStyle,
+  labelStyle,
+  updateNestedPayloadValue,
+  updatePayload,
+} from "../form-utils";
 
 const FIELD_LABELS: Record<string, string> = {
   repository: "Repository",
@@ -26,6 +34,39 @@ const DEFAULT_FIELDS = [
   "pushedAt",
 ];
 
+const BUILD_STATUS_OPTIONS = ["registered", "push_verified", "build_failed"];
+
+function updateImageField(props: Record<string, unknown>, field: string, value: string) {
+  if (field === "imageTag") {
+    updatePayload(props, (payload) => ({
+      ...payload,
+      targetVersion: value,
+      imageDetail: {
+        ...(isRecord(payload.imageDetail) ? payload.imageDetail : {}),
+        imageTag: value,
+      },
+    }));
+    return;
+  }
+
+  if (field === "imageUri") {
+    updatePayload(props, (payload) => ({
+      ...payload,
+      imageDetail: {
+        ...(isRecord(payload.imageDetail) ? payload.imageDetail : {}),
+        imageUri: value,
+      },
+      requestDetail: {
+        ...(isRecord(payload.requestDetail) ? payload.requestDetail : {}),
+        selectedImageUri: value,
+      },
+    }));
+    return;
+  }
+
+  updateNestedPayloadValue(props, "imageDetail", field, value);
+}
+
 export function DeployArtifactBlock(props: Record<string, unknown>) {
   const image = isRecord(props.image) ? props.image : null;
   const visibleFields = Array.isArray(props.visibleFields)
@@ -33,29 +74,41 @@ export function DeployArtifactBlock(props: Record<string, unknown>) {
     : DEFAULT_FIELDS;
 
   return (
-    <PartSection subtitle="Selected deploy artifact from the service context." title="Image artifact">
+    <PartSection subtitle="Matches the Image registration step fields." title="Image registration inputs">
       {image ? (
-        <DataTable
-          columns={[
-            { key: "field", label: "Field", width: "32%" },
-            {
-              key: "value",
-              label: "Value",
-              render: (value, row) => row.fieldKey === "buildStatus"
-                ? <StatusBadge label={stringifyPartValue(value)} level="success" />
-                : <span style={{ overflowWrap: "anywhere" }}>{stringifyPartValue(value)}</span>,
-            },
-          ]}
-          rows={visibleFields.map((field) => ({
-            fieldKey: field,
-            field: FIELD_LABELS[field] ?? field,
-            value: image[field],
-          }))}
-        />
+        <div style={formGridStyle}>
+          {visibleFields.map((field) => (
+            field === "buildStatus" ? (
+              <div key={field} style={fieldStyle}>
+                <span style={labelStyle}>{FIELD_LABELS[field] ?? field}</span>
+                <div style={choiceGridStyle}>
+                  {BUILD_STATUS_OPTIONS.map((option) => (
+                    <button
+                      key={option}
+                      onClick={() => updateImageField(props, field, option)}
+                      style={choiceButtonStyle(stringifyPartValue(image[field]) === option)}
+                      type="button"
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <label key={field} style={fieldStyle}>
+                <span style={labelStyle}>{FIELD_LABELS[field] ?? field}</span>
+                <input
+                  onChange={(event) => updateImageField(props, field, event.target.value)}
+                  style={inputStyle}
+                  value={stringifyPartValue(image[field])}
+                />
+              </label>
+            )
+          ))}
+        </div>
       ) : (
         <EmptyPartState label={typeof props.emptyLabel === "string" ? props.emptyLabel : "No image artifact selected"} />
       )}
     </PartSection>
   );
 }
-

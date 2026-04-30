@@ -61,6 +61,10 @@
     "requestDetail": {
       "type": "object",
       "properties": {
+        "selectedImageId": { "type": "string" },
+        "selectedImageUri": { "type": "string" },
+        "service": { "type": "string" },
+        "environment": { "type": "string" },
         "cpu": { "type": "string" },
         "memory": { "type": "string" },
         "containerPort": { "type": "string" },
@@ -68,8 +72,12 @@
         "minimumHealthyPercent": { "type": "string" },
         "maximumPercent": { "type": "string" },
         "deploymentStrategy": { "type": "string" },
+        "healthCheckPath": { "type": "string" },
+        "healthCheckGracePeriod": { "type": "string" },
         "rollbackBaseline": { "type": "string" },
-        "requestedBy": { "type": "string" }
+        "requestedBy": { "type": "string" },
+        "executionProfile": { "type": "string" },
+        "operatorNote": { "type": "string" }
       }
     },
     "riskSummary": {

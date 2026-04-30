@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback, useState } from "react";
 import type { TemplateAction, ActionCallback } from "../types/action-event";
 import { A2UICardShell } from "./A2UICardShell";
 import { resolveBindingValue, resolveProps, type BindingContext } from "./binding";
@@ -59,8 +60,19 @@ export function DynamicA2UICardRenderer({
   surfaceConfig,
   onAction,
 }: DynamicA2UICardRendererProps) {
-  const bindingContext: BindingContext = {
+  const payloadKey = `${envelope.templateId}:${envelope.freshnessKey ?? envelope.updatedAt}`;
+  const [draftState, setDraftState] = useState({
+    key: payloadKey,
     payload: envelope.payload,
+  });
+  const draftPayload = draftState.key === payloadKey ? draftState.payload : envelope.payload;
+
+  const updateDraftPayload = useCallback((payload: Record<string, unknown>) => {
+    setDraftState({ key: payloadKey, payload });
+  }, [payloadKey]);
+
+  const bindingContext: BindingContext = {
+    payload: draftPayload,
     actions: envelope.actions,
     meta: envelope.meta,
   };
@@ -81,7 +93,7 @@ export function DynamicA2UICardRenderer({
       description={description}
       footerNote={footerNote}
       onAction={onAction}
-      payload={envelope.payload}
+      payload={draftPayload}
       subtitle={subtitle}
       title={title}
       tone={tone}
@@ -92,9 +104,15 @@ export function DynamicA2UICardRenderer({
           return <UnknownPartFallback id={part.id} key={part.id} type={part.type} />;
         }
         const props = resolveProps(part.props, bindingContext);
-        return <Part key={part.id} {...props} />;
+        return (
+          <Part
+            key={part.id}
+            {...props}
+            __a2uiPayload={draftPayload}
+            __a2uiSetPayload={updateDraftPayload}
+          />
+        );
       })}
     </A2UICardShell>
   );
 }
-

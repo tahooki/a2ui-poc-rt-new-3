@@ -20,6 +20,10 @@ export type DeployImageDetail = {
 };
 
 export type DeployRequestDetail = {
+  selectedImageId: string;
+  selectedImageUri: string;
+  service: string;
+  environment: string;
   cpu: string;
   memory: string;
   containerPort: string;
@@ -27,8 +31,12 @@ export type DeployRequestDetail = {
   minimumHealthyPercent: string;
   maximumPercent: string;
   deploymentStrategy: string;
+  healthCheckPath: string;
+  healthCheckGracePeriod: string;
   rollbackBaseline: string;
   requestedBy: string;
+  executionProfile: string;
+  operatorNote: string;
 };
 
 export type QuickDeployTemplateData = {

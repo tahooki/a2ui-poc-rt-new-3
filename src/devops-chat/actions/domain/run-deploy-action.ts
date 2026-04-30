@@ -5,9 +5,22 @@
 import type { ActionExecutionContext, ActionExecutionResult } from "../action-types";
 import { DEPLOY_ACTION_IDS } from "../action-types";
 
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : null;
+}
+
+function getPayloadSnapshot(payload: Record<string, unknown> | undefined): Record<string, unknown> | null {
+  const nestedPayload = asRecord(payload?.payload);
+  if (nestedPayload) return nestedPayload;
+  return asRecord(payload);
+}
+
 export function runDeployAction(context: ActionExecutionContext): ActionExecutionResult {
-  const { actionId, targetRef } = context;
+  const { actionId, targetRef, payload } = context;
   const serviceName = targetRef?.entityId ?? "unknown";
+  const payloadSnapshot = getPayloadSnapshot(payload);
   const now = new Date().toISOString();
 
   switch (actionId) {
@@ -18,7 +31,7 @@ export function runDeployAction(context: ActionExecutionContext): ActionExecutio
         outcome: "succeeded",
         summary: `${serviceName} 배포를 시작했습니다.`,
         userFacingMessage: `${serviceName} 서비스의 배포가 시작되었습니다.`,
-        factsPatch: { deploy: { status: "deploying", startedAt: now } },
+        factsPatch: { deploy: { status: "deploying", startedAt: now, draftPayload: payloadSnapshot } },
         activityEvent: {
           kind: "action",
           status: "succeeded",
@@ -34,7 +47,7 @@ export function runDeployAction(context: ActionExecutionContext): ActionExecutio
         outcome: "succeeded",
         summary: `${serviceName} 배포를 완료했습니다.`,
         userFacingMessage: `${serviceName} 서비스의 배포가 완료되었습니다.`,
-        factsPatch: { deploy: { status: "succeeded", completedAt: now } },
+        factsPatch: { deploy: { status: "succeeded", completedAt: now, draftPayload: payloadSnapshot } },
         activityEvent: {
           kind: "action",
           status: "succeeded",
@@ -50,6 +63,7 @@ export function runDeployAction(context: ActionExecutionContext): ActionExecutio
         outcome: "succeeded",
         summary: `배포 초안을 새로 고쳤습니다.`,
         userFacingMessage: `배포 초안이 갱신되었습니다.`,
+        factsPatch: payloadSnapshot ? { deploy: { draftPayload: payloadSnapshot } } : undefined,
         activityEvent: {
           kind: "action",
           status: "succeeded",

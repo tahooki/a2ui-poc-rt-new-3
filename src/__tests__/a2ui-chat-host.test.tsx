@@ -59,7 +59,7 @@ describe("A2UI chatbot surface host", () => {
 
     expect(html).toContain("Deploy Launchpad");
     expect(html).toContain("payments-api");
-    expect(html).toContain("Image artifact");
+    expect(html).toContain("Image registration inputs");
   });
 
   it("disables rendered action buttons in read-only mode", () => {

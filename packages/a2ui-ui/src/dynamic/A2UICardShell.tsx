@@ -105,7 +105,7 @@ export function A2UICardShell({
                   disabled={isActionDisabled(action, payload)}
                   key={action.actionId}
                   label={action.label}
-                  onClick={() => emitAction(action, onAction)}
+                  onClick={() => emitAction(action, onAction, { payload })}
                   variant={action.variant}
                 />
               ))}
@@ -116,4 +116,3 @@ export function A2UICardShell({
     </article>
   );
 }
-
