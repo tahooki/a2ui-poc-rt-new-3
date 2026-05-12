@@ -38,6 +38,38 @@ describe("Payload Validator (Ajv)", () => {
     });
   });
 
+  describe("deploy_history_table", () => {
+    it("rows와 columns가 있으면 valid", () => {
+      const result = validatePayload("deploy_history_table", {
+        templateId: "deploy_history_table",
+        state: "ready",
+        summaryItems: [{ label: "Deployments", value: "1" }],
+        rows: [
+          {
+            service: "payments-api",
+            environment: "production",
+            version: "v2.3.18",
+            status: "success",
+            deployedBy: "김배포",
+            deployedAt: "2026-03-30 00:15 KST",
+          },
+        ],
+        columns: [{ key: "service", label: "Service" }],
+      });
+      expect(result.valid).toBe(true);
+    });
+
+    it("rows 누락 → invalid", () => {
+      const result = validatePayload("deploy_history_table", {
+        templateId: "deploy_history_table",
+        state: "ready",
+        summaryItems: [],
+        columns: [],
+      });
+      expect(result.valid).toBe(false);
+    });
+  });
+
   describe("approval_queue_inbox", () => {
     it("items 배열 있으면 valid", () => {
       const result = validatePayload("approval_queue_inbox", {

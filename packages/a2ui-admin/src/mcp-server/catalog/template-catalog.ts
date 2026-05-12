@@ -2,6 +2,7 @@ import type { BindingRecipe } from "../binding/binding-engine.js";
 import {
   APPROVAL_QUEUE_INBOX_RECIPE,
   COMPONENT_SMOKE_TEST_RECIPE,
+  DEPLOY_HISTORY_TABLE_RECIPE,
   DEPLOY_LAUNCHPAD_RECIPE,
   ROLLBACK_SUMMARY_RECIPE,
 } from "../binding/binding-engine.js";
@@ -42,6 +43,7 @@ export type TemplateRegistration = {
 
 const BINDING_RECIPE_MAP: Record<string, BindingRecipe> = {
   deploy_launchpad: DEPLOY_LAUNCHPAD_RECIPE,
+  deploy_history_table: DEPLOY_HISTORY_TABLE_RECIPE,
   approval_queue_inbox: APPROVAL_QUEUE_INBOX_RECIPE,
   rollback_summary: ROLLBACK_SUMMARY_RECIPE,
   component_smoke_test: COMPONENT_SMOKE_TEST_RECIPE,

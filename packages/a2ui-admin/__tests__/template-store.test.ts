@@ -15,7 +15,7 @@ describe("Template Store validation", () => {
       actions: [{ actionId: "deploy.start", label: "Deploy", variant: "wat", kind: "submit" }],
     });
 
-    expect(errors).toContain("bindingRecipeId must be one of: deploy_launchpad, approval_queue_inbox, rollback_summary, component_smoke_test");
+    expect(errors).toContain("bindingRecipeId must be one of: deploy_launchpad, deploy_history_table, approval_queue_inbox, rollback_summary, component_smoke_test");
     expect(errors).toContain("resolvers[0].kind must be http_get|transform_filter|static_defaults|llm_summary");
     expect(errors).toContain("actions[0].variant must be primary|secondary|danger|ghost");
   });

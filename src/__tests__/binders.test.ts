@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { bindDeployLaunchpad } from "@/devops-chat/templates/binders/bind-deploy-launchpad";
+import { bindDeployHistoryTable } from "@/devops-chat/templates/binders/bind-deploy-history-table";
 import { bindApprovalInbox } from "@/devops-chat/templates/binders/bind-approval-inbox";
 import { bindRollbackSummary } from "@/devops-chat/templates/binders/bind-rollback-summary";
 import { bindDryRunStepper } from "@/devops-chat/templates/binders/bind-dry-run-stepper";
@@ -57,6 +58,68 @@ describe("bind-deploy-launchpad", () => {
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.missingFacts).toContain("deploy.serviceName");
+    }
+  });
+});
+
+describe("bind-deploy-history-table", () => {
+  it("produces a dynamic A2UI table surface from previous deployment rows", () => {
+    const facts: ConversationFacts = {
+      slots: {
+        "deploy.previousDeployments": {
+          value: {
+            history: [
+              {
+                id: "deploy-001",
+                service: "payments-api",
+                environment: "production",
+                version: "v2.3.18",
+                status: "success",
+                deployedBy: "김배포",
+                deployedAt: "2026-03-30 00:15 KST",
+              },
+            ],
+            images: [{ id: "img-payments-2318" }],
+          },
+          source: "tool",
+          confidence: 1,
+          updatedAt: "",
+        },
+      },
+    };
+
+    const result = bindDeployHistoryTable(facts, "deploy.history.lookup");
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.surface.templateId).toBe("deploy_history_table");
+      expect(result.surface.surfaceConfig?.kind).toBe("a2ui_card");
+      expect(result.surface.payload.state).toBe("ready");
+      expect(result.surface.payload.rows).toEqual([
+        expect.objectContaining({ service: "payments-api", version: "v2.3.18", status: "success" }),
+      ]);
+      expect(result.surface.payload.columns).toEqual(
+        expect.arrayContaining([expect.objectContaining({ key: "status", format: "status" })]),
+      );
+    }
+  });
+
+  it("produces an empty-state surface when history rows are empty", () => {
+    const facts: ConversationFacts = {
+      slots: {
+        "deploy.previousDeployments": {
+          value: { history: [], images: [], requestedServiceName: "unknown-api" },
+          source: "tool",
+          confidence: 1,
+          updatedAt: "",
+        },
+      },
+    };
+
+    const result = bindDeployHistoryTable(facts, "deploy.history.lookup");
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.surface.payload.state).toBe("empty");
+      expect(result.surface.payload.emptyMessage).toContain("unknown-api");
     }
   });
 });

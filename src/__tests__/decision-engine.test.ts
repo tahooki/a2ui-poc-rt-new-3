@@ -39,10 +39,22 @@ describe("decision-engine", () => {
   });
 
   describe("deploy.history.lookup policy", () => {
-    it("always returns text mode", () => {
+    it("returns text mode before history data is available", () => {
       const result = evaluateDecision("deploy.history.lookup", {}, null);
       expect(result.trace.mode).toBe("text");
       expect(result.surfaceIntent).toBeNull();
+    });
+
+    it("returns render_surface when previous deployments are available", () => {
+      const result = evaluateDecision(
+        "deploy.history.lookup",
+        { "deploy.previousDeployments": { history: [{ id: "deploy-1" }] } },
+        null,
+      );
+      expect(result.trace.mode).toBe("render_surface");
+      expect(result.trace.matched).toContain("deploy.previousDeployments");
+      expect(result.surfaceIntent?.family).toBe("deploy.history");
+      expect(result.surfaceIntent?.readiness).toBe("ready");
     });
   });
 

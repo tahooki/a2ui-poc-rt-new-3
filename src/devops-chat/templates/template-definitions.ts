@@ -23,6 +23,13 @@ export const TEMPLATE_DEFINITIONS: TemplateDefinition[] = [
     rendererKey: "quick_deploy_launchpad",
   },
   {
+    templateId: "deploy_history_table",
+    family: "deploy.history",
+    intentKeys: ["deploy.history.lookup"],
+    requiredFacts: ["deploy.previousDeployments"],
+    rendererKey: "deploy_history_table",
+  },
+  {
     templateId: "approval_queue_inbox",
     family: "approval.queue",
     intentKeys: ["approval.review"],

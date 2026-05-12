@@ -35,6 +35,46 @@ const TEMPLATE_SCHEMAS: Record<string, object> = {
     },
     additionalProperties: true,
   },
+  deploy_history_table: {
+    type: "object",
+    required: ["templateId", "state", "summaryItems", "rows", "columns"],
+    properties: {
+      templateId: { type: "string", const: "deploy_history_table" },
+      state: { type: "string", enum: ["ready", "empty", "error"] },
+      title: { type: "string" },
+      summary: { type: "string" },
+      summaryItems: {
+        type: "array",
+        items: {
+          type: "object",
+          required: ["label", "value"],
+          properties: {
+            label: { type: "string" },
+            value: { type: "string" },
+          },
+        },
+      },
+      rows: {
+        type: "array",
+        items: {
+          type: "object",
+          required: ["service", "environment", "version", "status", "deployedBy", "deployedAt"],
+          properties: {
+            service: { type: "string" },
+            environment: { type: "string" },
+            version: { type: "string" },
+            status: { type: "string" },
+            deployedBy: { type: "string" },
+            deployedAt: { type: "string" },
+          },
+        },
+      },
+      columns: { type: "array" },
+      images: { type: "array" },
+      emptyMessage: { type: "string" },
+    },
+    additionalProperties: true,
+  },
   approval_queue_inbox: {
     type: "object",
     required: ["templateId", "items"],

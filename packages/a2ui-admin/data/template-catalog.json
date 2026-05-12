@@ -284,6 +284,149 @@
   },
   {
     "schemaVersion": 2,
+    "templateId": "deploy_history_table",
+    "version": "1.0.0",
+    "title": "Deploy History Table",
+    "status": "published",
+    "description": "최근 배포 이력을 chatbot에서 테이블로 보여주는 A2UI 템플릿",
+    "intents": [
+      {
+        "intentKey": "deploy.history.lookup",
+        "requiredFacts": [],
+        "optionalFacts": [
+          "serviceName"
+        ]
+      }
+    ],
+    "resolvers": [
+      {
+        "id": "deployments",
+        "kind": "http_get",
+        "label": "Deployment history source",
+        "phase": "blocking",
+        "requiredFacts": [],
+        "optionalFacts": [
+          "serviceName"
+        ],
+        "endpoint": "/api/deployments",
+        "outputAlias": "deployments",
+        "requiredOutputs": [
+          "history"
+        ],
+        "assign": {
+          "rows": "deployments.history",
+          "images": "deployments.images"
+        }
+      },
+      {
+        "id": "serviceDeploymentHistory",
+        "kind": "transform_filter",
+        "label": "Filter history by service",
+        "phase": "optional",
+        "requiredFacts": [
+          "serviceName"
+        ],
+        "inputPath": "deployments.history",
+        "filter": {
+          "field": "service",
+          "fact": "serviceName"
+        },
+        "outputAlias": "serviceDeploymentHistory",
+        "requiredOutputs": [],
+        "assign": {
+          "rows": "serviceDeploymentHistory"
+        }
+      }
+    ],
+    "bindingRecipeId": "deploy_history_table",
+    "actions": [],
+    "surfaceConfig": {
+      "kind": "a2ui_card",
+      "version": 1,
+      "card": {
+        "title": {
+          "type": "binding",
+          "path": "payload.title"
+        },
+        "subtitle": {
+          "type": "binding",
+          "path": "payload.summary"
+        },
+        "description": {
+          "type": "static",
+          "value": "최근 배포 이력을 조회했습니다."
+        },
+        "tone": {
+          "type": "static",
+          "value": "info"
+        },
+        "footerNote": {
+          "type": "static",
+          "value": "Generated from Admin surface config"
+        }
+      },
+      "parts": [
+        {
+          "id": "deploy-history-summary",
+          "type": "KeyValueSummary",
+          "props": {
+            "title": {
+              "type": "static",
+              "value": "Summary"
+            },
+            "items": {
+              "type": "binding",
+              "path": "payload.summaryItems",
+              "fallback": []
+            }
+          }
+        },
+        {
+          "id": "deploy-history-table",
+          "type": "DataTableBlock",
+          "props": {
+            "title": {
+              "type": "static",
+              "value": "Recent deployments"
+            },
+            "rows": {
+              "type": "binding",
+              "path": "payload.rows",
+              "fallback": []
+            },
+            "columns": {
+              "type": "binding",
+              "path": "payload.columns",
+              "fallback": []
+            },
+            "emptyMessage": {
+              "type": "binding",
+              "path": "payload.emptyMessage",
+              "fallback": "No deployment history available"
+            }
+          }
+        }
+      ]
+    },
+    "generatedValidation": {
+      "requiredFacts": [],
+      "renderRequiredPayloadFields": [
+        "templateId",
+        "state",
+        "summaryItems",
+        "rows",
+        "columns"
+      ],
+      "actionRequiredPayloadFields": {},
+      "requiredResolverOutputs": {
+        "deployments": [
+          "history"
+        ]
+      }
+    }
+  },
+  {
+    "schemaVersion": 2,
     "templateId": "approval_queue_inbox",
     "version": "1.0.0",
     "title": "Approval Queue Inbox",

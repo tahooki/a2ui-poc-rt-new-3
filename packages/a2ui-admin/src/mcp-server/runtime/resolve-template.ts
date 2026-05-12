@@ -99,6 +99,47 @@ function validateResolverOutputs(resolver: ResolverConfig, resolverData: Record<
 }
 
 function applyBuiltInDerivedFields(registration: TemplateRegistration, resolverData: Record<string, unknown>): void {
+  if (registration.templateId === "deploy_history_table") {
+    const rows = Array.isArray(resolverData.rows)
+      ? resolverData.rows.filter((item): item is Record<string, unknown> => !!item && typeof item === "object" && !Array.isArray(item))
+      : [];
+    const images = Array.isArray(resolverData.images) ? resolverData.images : [];
+    const serviceName = typeof resolverData.serviceName === "string" ? resolverData.serviceName : "";
+    const normalizedRows = rows.map((row) => ({
+      service: String(row.service ?? "unknown"),
+      environment: String(row.environment ?? "production"),
+      version: String(row.version ?? row.targetVersion ?? "unknown"),
+      status: String(row.status ?? "unknown"),
+      deployedBy: String(row.deployedBy ?? row.requestedBy ?? "unknown"),
+      deployedAt: String(row.deployedAt ?? row.requestedAt ?? ""),
+    }));
+    const latest = normalizedRows[0];
+
+    resolverData.rows = normalizedRows;
+    resolverData.state = normalizedRows.length > 0 ? "ready" : "empty";
+    resolverData.title = serviceName ? `${serviceName} deployment history` : "Deployment history";
+    resolverData.summary = normalizedRows.length > 0
+      ? `${normalizedRows.length} deployments${serviceName ? ` for ${serviceName}` : ""}`
+      : serviceName
+        ? `${serviceName} 배포 이력이 없습니다.`
+        : "배포 이력이 없습니다.";
+    resolverData.summaryItems = [
+      { label: "Deployments", value: String(normalizedRows.length) },
+      { label: "Images", value: String(images.length) },
+      { label: "Scope", value: serviceName || "All services" },
+      ...(latest
+        ? [
+            { label: "Latest", value: `${latest.service} ${latest.version}` },
+            { label: "Last deployed", value: latest.deployedAt },
+          ]
+        : []),
+    ];
+    resolverData.emptyMessage = serviceName
+      ? `${serviceName} 배포 이력이 없습니다.`
+      : "배포 이력이 없습니다.";
+    return;
+  }
+
   if (registration.templateId !== "deploy_launchpad") return;
 
   const service = resolverData.service as Record<string, unknown> | undefined;

@@ -8,7 +8,7 @@ export type AuthResult = {
 };
 
 const ROLE_PERMISSIONS: Record<string, string[]> = {
-  deployer: ["deploy_launchpad", "rollback_summary"],
+  deployer: ["deploy_launchpad", "deploy_history_table", "rollback_summary"],
   approver: ["approval_queue_inbox"],
   admin: ["*"],
   viewer: ["*"],

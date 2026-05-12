@@ -8,6 +8,8 @@ export type DryRunStepperState = "not_started" | "running" | "completed";
 
 export type ConfirmActionState = "confirm_ready" | "executed";
 
+export type DeployHistoryTableState = "ready" | "empty" | "error";
+
 export type DeployImageDetail = {
   repository: string;
   imageTag: string;
@@ -57,6 +59,33 @@ export type QuickDeployTemplateData = {
   requestDetail?: DeployRequestDetail;
   lastDeployment?: { version: string; deployedBy: string; deployedAt: string; status: string };
   deploymentHistory?: { version: string; deployedBy: string; deployedAt: string; status: string }[];
+};
+
+export type DeployHistoryTableRow = {
+  service: string;
+  environment: string;
+  version: string;
+  status: string;
+  deployedBy: string;
+  deployedAt: string;
+};
+
+export type DeployHistoryTableColumn = {
+  key: keyof DeployHistoryTableRow | string;
+  label: string;
+  width?: string;
+  format?: "status";
+};
+
+export type DeployHistoryTableTemplateData = {
+  templateId: "deploy_history_table";
+  state: DeployHistoryTableState;
+  title: string;
+  summary: string;
+  summaryItems: Array<{ label: string; value: string }>;
+  rows: DeployHistoryTableRow[];
+  columns: DeployHistoryTableColumn[];
+  emptyMessage: string;
 };
 
 export type DeploymentApprovalTemplateData = {
@@ -222,6 +251,7 @@ export type RollbackTargetListTemplateData = {
 
 export type TemplateEnvelope =
   | QuickDeployTemplateData
+  | DeployHistoryTableTemplateData
   | DeploymentApprovalTemplateData
   | ApprovalQueueTemplateData
   | RollbackTargetListTemplateData

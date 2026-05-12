@@ -60,6 +60,30 @@ export const DEPLOY_LAUNCHPAD_RECIPE: BindingRecipe = {
   ],
 };
 
+export const DEPLOY_HISTORY_TABLE_RECIPE: BindingRecipe = {
+  templateId: "deploy_history_table",
+  staticValues: {
+    templateId: "deploy_history_table",
+    columns: [
+      { key: "service", label: "Service", width: "18%" },
+      { key: "environment", label: "Env", width: "14%" },
+      { key: "version", label: "Version", width: "16%" },
+      { key: "status", label: "Status", width: "14%", format: "status" },
+      { key: "deployedBy", label: "Deployed by", width: "18%" },
+      { key: "deployedAt", label: "Deployed at" },
+    ],
+  },
+  rules: [
+    { targetField: "state", sourceKey: "state", defaultValue: "empty" },
+    { targetField: "title", sourceKey: "title", defaultValue: "Deployment history" },
+    { targetField: "summary", sourceKey: "summary", defaultValue: "배포 이력을 조회했습니다." },
+    { targetField: "summaryItems", sourceKey: "summaryItems", defaultValue: [] },
+    { targetField: "rows", sourceKey: "rows", defaultValue: [] },
+    { targetField: "images", sourceKey: "images", defaultValue: [] },
+    { targetField: "emptyMessage", sourceKey: "emptyMessage", defaultValue: "배포 이력이 없습니다." },
+  ],
+};
+
 export const APPROVAL_QUEUE_INBOX_RECIPE: BindingRecipe = {
   templateId: "approval_queue_inbox",
   staticValues: {

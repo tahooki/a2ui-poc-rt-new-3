@@ -54,6 +54,7 @@ export const SHARED_PART_DEFINITIONS: A2UIPartDefinition[] = [
     defaultProps: {
       title: { type: "static", value: "Rows" },
       rows: { type: "binding", path: "payload.rows", fallback: [] },
+      emptyMessage: { type: "binding", path: "payload.emptyMessage", fallback: "No rows configured" },
       columns: {
         type: "static",
         value: [
@@ -66,6 +67,7 @@ export const SHARED_PART_DEFINITIONS: A2UIPartDefinition[] = [
     editorFields: [
       { kind: "staticText", prop: "title", label: "Title", defaultValue: "Rows" },
       { kind: "bindingPath", prop: "rows", label: "Rows binding", defaultPath: "payload.rows", fallback: [] },
+      { kind: "bindingPath", prop: "emptyMessage", label: "Empty message binding", defaultPath: "payload.emptyMessage", fallback: "No rows configured" },
       {
         kind: "staticJson",
         prop: "columns",

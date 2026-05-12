@@ -10,6 +10,7 @@ import {
   shouldAutoClearA2UISurfaceStatus,
 } from "@a2ui/chat";
 import { deployLaunchpadSurfaceConfig } from "@/devops-chat/templates/surface-configs/deploy-launchpad";
+import { deployHistoryTableSurfaceConfig } from "@/devops-chat/templates/surface-configs/deploy-history-table";
 
 const surface = {
   templateId: "quick_deploy_launchpad",
@@ -60,6 +61,52 @@ describe("A2UI chatbot surface host", () => {
     expect(html).toContain("Deploy Launchpad");
     expect(html).toContain("payments-api");
     expect(html).toContain("Image registration inputs");
+  });
+
+  it("renders a deploy history table surface through the shared SurfaceRenderer", () => {
+    const html = renderToStaticMarkup(
+      <A2UISurfaceHost
+        readOnly
+        renderStatus={() => null}
+        surface={{
+          templateId: "deploy_history_table",
+          payload: {
+            templateId: "deploy_history_table",
+            state: "ready",
+            title: "Deployment history",
+            summary: "3 deployments",
+            summaryItems: [{ label: "Deployments", value: "3" }],
+            rows: [
+              {
+                service: "payments-api",
+                environment: "production",
+                version: "v2.3.18",
+                status: "success",
+                deployedBy: "김배포",
+                deployedAt: "2026-03-30 00:15 KST",
+              },
+            ],
+            columns: [
+              { key: "service", label: "Service" },
+              { key: "version", label: "Version" },
+              { key: "status", label: "Status", format: "status" },
+              { key: "deployedAt", label: "Deployed at" },
+            ],
+            emptyMessage: "배포 이력이 없습니다.",
+          },
+          actions: [],
+          surfaceConfig: deployHistoryTableSurfaceConfig,
+          sourceIntent: "deploy.history.lookup",
+          updatedAt: "2026-05-12T00:00:00.000Z",
+        }}
+      />,
+    );
+
+    expect(html).toContain("Deployment history");
+    expect(html).toContain("Recent deployments");
+    expect(html).toContain("payments-api");
+    expect(html).toContain("v2.3.18");
+    expect(html).toContain("success");
   });
 
   it("disables rendered action buttons in read-only mode", () => {

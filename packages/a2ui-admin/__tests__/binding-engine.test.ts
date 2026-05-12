@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   applyBinding,
   DEPLOY_LAUNCHPAD_RECIPE,
+  DEPLOY_HISTORY_TABLE_RECIPE,
   APPROVAL_QUEUE_INBOX_RECIPE,
   ROLLBACK_SUMMARY_RECIPE,
 } from "../src/mcp-server/binding/binding-engine";
@@ -31,6 +32,26 @@ describe("Binding Engine", () => {
       expect(payload.environment).toBe("production");
       expect(payload.targetVersion).toBe("latest");
       expect(payload.strategy).toBe("rolling");
+    });
+  });
+
+  describe("DEPLOY_HISTORY_TABLE_RECIPE", () => {
+    it("history rows/summary를 deploy history payload로 변환", () => {
+      const rows = [{ service: "payments-api", version: "v2.3.18", status: "success" }];
+      const payload = applyBinding(DEPLOY_HISTORY_TABLE_RECIPE, {
+        state: "ready",
+        title: "Deployment history",
+        summary: "1 deployment",
+        summaryItems: [{ label: "Deployments", value: "1" }],
+        rows,
+      });
+
+      expect(payload.templateId).toBe("deploy_history_table");
+      expect(payload.state).toBe("ready");
+      expect(payload.rows).toBe(rows);
+      expect(payload.columns).toEqual(expect.arrayContaining([
+        expect.objectContaining({ key: "status", format: "status" }),
+      ]));
     });
   });
 

@@ -14,6 +14,12 @@ describe("Decision Engine", () => {
     expect(result.missingFacts).toContain("serviceName");
   });
 
+  it("deploy.history.lookup — required facts 없이도 render_surface", () => {
+    const result = evaluateDecision("deploy.history.lookup", {});
+    expect(result.mode).toBe("render_surface");
+    expect(result.templateId).toBe("deploy_history_table");
+  });
+
   it("approval.review — required facts 없이도 render_surface", () => {
     const result = evaluateDecision("approval.review", {});
     expect(result.mode).toBe("render_surface");

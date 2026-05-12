@@ -26,6 +26,7 @@ export const CATALOG_SCHEMA_VERSION = 2;
 
 export const KNOWN_BINDING_RECIPE_IDS = [
   "deploy_launchpad",
+  "deploy_history_table",
   "approval_queue_inbox",
   "rollback_summary",
   "component_smoke_test",
@@ -143,6 +144,7 @@ let cacheMtimeMs = 0;
 
 const RENDER_REQUIRED_FIELDS: Record<string, string[]> = {
   deploy_launchpad: ["templateId", "state", "service", "environment", "targetVersion", "strategy"],
+  deploy_history_table: ["templateId", "state", "summaryItems", "rows", "columns"],
   approval_queue_inbox: ["templateId", "items"],
   rollback_summary: ["templateId", "candidates"],
   component_smoke_test: ["templateId", "headline", "metricLabel", "metricValue", "statusTone", "rows"],

@@ -10,6 +10,7 @@ import {
 } from "@a2ui/ui";
 import { resolveConfigValue } from "@a2ui/ui/dynamic/binding";
 import { deployLaunchpadSurfaceConfig } from "@/devops-chat/templates/surface-configs/deploy-launchpad";
+import { deployHistoryTableSurfaceConfig } from "@/devops-chat/templates/surface-configs/deploy-history-table";
 
 describe("dynamic A2UI surface config", () => {
   it("resolves binding values from payload", () => {
@@ -36,12 +37,21 @@ describe("dynamic A2UI surface config", () => {
     }
   });
 
+  it("registers shared parts used by the deploy history table config", () => {
+    for (const part of deployHistoryTableSurfaceConfig.parts) {
+      expect(getA2UIPart(part.type), part.type).toBeDefined();
+    }
+  });
+
   it("defines every registered dynamic part in the shared part catalog", () => {
     const definitionTypes = new Set(listA2UIPartDefinitionTypes());
     for (const definition of listA2UIPartDefinitions()) {
       expect(getA2UIPart(definition.type), definition.type).toBeDefined();
     }
     for (const part of deployLaunchpadSurfaceConfig.parts) {
+      expect(definitionTypes.has(part.type), part.type).toBe(true);
+    }
+    for (const part of deployHistoryTableSurfaceConfig.parts) {
       expect(definitionTypes.has(part.type), part.type).toBe(true);
     }
   });

@@ -32,6 +32,29 @@ describe("template-selector", () => {
     expect(result.selected!.eligible).toBe(true);
   });
 
+  it("selects deploy_history_table when deployment history facts are present", () => {
+    const result = selectTemplate(
+      makeInput({
+        intentKey: "deploy.history.lookup",
+        facts: {
+          slots: {
+            "deploy.previousDeployments": {
+              value: { history: [{ id: "deploy-001", service: "payments-api" }] },
+              source: "tool",
+              confidence: 1,
+              updatedAt: "",
+            },
+          },
+        },
+        surfaceIntent: { family: "deploy.history", intentKey: "deploy.history.lookup", readiness: "ready" },
+      }),
+    );
+
+    expect(result.selected).not.toBeNull();
+    expect(result.selected!.templateId).toBe("deploy_history_table");
+    expect(result.selected!.eligible).toBe(true);
+  });
+
   it("selects deployment_approval_inbox for approval.review", () => {
     const result = selectTemplate(
       makeInput({
