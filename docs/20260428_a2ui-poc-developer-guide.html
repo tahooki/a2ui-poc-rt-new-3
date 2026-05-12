@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A2UI PoC Developer Guide</title>
+  <style>
+    :root {
+      --bg: #0b1018;
+      --panel: #121a27;
+      --panel-2: #172233;
+      --panel-3: #0f1723;
+      --border: #263447;
+      --text: #e7ebf2;
+      --muted: #9aa8bc;
+      --quiet: #6e7e94;
+      --blue: #5b8dee;
+      --blue-2: #9db8ff;
+      --green: #34c38f;
+      --yellow: #f7c948;
+      --red: #f46a6a;
+      --purple: #a78bfa;
+      --orange: #fb923c;
+      --cyan: #22d3ee;
+      --radius: 8px;
+      --mono: "SF Mono", "Fira Code", "Cascadia Code", Consolas, monospace;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      line-height: 1.65;
+    }
+
+    a {
+      color: var(--blue-2);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    code {
+      color: #dce7ff;
+      font-family: var(--mono);
+      font-size: 0.92em;
+    }
+
+    pre {
+      margin: 0;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #09111d;
+      padding: 16px;
+    }
+
+    pre code {
+      color: #dfe8f8;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .shell {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 36px 24px 64px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+      gap: 28px;
+      align-items: stretch;
+      padding: 28px 0 32px;
+    }
+
+    .hero-copy {
+      padding: 20px 0;
+    }
+
+    .kicker {
+      margin-bottom: 8px;
+      color: var(--blue-2);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0 0 14px;
+      max-width: 780px;
+      font-size: clamp(34px, 5vw, 58px);
+      font-weight: 850;
+      letter-spacing: 0;
+      line-height: 1.08;
+    }
+
+    .lead {
+      max-width: 780px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .hero-panel,
+    .card,
+    .note,
+    .step,
+    .table-wrap {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--panel);
+    }
+
+    .hero-panel {
+      display: grid;
+      gap: 12px;
+      padding: 18px;
+      align-content: start;
+    }
+
+    .status-row {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 11px 0;
+      border-bottom: 1px solid rgba(38, 52, 71, 0.75);
+    }
+
+    .status-row:last-child {
+      border-bottom: 0;
+    }
+
+    .status-label {
+      color: var(--quiet);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .status-value {
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      padding: 2px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.4;
+      vertical-align: middle;
+    }
+
+    .badge.blue { background: rgba(91, 141, 238, 0.15); color: var(--blue-2); }
+    .badge.green { background: rgba(52, 195, 143, 0.14); color: var(--green); }
+    .badge.yellow { background: rgba(247, 201, 72, 0.14); color: var(--yellow); }
+    .badge.purple { background: rgba(167, 139, 250, 0.15); color: var(--purple); }
+    .badge.red { background: rgba(244, 106, 106, 0.14); color: var(--red); }
+    .badge.orange { background: rgba(251, 146, 60, 0.14); color: var(--orange); }
+    .badge.cyan { background: rgba(34, 211, 238, 0.14); color: var(--cyan); }
+
+    .toc {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 12px 0 38px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--panel-3);
+    }
+
+    .toc a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 6px 11px;
+      border: 1px solid rgba(91, 141, 238, 0.2);
+      border-radius: var(--radius);
+      background: rgba(91, 141, 238, 0.07);
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    section {
+      margin-top: 48px;
+    }
+
+    .section-head {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 18px;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: clamp(24px, 3vw, 34px);
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .section-head p {
+      max-width: 840px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .grid-2,
+    .grid-3,
+    .grid-4 {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .grid-4 {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .card {
+      padding: 18px;
+    }
+
+    .card h3 {
+      margin: 0 0 6px;
+      font-size: 17px;
+      line-height: 1.35;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .card ul,
+    .card ol {
+      margin: 12px 0 0;
+      padding-left: 20px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .card li + li {
+      margin-top: 8px;
+    }
+
+    .note {
+      margin: 16px 0;
+      padding: 16px 18px;
+      background: rgba(91, 141, 238, 0.08);
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .note strong {
+      color: var(--text);
+    }
+
+    .draft {
+      display: grid;
+      gap: 16px;
+    }
+
+    .draft-copy {
+      border-left: 3px solid var(--blue);
+      padding: 16px 18px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      background: var(--panel);
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .draft-copy p {
+      margin: 0 0 12px;
+    }
+
+    .draft-copy p:last-child {
+      margin-bottom: 0;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+      margin: 18px 0;
+    }
+
+    .flow-node {
+      position: relative;
+      min-height: 122px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--panel);
+    }
+
+    .flow-node::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: -10px;
+      width: 10px;
+      height: 1px;
+      background: var(--blue);
+    }
+
+    .flow-node:last-child::after {
+      display: none;
+    }
+
+    .flow-label {
+      margin-bottom: 7px;
+      color: var(--blue-2);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .flow-title {
+      margin-bottom: 5px;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .flow-desc {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .steps {
+      display: grid;
+      gap: 14px;
+      counter-reset: step;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr);
+      gap: 14px;
+      padding: 16px;
+    }
+
+    .step::before {
+      counter-increment: step;
+      content: counter(step);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(91, 141, 238, 0.16);
+      color: var(--blue-2);
+      font-weight: 850;
+    }
+
+    .step h3 {
+      margin: 0 0 4px;
+      font-size: 16px;
+    }
+
+    .step p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      padding: 13px 14px;
+      border-bottom: 1px solid rgba(38, 52, 71, 0.78);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--quiet);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    td {
+      color: var(--muted);
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .path-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .path {
+      display: grid;
+      gap: 4px;
+      padding: 10px 12px;
+      border: 1px solid rgba(38, 52, 71, 0.8);
+      border-radius: var(--radius);
+      background: rgba(15, 23, 35, 0.7);
+    }
+
+    .path strong {
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .path span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .checklist {
+      display: grid;
+      gap: 10px;
+    }
+
+    .check {
+      display: grid;
+      grid-template-columns: 22px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .check::before {
+      content: "";
+      width: 16px;
+      height: 16px;
+      margin-top: 4px;
+      border-radius: 50%;
+      background: rgba(52, 195, 143, 0.2);
+      border: 1px solid rgba(52, 195, 143, 0.65);
+    }
+
+    .lane {
+      display: grid;
+      gap: 10px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--panel);
+    }
+
+    .lane-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .lane p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    footer {
+      margin-top: 56px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      color: var(--quiet);
+      font-size: 12px;
+    }
+
+    @media (max-width: 980px) {
+      .hero,
+      .grid-2,
+      .grid-3,
+      .grid-4 {
+        grid-template-columns: 1fr;
+      }
+
+      .flow {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .flow-node::after {
+        display: none;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .shell {
+        padding: 24px 16px 48px;
+      }
+
+      .status-row,
+      .step {
+        grid-template-columns: 1fr;
+      }
+
+      .flow {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <div class="hero-copy">
+        <div class="kicker">A2UI PoC Developer Guide</div>
+        <h1>Admin에서 조립하고, Agent가 판단하고, Chatbot이 렌더하는 A2UI 가이드</h1>
+        <p class="lead">
+          이 문서는 현재 PoC에서 작업된 내용을 한 페이지로 설명합니다. 프론트 컴포넌트 작성부터 Admin 구성,
+          Python agent 연동, 기존 chatbot에 끼워 넣는 방식까지 개발자가 따라갈 수 있게 정리했습니다.
+        </p>
+      </div>
+      <aside class="hero-panel" aria-label="현재 구현 요약">
+        <div class="status-row">
+          <div class="status-label">목표</div>
+          <div class="status-value">배포 A2UI를 Admin에서 구성하고 chatbot 대화 안에 렌더</div>
+        </div>
+        <div class="status-row">
+          <div class="status-label">핵심 패키지</div>
+          <div class="status-value"><span class="badge blue">@a2ui/ui</span> <span class="badge purple">@a2ui/chat</span></div>
+        </div>
+        <div class="status-row">
+          <div class="status-label">Admin</div>
+          <div class="status-value">part manifest 기반 편집, preview, 저장</div>
+        </div>
+        <div class="status-row">
+          <div class="status-label">Agent</div>
+          <div class="status-value">MCP로 template resolve 후 surface envelope 반환</div>
+        </div>
+        <div class="status-row">
+          <div class="status-label">Review 반영</div>
+          <div class="status-value"><span class="badge green">read-only action disabled</span> <span class="badge green">adapter surface unknown</span></div>
+        </div>
+      </aside>
+    </header>
+
+    <nav class="toc" aria-label="문서 목차">
+      <a href="#draft">1. 초안</a>
+      <a href="#improvements">2. 보완 포인트</a>
+      <a href="#guide">3. 최종 가이드</a>
+      <a href="#frontend">프론트 개발</a>
+      <a href="#admin">Admin 구성</a>
+      <a href="#agent">Agent 연동</a>
+      <a href="#chatbot">Chatbot 통합</a>
+      <a href="#checklist">개발 체크리스트</a>
+    </nav>
+
+    <section id="draft">
+      <div class="section-head">
+        <div class="kicker">Step 1</div>
+        <h2>초안</h2>
+        <p>처음 설명은 전체 구현을 기능 단위로 짧게 요약하는 데 집중했습니다.</p>
+      </div>
+      <div class="draft">
+        <div class="draft-copy">
+          <p>
+            이번 작업은 배포용 A2UI 컴포넌트를 Admin에서 구성하고, 사용자가 "배포하고싶어"라고 말하면
+            chatbot 안에서 해당 surface가 렌더되도록 만드는 PoC입니다.
+          </p>
+          <p>
+            프론트에서는 A2UI part를 만들고, Admin은 part manifest를 읽어서 surfaceConfig를 편집합니다.
+            Agent는 React 컴포넌트를 알 필요 없이 payload, actions, surfaceConfig가 들어간 surface envelope만 반환합니다.
+          </p>
+          <p>
+            Chatbot은 새로 만든 <code>@a2ui/chat</code>의 <code>A2UISurfaceHost</code>를 메시지 렌더러에 꽂아서
+            surface를 표시하고 action을 adapter로 실행합니다.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="improvements">
+      <div class="section-head">
+        <div class="kicker">Step 2</div>
+        <h2>이해를 돕기 위한 보완 포인트</h2>
+        <p>초안만으로는 "그래서 개발자는 어디를 열어 무엇을 해야 하는가"가 부족해서 아래 관점으로 다시 구성했습니다.</p>
+      </div>
+      <div class="grid-3">
+        <article class="card">
+          <h3>역할을 분리해서 설명</h3>
+          <p>프론트, Admin, MCP/template store, Python agent, chatbot host를 각각 다른 책임으로 나눴습니다.</p>
+        </article>
+        <article class="card">
+          <h3>파일 경로를 기준으로 안내</h3>
+          <p>추상 설명보다 실제 개발자가 열 파일과 import할 API를 먼저 보여줍니다.</p>
+        </article>
+        <article class="card">
+          <h3>실제 동작과 PoC 범위 구분</h3>
+          <p>구조는 작동하지만 실배포 API 데이터는 mock이라는 점을 분명히 나눴습니다.</p>
+        </article>
+        <article class="card">
+          <h3>Admin preview의 안전성 표시</h3>
+          <p>read-only preview에서는 action이 disabled 처리되어 confirm이나 실행 경로가 열리지 않는다는 점을 포함했습니다.</p>
+        </article>
+        <article class="card">
+          <h3>외부 chatbot 통합 관점 추가</h3>
+          <p>운영 chatbot이 하나의 exact schema를 강제하지 않도록 surface normalization 경계를 설명했습니다.</p>
+        </article>
+        <article class="card">
+          <h3>개발 순서 제공</h3>
+          <p>새 part 추가 시 컴포넌트, registry, manifest, binder, agent, chatbot 순서로 따라갈 수 있게 했습니다.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="guide">
+      <div class="section-head">
+        <div class="kicker">Step 3</div>
+        <h2>최종 가이드: 지금 만들어진 구조</h2>
+        <p>
+          핵심은 "React 컴포넌트를 Admin이나 Python에 직접 공유하지 않는다"입니다.
+          대신 part definition manifest와 surface envelope라는 계약을 공유합니다.
+        </p>
+      </div>
+
+      <div class="flow" aria-label="A2UI 개발 흐름">
+        <div class="flow-node">
+          <div class="flow-label">Frontend</div>
+          <div class="flow-title">Part 컴포넌트</div>
+          <div class="flow-desc">실제 UI를 <code>@a2ui/ui</code>에 작성합니다.</div>
+        </div>
+        <div class="flow-node">
+          <div class="flow-label">Manifest</div>
+          <div class="flow-title">Part definition</div>
+          <div class="flow-desc">Admin이 읽을 label, defaultProps, editorFields를 등록합니다.</div>
+        </div>
+        <div class="flow-node">
+          <div class="flow-label">Admin</div>
+          <div class="flow-title">Surface 구성</div>
+          <div class="flow-desc">part를 조합하고 binding을 설정한 뒤 저장합니다.</div>
+        </div>
+        <div class="flow-node">
+          <div class="flow-label">Agent</div>
+          <div class="flow-title">Surface 반환</div>
+          <div class="flow-desc">대화 판단 결과로 payload, actions, surfaceConfig를 반환합니다.</div>
+        </div>
+        <div class="flow-node">
+          <div class="flow-label">Chatbot</div>
+          <div class="flow-title">Host 렌더</div>
+          <div class="flow-desc"><code>A2UISurfaceHost</code>가 surface를 정규화하고 렌더합니다.</div>
+        </div>
+        <div class="flow-node">
+          <div class="flow-label">Action</div>
+          <div class="flow-title">Adapter 실행</div>
+          <div class="flow-desc">버튼 클릭은 각 서비스의 action endpoint로 연결합니다.</div>
+        </div>
+      </div>
+
+      <div class="note">
+        <strong>개발자가 기억할 한 문장:</strong>
+        UI는 <code>@a2ui/ui</code>에 part로 만들고, Admin은 manifest로 구성하고, Agent는 surface envelope를 반환하고,
+        Chatbot은 <code>@a2ui/chat</code> host를 메시지 안에 꽂습니다.
+        이 페이지의 코드 블록은 현재 적용된 코드 흐름을 기준으로 한 축약 발췌입니다.
+      </div>
+    </section>
+
+    <section id="frontend">
+      <div class="section-head">
+        <div class="kicker">Frontend</div>
+        <h2>프론트에서 A2UI part 만들기</h2>
+        <p>배포 화면을 하나의 큰 컴포넌트로 만들지 않고, 작은 part를 만들고 renderer registry에 등록합니다.</p>
+      </div>
+
+      <div class="grid-2">
+        <article class="card">
+          <h3>1. UI 컴포넌트 작성</h3>
+          <p>예시는 배포 이미지 정보를 보여주는 part입니다.</p>
+          <div class="path-list">
+            <a class="path" href="../packages/a2ui-ui/src/parts/deploy/DeployArtifactBlock.tsx">
+              <strong>packages/a2ui-ui/src/parts/deploy/DeployArtifactBlock.tsx</strong>
+              <span>props를 받아 실제 UI를 렌더하는 React component</span>
+            </a>
+          </div>
+        </article>
+        <article class="card">
+          <h3>2. Renderer registry 등록</h3>
+          <p>surfaceConfig의 <code>type</code>이 실제 React component를 찾을 수 있게 연결합니다.</p>
+          <div class="path-list">
+            <a class="path" href="../packages/a2ui-ui/src/dynamic/part-registry.ts">
+              <strong>packages/a2ui-ui/src/dynamic/part-registry.ts</strong>
+              <span>DeployArtifactBlock, DeployTargetSummaryBlock 같은 type/component mapping</span>
+            </a>
+          </div>
+        </article>
+      </div>
+
+      <pre><code>export function DeployArtifactBlock(props: Record&lt;string, unknown&gt;) {
+  const image = isRecord(props.image) ? props.image : null;
+  const visibleFields = Array.isArray(props.visibleFields)
+    ? props.visibleFields.filter((field): field is string =&gt; typeof field === "string")
+    : DEFAULT_FIELDS;
+
+  return (
+    &lt;PartSection subtitle="Selected deploy artifact from the service context." title="Image artifact"&gt;
+      {image ? (
+        &lt;DataTable
+          columns={[{ key: "field", label: "Field" }, { key: "value", label: "Value" }]}
+          rows={visibleFields.map((field) =&gt; ({
+            fieldKey: field,
+            field: FIELD_LABELS[field] ?? field,
+            value: image[field],
+          }))}
+        /&gt;
+      ) : (
+        &lt;EmptyPartState label="No image artifact selected" /&gt;
+      )}
+    &lt;/PartSection&gt;
+  );
+}</code></pre>
+    </section>
+
+    <section id="admin">
+      <div class="section-head">
+        <div class="kicker">Admin</div>
+        <h2>Admin에서 구성 가능하게 만들기</h2>
+        <p>Admin은 component를 직접 import하지 않습니다. 대신 catalog manifest를 보고 form과 preview를 구성합니다.</p>
+      </div>
+
+      <div class="grid-2">
+        <article class="card">
+          <h3>Part definition 등록</h3>
+          <p><code>defaultProps</code>, <code>editorFields</code>, <code>previewPayload</code>를 정의합니다.</p>
+          <div class="path-list">
+            <a class="path" href="../packages/a2ui-ui/src/parts/catalog/deploy-part-definitions.ts">
+              <strong>packages/a2ui-ui/src/parts/catalog/deploy-part-definitions.ts</strong>
+              <span>배포 전용 part manifest</span>
+            </a>
+            <a class="path" href="../packages/a2ui-ui/src/parts/catalog/index.ts">
+              <strong>packages/a2ui-ui/src/parts/catalog/index.ts</strong>
+              <span>listA2UIPartDefinitions, createDefaultPart 등 공용 helper</span>
+            </a>
+          </div>
+        </article>
+        <article class="card">
+          <h3>Admin editor가 하는 일</h3>
+          <p>catalog에서 part를 읽고, form을 만들고, surfaceConfig를 저장하고, 실제 renderer로 preview합니다.</p>
+          <div class="path-list">
+            <a class="path" href="../src/devops-console/template-admin/surface-config-editor.tsx">
+              <strong>src/devops-console/template-admin/surface-config-editor.tsx</strong>
+              <span>Surface 탭의 편집, 저장, preview UI</span>
+            </a>
+          </div>
+        </article>
+      </div>
+
+      <pre><code>{
+  type: "DeployArtifactBlock",
+  label: "Deploy artifact",
+  category: "deploy",
+  description: "선택된 이미지/ECR artifact 상세를 보여줍니다.",
+  defaultIdPrefix: "deploy-artifact",
+  defaultProps: {
+    image: { type: "binding", path: "payload.imageDetail" },
+    visibleFields: {
+      type: "static",
+      value: ["repository", "imageTag", "imageUri", "gitRef", "commitSha"]
+    }
+  },
+  editorFields: [
+    {
+      kind: "bindingPath",
+      prop: "image",
+      label: "Image detail binding",
+      defaultPath: "payload.imageDetail",
+      required: true
+    },
+    {
+      kind: "staticStringList",
+      prop: "visibleFields",
+      label: "Visible fields",
+      defaultValue: ["repository", "imageTag", "imageUri", "gitRef", "commitSha"]
+    }
+  ],
+  previewPayload: DEPLOY_PREVIEW_PAYLOAD,
+  requiredPayloadPaths: ["payload.imageDetail"]
+}</code></pre>
+
+      <div class="note">
+        <strong>Review 반영:</strong>
+        Admin preview는 <code>A2UISurfaceHost readOnly</code>로 렌더됩니다. action은 <code>enabled:false</code>로 변환되고
+        <code>confirm</code>도 제거되어 preview에서 실제 실행처럼 보이거나 동작하지 않습니다.
+      </div>
+    </section>
+
+    <section id="surface">
+      <div class="section-head">
+        <div class="kicker">Surface Envelope</div>
+        <h2>Agent와 Chatbot 사이의 데이터 계약</h2>
+        <p>Agent는 React를 몰라도 됩니다. 아래 형태의 surface envelope만 반환하면 됩니다.</p>
+      </div>
+
+      <pre><code>{
+  "templateId": "quick_deploy_launchpad",
+  "payload": {
+    "service": "payments-api",
+    "environment": "production",
+    "targetVersion": "v2.3.18-rc1",
+    "imageDetail": {
+      "repository": "payments-api",
+      "imageTag": "v2.3.18-rc1"
+    }
+  },
+  "actions": [
+    {
+      "actionId": "deploy.start",
+      "label": "배포 시작",
+      "variant": "primary"
+    }
+  ],
+  "surfaceConfig": {
+    "kind": "a2ui_card",
+    "parts": [
+      { "id": "deploy-artifact", "type": "DeployArtifactBlock", "props": {} }
+    ]
+  }
+}</code></pre>
+
+      <div class="grid-3">
+        <article class="card">
+          <h3><code>payload</code></h3>
+          <p>실제 데이터입니다. Admin에서 설정한 binding path가 여기 값을 읽습니다.</p>
+        </article>
+        <article class="card">
+          <h3><code>surfaceConfig</code></h3>
+          <p>어떤 card shell과 part 조합으로 보여줄지 정의합니다.</p>
+        </article>
+        <article class="card">
+          <h3><code>actions</code></h3>
+          <p>버튼과 action event를 정의합니다. 실행은 chatbot host의 adapter가 맡습니다.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="agent">
+      <div class="section-head">
+        <div class="kicker">Agent</div>
+        <h2>Python agent에는 무엇을 넣나</h2>
+        <p>Python agent는 UI 컴포넌트를 import하지 않습니다. MCP를 호출해서 surface envelope를 받아 응답에 포함합니다.</p>
+      </div>
+
+      <div class="grid-2">
+        <article class="card">
+          <h3>Python MCP client</h3>
+          <p><code>a2ui.recommendTemplate</code>와 <code>a2ui.resolveTemplateData</code>를 호출합니다.</p>
+          <div class="path-list">
+            <a class="path" href="../packages/demo-agent-server/app/a2ui_agent.py">
+              <strong>packages/demo-agent-server/app/a2ui_agent.py</strong>
+              <span>render_or_fallback, handle_action</span>
+            </a>
+          </div>
+        </article>
+        <article class="card">
+          <h3>대화 orchestration</h3>
+          <p>intent와 facts를 판단한 뒤 <code>render_or_fallback</code>을 호출합니다.</p>
+          <div class="path-list">
+            <a class="path" href="../packages/demo-agent-server/app/orchestrate.py">
+              <strong>packages/demo-agent-server/app/orchestrate.py</strong>
+              <span>8-step pipeline, ChatResponse.surface</span>
+            </a>
+          </div>
+        </article>
+      </div>
+
+      <pre><code>from .a2ui_agent import render_or_fallback
+
+a2ui_result = await render_or_fallback(
+    intent_key=intent_result.intent_key,
+    facts=facts,
+)
+
+if a2ui_result.type == "surface":
+    surface = a2ui_result.surface
+    text = "배포 런치패드를 준비했습니다."</code></pre>
+    </section>
+
+    <section id="chatbot">
+      <div class="section-head">
+        <div class="kicker">Chatbot Integration</div>
+        <h2>기존 운영 chatbot에는 어떻게 끼우나</h2>
+        <p>운영 chatbot 전체를 바꾸는 게 아니라, message renderer나 attachment slot에 <code>A2UISurfaceHost</code>를 넣습니다.</p>
+      </div>
+
+      <div class="grid-2">
+        <article class="card">
+          <h3>공용 host</h3>
+          <p>surface 정규화, renderer 호출, action 상태 표시, action 결과 반영을 담당합니다.</p>
+          <div class="path-list">
+            <a class="path" href="../packages/a2ui-chat/src/A2UISurfaceHost.tsx">
+              <strong>packages/a2ui-chat/src/A2UISurfaceHost.tsx</strong>
+              <span>기존 chatbot에 꽂는 핵심 host</span>
+            </a>
+            <a class="path" href="../packages/a2ui-chat/src/types.ts">
+              <strong>packages/a2ui-chat/src/types.ts</strong>
+              <span>A2UISurfaceActionAdapter, status, message part type</span>
+            </a>
+          </div>
+        </article>
+        <article class="card">
+          <h3>PoC action adapter</h3>
+          <p>PoC 앱에서는 action bridge와 post-action refresh를 adapter 안에 숨겼습니다.</p>
+          <div class="path-list">
+            <a class="path" href="../src/devops-chat/integrations/a2ui-surface-action-adapter.ts">
+              <strong>src/devops-chat/integrations/a2ui-surface-action-adapter.ts</strong>
+              <span>executePocA2UISurfaceAction</span>
+            </a>
+            <a class="path" href="../examples/a2ui-chatbot-embed/GenericChatMessage.tsx">
+              <strong>examples/a2ui-chatbot-embed/GenericChatMessage.tsx</strong>
+              <span>외부 chatbot embed 예제</span>
+            </a>
+          </div>
+        </article>
+      </div>
+
+      <pre><code>import {
+  A2UIMessageSurface,
+  createA2UIChatSurfacePart,
+  type A2UISurfaceActionAdapter,
+  type A2UIRenderableSurface,
+} from "@a2ui/chat";
+
+export type GenericChatMessage = {
+  id: string;
+  role: "user" | "assistant" | "tool";
+  text?: string;
+  surface?: A2UIRenderableSurface;
+};
+
+export function GenericChatMessageView({
+  message,
+  onSurfaceAction,
+}: {
+  message: GenericChatMessage;
+  onSurfaceAction: A2UISurfaceActionAdapter;
+}) {
+  const part = message.surface
+    ? createA2UIChatSurfacePart(message.surface, `${message.id}-surface`)
+    : null;
+
+  return (
+    &lt;article&gt;
+      &lt;p&gt;{message.text}&lt;/p&gt;
+      {part ? &lt;A2UIMessageSurface part={part} onAction={onSurfaceAction} /&gt; : null}
+    &lt;/article&gt;
+  );
+}</code></pre>
+
+      <div class="note">
+        <strong>Review 반영:</strong>
+        <code>A2UISurfaceActionResult.surface</code>는 <code>unknown | null</code>을 받을 수 있습니다.
+        운영 chatbot이 PoC와 같은 exact schema를 쓰지 않아도 host가 normalization boundary에서 정리합니다.
+      </div>
+    </section>
+
+    <section id="who-does-what">
+      <div class="section-head">
+        <div class="kicker">Ownership</div>
+        <h2>역할별로 어디를 개발하나</h2>
+        <p>각 팀 또는 개발자가 손대는 파일을 기준으로 보면 구조가 빨리 잡힙니다.</p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>역할</th>
+              <th>개발 대상</th>
+              <th>주요 파일</th>
+              <th>결과물</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge blue">Frontend</span></td>
+              <td>A2UI part component, primitive, renderer registry</td>
+              <td><code>packages/a2ui-ui/src/parts</code><br /><code>packages/a2ui-ui/src/dynamic/part-registry.ts</code></td>
+              <td>실제 렌더 가능한 UI component</td>
+            </tr>
+            <tr>
+              <td><span class="badge purple">Admin</span></td>
+              <td>part definition, editorFields, preview, save</td>
+              <td><code>packages/a2ui-ui/src/parts/catalog</code><br /><code>src/devops-console/template-admin/surface-config-editor.tsx</code></td>
+              <td>운영자가 조합 가능한 surfaceConfig</td>
+            </tr>
+            <tr>
+              <td><span class="badge green">Template</span></td>
+              <td>facts를 payload/action/surfaceConfig로 변환</td>
+              <td><code>src/devops-chat/templates/binders</code><br /><code>src/devops-chat/templates/surface-configs</code></td>
+              <td>SurfaceEnvelope</td>
+            </tr>
+            <tr>
+              <td><span class="badge orange">Agent</span></td>
+              <td>intent, facts, decision, MCP call</td>
+              <td><code>packages/demo-agent-server/app/a2ui_agent.py</code><br /><code>packages/demo-agent-server/app/orchestrate.py</code></td>
+              <td>대화 응답의 <code>surface</code></td>
+            </tr>
+            <tr>
+              <td><span class="badge cyan">Chatbot</span></td>
+              <td>message renderer slot, action adapter</td>
+              <td><code>packages/a2ui-chat/src</code><br /><code>examples/a2ui-chatbot-embed</code></td>
+              <td>기존 chatbot 내부 A2UI 렌더링</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="checklist">
+      <div class="section-head">
+        <div class="kicker">Checklist</div>
+        <h2>현재 적용된 DeployArtifactBlock을 따라 읽는 개발 순서</h2>
+        <p>새 part를 추가할 때도 같은 순서를 복제하면 됩니다. 아래는 지금 실제로 들어간 배포 이미지 part 기준입니다.</p>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div>
+            <h3>UI component 작성</h3>
+            <p><code>packages/a2ui-ui/src/parts/deploy/DeployArtifactBlock.tsx</code>가 props 기반으로 이미지 artifact UI를 렌더합니다.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div>
+            <h3>Renderer registry 등록</h3>
+            <p><code>packages/a2ui-ui/src/dynamic/part-registry.ts</code>에 <code>DeployArtifactBlock</code>이 등록되어 있습니다.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div>
+            <h3>Part manifest 등록</h3>
+            <p><code>deploy-part-definitions.ts</code>에 <code>defaultProps</code>, <code>editorFields</code>, <code>previewPayload</code>를 추가합니다.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div>
+            <h3>기본 surfaceConfig에 추가</h3>
+            <p><code>deploy-launchpad.ts</code>에서 <code>createDefaultPart("DeployArtifactBlock")</code>를 parts 배열에 넣습니다.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div>
+            <h3>Binder payload 보강</h3>
+            <p><code>bind-deploy-launchpad.ts</code>에서 <code>payload.imageDetail</code> 값을 채웁니다.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div>
+            <h3>Agent facts 보강</h3>
+            <p>Python 또는 MCP resolver가 risk 관련 facts를 만들거나 전달하도록 보강합니다.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div>
+            <h3>Chatbot은 host 유지</h3>
+            <p>이미 <code>A2UISurfaceHost</code>가 붙어 있으면 새 part는 surfaceConfig와 registry를 통해 자동 렌더됩니다.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="real-vs-poc">
+      <div class="section-head">
+        <div class="kicker">Reality Check</div>
+        <h2>진짜 동작하는 것과 PoC로 남은 것</h2>
+        <p>데모에서 자신 있게 말할 수 있는 범위와 아직 mock인 범위를 분리했습니다.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="lane">
+          <div class="lane-title">실제로 동작하는 구조 <span class="badge green">Ready</span></div>
+          <div class="checklist">
+            <div class="check">part manifest 기반 Admin 편집</div>
+            <div class="check">Admin preview와 surfaceConfig 저장/로드</div>
+            <div class="check">공통 renderer 기반 A2UI 카드 렌더링</div>
+            <div class="check">chat action adapter와 pending/done/error 상태 처리</div>
+            <div class="check">Python agent의 MCP 기반 <code>render_or_fallback</code></div>
+            <div class="check">기존 chatbot에 붙일 수 있는 <code>@a2ui/chat</code> host</div>
+          </div>
+        </div>
+        <div class="lane">
+          <div class="lane-title">아직 PoC 또는 mock인 것 <span class="badge yellow">Next</span></div>
+          <div class="checklist">
+            <div class="check">실제 배포 API 호출</div>
+            <div class="check">운영 chatbot 라이브러리 전용 adapter</div>
+            <div class="check">실서비스 권한/감사 로그/승인 정책</div>
+            <div class="check">실제 이미지, 클러스터, rollout 상태 데이터</div>
+            <div class="check">LLM 판단 로직의 운영 수준 고도화</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="demo-script">
+      <div class="section-head">
+        <div class="kicker">Demo Script</div>
+        <h2>시연 흐름</h2>
+        <p>배포만 시연한다면 아래 흐름으로 설명하면 충분합니다.</p>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div>
+            <h3>Admin에서 배포 surface 구성</h3>
+            <p>Deploy parts를 추가하고 binding을 확인한 뒤 preview로 실제 렌더 결과를 봅니다.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div>
+            <h3>사용자가 "배포하고싶어" 입력</h3>
+            <p>Agent가 intent와 facts를 판단하고 MCP를 통해 deploy launchpad surface를 생성합니다.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div>
+            <h3>Chatbot이 A2UI surface 렌더</h3>
+            <p><code>A2UISurfaceHost</code>가 envelope를 정규화하고 공통 renderer로 배포 카드를 표시합니다.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div>
+            <h3>"배포 시작" action 실행</h3>
+            <p>버튼 클릭은 adapter를 통해 action bridge로 전달되고, 결과 surface가 다시 반영됩니다.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      작성 기준: 2026-04-28. 이 파일은 A2UI PoC 구현 설명, 개발자 온보딩, Admin/Agent/Chatbot 통합 가이드를 한 페이지로 정리한 문서입니다.
+    </footer>
+  </main>
+</body>
+</html>

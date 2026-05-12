@@ -3,13 +3,14 @@ import styles from "@/devops-console/console-page.module.css";
 import { Icon, type IconName } from "@/devops-console/foundation/icon-registry";
 import type { PageKey } from "@/devops-chat/types/domain";
 
-export type NavKey = PageKey | "assistant" | "story";
+export type NavKey = PageKey | "assistant" | "story" | "a2ui";
 
 const navItems: Array<{ href: string; key: NavKey; label: string; icon: IconName }> = [
   { href: "/story", key: "story", label: "Story", icon: "story" },
   { href: "/deploy/image", key: "deploy", label: "Deploy", icon: "deploy" },
   { href: "/approve", key: "approve", label: "Approve", icon: "approve" },
   { href: "/rollback", key: "rollback", label: "Rollback", icon: "rollback" },
+  { href: "/a2ui-components", key: "a2ui", label: "A2UI", icon: "dashboard" },
 ];
 
 export function SidebarNav({

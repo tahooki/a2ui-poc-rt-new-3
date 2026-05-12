@@ -95,6 +95,30 @@ describe("orchestrate-chat-turn", () => {
     expect(onDelta).toHaveBeenCalled();
   });
 
+  it("streams text-mode mock responses exactly once", async () => {
+    const deltas: string[] = [];
+
+    const result = await orchestrateChatTurn(
+      makeInput({
+        input: "이 요청에 대해 알려줘",
+        contextSnapshot: {
+          pageKey: "deploy",
+          selectedEntity: {
+            id: "req-1",
+            requestId: "REQ-001",
+            service: "api-gateway",
+            environment: "production",
+            targetVersion: "v2.1.0",
+            status: "draft_ready",
+          },
+        },
+      }),
+      { onDelta: (chunk) => deltas.push(chunk) },
+    );
+
+    expect(deltas.join("")).toBe(result.message.text);
+  });
+
   it("returns mock fallback when no context, no tool, no LLM", async () => {
     const result = await orchestrateChatTurn(
       makeInput({ input: "오늘 날씨 어때?" }),

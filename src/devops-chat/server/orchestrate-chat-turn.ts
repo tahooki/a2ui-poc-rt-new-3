@@ -376,7 +376,7 @@ export async function orchestrateChatTurn(
 
   if (!callbacks.onDelta) {
     // no streaming — just return
-  } else if (decision.trace.mode !== "text" || toolResults.length === 0) {
+  } else if (decision.trace.mode !== "text") {
     callbacks.onDelta(responseText);
   }
 

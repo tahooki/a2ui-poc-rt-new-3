@@ -1585,3 +1585,136 @@
   grid-template-columns: 1fr 1fr;
   gap: 16px;
 }
+
+/* ── A2UI Catalog ── */
+
+.catalogQuickLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.catalogLayout {
+  display: grid;
+  grid-template-columns: 248px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.catalogIndexPanel {
+  position: sticky;
+  top: calc(var(--console-header-height) + 16px);
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid var(--console-border);
+  border-radius: var(--console-radius);
+  background: rgba(15, 23, 34, 0.58);
+}
+
+.catalogIndexLink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: var(--console-radius);
+  color: var(--console-text-secondary);
+  font-size: 12px;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.catalogIndexLink:hover {
+  border-color: rgba(76, 141, 255, 0.32);
+  background: rgba(76, 141, 255, 0.08);
+  color: var(--console-text);
+}
+
+.catalogPreviewList {
+  display: grid;
+  gap: 28px;
+  min-width: 0;
+}
+
+.catalogTemplateSection {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  padding-top: 2px;
+  scroll-margin-top: calc(var(--console-header-height) + 18px);
+}
+
+.catalogTemplateSection + .catalogTemplateSection {
+  padding-top: 28px;
+  border-top: 1px solid rgba(37, 50, 68, 0.76);
+}
+
+.catalogTemplateHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.catalogTemplateTitleBlock {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.catalogTemplateTitle {
+  font-size: 20px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.catalogTemplateDescription {
+  max-width: 820px;
+  color: var(--console-text-secondary);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.catalogTemplateBadges,
+.catalogMetaRow,
+.catalogFieldRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.catalogTemplateBadges {
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.catalogPreviewSurface {
+  min-width: 0;
+}
+
+@media (max-width: 1100px) {
+  .catalogLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .catalogIndexPanel {
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  .catalogTemplateHeader {
+    flex-wrap: wrap;
+  }
+
+  .catalogQuickLinks,
+  .catalogTemplateBadges {
+    justify-content: flex-start;
+  }
+}
