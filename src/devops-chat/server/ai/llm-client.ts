@@ -28,7 +28,7 @@ export function isLlmAvailable(): boolean {
  * e.g. ```json\n{...}\n``` → {...}
  */
 function stripMarkdownCodeFence(text: string): string {
-  let s = text.trim();
+  const s = text.trim();
   // ```json ... ``` or ``` ... ```
   const fenceMatch = s.match(/^```(?:json|JSON)?\s*\n?([\s\S]*?)\n?\s*```$/);
   if (fenceMatch) return fenceMatch[1].trim();

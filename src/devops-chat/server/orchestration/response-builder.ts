@@ -11,6 +11,7 @@ import type { AssistantTurnResponse, ToolResultEntry } from "@/devops-chat/types
 import { selectTemplate } from "@/devops-chat/templates/template-selector";
 import { getBinder } from "@/devops-chat/templates/binders";
 import { validateSurfaceEnvelope } from "@/devops-chat/templates/validate-surface-envelope";
+import { tryRenderA2UISurface } from "@/devops-chat/server/a2ui-bridge";
 
 export type ResponseBuilderInput = {
   requestId: string;
@@ -57,8 +58,28 @@ function tryBuildSurface(input: ResponseBuilderInput): SurfaceEnvelope | null {
   return bindingResult.surface;
 }
 
-export function buildTurnResponse(input: ResponseBuilderInput): AssistantTurnResponse {
-  const surface = tryBuildSurface(input);
+/**
+ * A2UI MCP 서버를 통한 surface 생성 시도.
+ * MCP 서버 미실행 시 기존 binder fallback.
+ */
+async function tryBuildSurfaceWithA2UI(input: ResponseBuilderInput): Promise<SurfaceEnvelope | null> {
+  if (input.decisionMode !== "render_surface") return null;
+  if (!input.intent) return null;
+
+  // 1차: A2UI MCP 서버로 시도
+  try {
+    const a2uiSurface = await tryRenderA2UISurface(input.intent, input.facts);
+    if (a2uiSurface) return a2uiSurface;
+  } catch {
+    // MCP 실패 → 기존 binder fallback
+  }
+
+  // 2차: 기존 binder fallback
+  return tryBuildSurface(input);
+}
+
+export async function buildTurnResponse(input: ResponseBuilderInput): Promise<AssistantTurnResponse> {
+  const surface = await tryBuildSurfaceWithA2UI(input);
 
   return {
     requestId: input.requestId,

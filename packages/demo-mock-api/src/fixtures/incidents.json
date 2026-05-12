@@ -1,0 +1,68 @@
+{
+  "candidates": [
+    {
+      "id": "svc-payments-api",
+      "service": "payments-api",
+      "environment": "production",
+      "currentVersion": "v2.3.18",
+      "severity": "high",
+      "incidentSummary": "INC-842 card timeout increase",
+      "recommendedRollbackVersion": "v2.3.16",
+      "eligibleVersions": [
+        { "id": "deploy-pay-316", "version": "v2.3.16", "status": "dry_run_ready", "rollbackRisk": "low" },
+        { "id": "deploy-pay-314", "version": "v2.3.14", "status": "identified", "rollbackRisk": "medium" }
+      ]
+    },
+    {
+      "id": "svc-checkout",
+      "service": "checkout",
+      "environment": "production",
+      "currentVersion": "v1.8.42",
+      "severity": "critical",
+      "incidentSummary": "INC-835 auth retries",
+      "recommendedRollbackVersion": "v1.8.39",
+      "eligibleVersions": [
+        { "id": "deploy-check-1839", "version": "v1.8.39", "status": "confirm_ready", "rollbackRisk": "low" },
+        { "id": "deploy-check-1837", "version": "v1.8.37", "status": "identified", "rollbackRisk": "medium" }
+      ]
+    },
+    {
+      "id": "svc-catalog-api",
+      "service": "catalog-api",
+      "environment": "staging",
+      "currentVersion": "v4.2.1",
+      "severity": "medium",
+      "incidentSummary": "INC-821 stale cache",
+      "recommendedRollbackVersion": "v4.2.0",
+      "eligibleVersions": [
+        { "id": "deploy-cat-420", "version": "v4.2.0", "status": "executed", "rollbackRisk": "completed" }
+      ]
+    }
+  ],
+  "serviceHealth": [
+    {
+      "service": "payments-api", "version": "v2.3.18", "status": "critical",
+      "errorRate": "12.4%", "normalErrorRate": "0.3%",
+      "p99Latency": "4,200ms", "normalP99Latency": "320ms",
+      "instances": { "total": 4, "healthy": 3, "unhealthy": 1 },
+      "lastDeployedAt": "2시간 전",
+      "activeIncident": { "id": "INC-842", "title": "card timeout spike", "severity": "HIGH", "startedAt": "2026-03-30 02:10 KST" }
+    },
+    {
+      "service": "checkout", "version": "v1.8.42", "status": "warning",
+      "errorRate": "2.1%", "normalErrorRate": "0.8%",
+      "p99Latency": "890ms", "normalP99Latency": "450ms",
+      "instances": { "total": 3, "healthy": 3, "unhealthy": 0 },
+      "lastDeployedAt": "6시간 전",
+      "activeIncident": { "id": "INC-835", "title": "auth retries", "severity": "MEDIUM", "startedAt": "2026-03-30 01:45 KST" }
+    },
+    {
+      "service": "catalog-api", "version": "v4.2.1", "status": "healthy",
+      "errorRate": "0.1%", "normalErrorRate": "0.2%",
+      "p99Latency": "210ms", "normalP99Latency": "200ms",
+      "instances": { "total": 2, "healthy": 2, "unhealthy": 0 },
+      "lastDeployedAt": "12시간 전",
+      "activeIncident": null
+    }
+  ]
+}

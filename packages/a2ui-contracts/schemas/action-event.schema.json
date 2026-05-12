@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "action-event",
+  "title": "ActionEvent",
+  "description": "프론트에서 서버로 보내는 UI 액션 이벤트",
+  "type": "object",
+  "required": ["actionId", "templateId", "sessionContext"],
+  "properties": {
+    "actionId": {
+      "type": "string",
+      "description": "실행할 액션 ID"
+    },
+    "templateId": {
+      "type": "string",
+      "description": "액션이 발생한 템플릿 ID"
+    },
+    "kind": {
+      "type": "string",
+      "enum": ["submit", "select", "refresh", "navigate"],
+      "description": "액션 유형"
+    },
+    "params": {
+      "type": "object",
+      "description": "액션 파라미터",
+      "additionalProperties": true
+    },
+    "sessionContext": {
+      "type": "object",
+      "required": ["conversationId", "userId", "requestId"],
+      "properties": {
+        "conversationId": { "type": "string" },
+        "userId": { "type": "string" },
+        "requestId": { "type": "string", "description": "action replay 방지용 고유 ID" }
+      }
+    }
+  },
+  "additionalProperties": false
+}

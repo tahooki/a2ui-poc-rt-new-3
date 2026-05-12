@@ -25,13 +25,19 @@ export function evaluateDecision(
     case "deploy.history.lookup":
       return {
         trace: {
-          mode: "text",
-          matched: ["deploy.history.lookup"],
+          mode: filledSlots["deploy.previousDeployments"] ? "render_surface" : "text",
+          matched: filledSlots["deploy.previousDeployments"]
+            ? ["deploy.history.lookup", "deploy.previousDeployments"]
+            : ["deploy.history.lookup"],
           missing: [],
           disqualified: [],
-          reason: "이전 배포 조회는 text로 응답한다",
+          reason: filledSlots["deploy.previousDeployments"]
+            ? "이전 배포 이력 조회 결과를 A2UI 테이블로 표시한다"
+            : "이전 배포 이력 조회 결과가 없어 text로 응답한다",
         },
-        surfaceIntent: null,
+        surfaceIntent: filledSlots["deploy.previousDeployments"]
+          ? { family: "deploy.history", intentKey, readiness: "ready" }
+          : null,
       };
 
     case "approval.review":

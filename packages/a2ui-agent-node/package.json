@@ -1,0 +1,13 @@
+{
+  "name": "@a2ui/agent-node",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.0.0"
+  }
+}

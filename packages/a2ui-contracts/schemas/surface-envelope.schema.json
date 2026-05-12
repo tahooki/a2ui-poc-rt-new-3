@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "surface-envelope",
+  "title": "SurfaceEnvelope",
+  "description": "A2UI Surface를 렌더링하기 위한 최종 데이터 패키지",
+  "type": "object",
+  "required": ["templateId", "version", "payload", "sourceIntent", "updatedAt"],
+  "properties": {
+    "templateId": {
+      "type": "string",
+      "description": "렌더링할 템플릿 ID"
+    },
+    "version": {
+      "type": "string",
+      "description": "템플릿 버전 (semver)",
+      "default": "1.0.0"
+    },
+    "payload": {
+      "type": "object",
+      "description": "템플릿에 전달할 데이터",
+      "additionalProperties": true
+    },
+    "actions": {
+      "type": "array",
+      "description": "UI에서 가능한 액션 목록",
+      "items": {
+        "$ref": "#/$defs/SurfaceAction"
+      }
+    },
+    "surfaceConfig": {
+      "type": "object",
+      "description": "Admin-authored dynamic A2UI card configuration",
+      "additionalProperties": true
+    },
+    "sourceIntent": {
+      "type": "string",
+      "description": "이 surface를 생성한 intent key"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "surface 생성 시각"
+    },
+    "freshnessKey": {
+      "type": "string",
+      "description": "캐시/중복 방지용 키"
+    },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "generatedAt": { "type": "string", "format": "date-time" },
+        "resolverTrace": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "SurfaceAction": {
+      "type": "object",
+      "required": ["actionId", "label"],
+      "properties": {
+        "actionId": { "type": "string" },
+        "label": { "type": "string" },
+        "variant": {
+          "type": "string",
+          "enum": ["primary", "secondary", "danger", "ghost"]
+        },
+        "kind": {
+          "type": "string",
+          "enum": ["submit", "select", "refresh", "navigate"]
+        },
+        "params": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "confirm": {
+          "type": "object",
+          "properties": {
+            "title": { "type": "string" },
+            "message": { "type": "string" }
+          }
+        },
+        "targetRef": {
+          "type": "object",
+          "properties": {
+            "entityType": { "type": "string" },
+            "entityId": { "type": "string" },
+            "entityVersion": { "type": "string" }
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

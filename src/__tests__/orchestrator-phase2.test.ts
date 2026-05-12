@@ -143,16 +143,18 @@ describe("orchestrate-chat-turn Phase 2 integration", () => {
     );
 
     expect(result.intent?.intentKey).toBe("deploy.history.lookup");
-    expect(result.decision.mode).toBe("text");
+    expect(result.decision.mode).toBe("render_surface");
+    expect(result.surface?.templateId).toBe("deploy_history_table");
     expect(result.toolResults!.some((t) => t.toolName === "getPreviousDeployments")).toBe(true);
   });
 
-  it("이전 배포 알려줘 → text mode with tool result", async () => {
+  it("이전 배포 알려줘 → deploy history table surface with tool result", async () => {
     const result = await orchestrateChatTurn(
       makeInput({ input: "이전 배포 알려줘" }),
     );
     expect(result.intent?.intentKey).toBe("deploy.history.lookup");
-    expect(result.decision.mode).toBe("text");
+    expect(result.decision.mode).toBe("render_surface");
+    expect(result.surface?.templateId).toBe("deploy_history_table");
   });
 
   it("롤백하고 싶어 → getRollbackCandidates → ask_followup", async () => {

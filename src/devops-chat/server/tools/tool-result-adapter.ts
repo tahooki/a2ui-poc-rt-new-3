@@ -1,4 +1,4 @@
-import type { ConversationFacts, FactEntry } from "@/devops-chat/types/conversation";
+import type { ConversationFacts } from "@/devops-chat/types/conversation";
 import type { ToolOutput } from "./tool-registry";
 
 export type FactsPatch = Partial<ConversationFacts>;
@@ -27,7 +27,9 @@ export function adaptToolResult(output: ToolOutput): AdaptedToolResult {
     case "getPreviousDeployments":
       return {
         factsPatch: { deploy: { previousDeployments: output.data } },
-        slotPatch: {},
+        slotPatch: {
+          "deploy.previousDeployments": { value: output.data, source: "tool" },
+        },
         summary: output.summary,
       };
 

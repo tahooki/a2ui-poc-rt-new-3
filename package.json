@@ -2,6 +2,7 @@
   "name": "a2ui-poc-rt-new-3",
   "version": "0.1.0",
   "private": true,
+  "workspaces": ["packages/*"],
   "scripts": {
     "dev": "next dev",
     "build": "next build",

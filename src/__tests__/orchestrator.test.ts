@@ -39,7 +39,8 @@ describe("orchestrate-chat-turn", () => {
     expect(onToolDone).toHaveBeenCalled();
     expect(result.toolResults).toBeDefined();
     expect(result.toolResults![0].toolName).toBe("getPreviousDeployments");
-    expect(result.decision.mode).toBe("text");
+    expect(result.decision.mode).toBe("render_surface");
+    expect(result.surface?.templateId).toBe("deploy_history_table");
     expect(result.message.text).toBeTruthy();
   });
 
@@ -109,7 +110,8 @@ describe("orchestrate-chat-turn", () => {
     );
     expect(result.message.text).toBeTruthy();
     expect(result.toolResults).toBeDefined();
-    expect(result.decision.mode).toBe("text");
+    expect(result.decision.mode).toBe("render_surface");
+    expect(result.surface?.templateId).toBe("deploy_history_table");
   });
 
   it("includes requestId in response", async () => {

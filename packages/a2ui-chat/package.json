@@ -1,0 +1,11 @@
+{
+  "name": "@a2ui/chat",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.ts",
+  "peerDependencies": {
+    "@a2ui/ui": "0.1.0",
+    "react": ">=19.0.0",
+    "react-dom": ">=19.0.0"
+  }
+}

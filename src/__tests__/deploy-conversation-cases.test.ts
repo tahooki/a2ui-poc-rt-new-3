@@ -99,23 +99,39 @@ describe("1. 텍스트 대답 (text)", () => {
 });
 
 // =====================================================================
-// 2. 데이터 조회 → 텍스트 요약 (text + tool)
+// 2. 데이터 조회 → A2UI table surface (render_surface + tool)
 // =====================================================================
-describe("2. 데이터 조회 + 텍스트 요약 (text + tool)", () => {
-  it("2-1: 지난 배포 이력 알려줘 → deploy.history.lookup, text, getPreviousDeployments", async () => {
+describe("2. 데이터 조회 + A2UI table surface (render_surface + tool)", () => {
+  it("2-1: 지난 배포 이력 알려줘 → deploy.history.lookup, render_surface, getPreviousDeployments", async () => {
     const result = await orchestrateChatTurn(makeInput({ input: "지난 배포 이력 알려줘" }));
     expect(result.intent?.intentKey).toBe("deploy.history.lookup");
-    expect(result.decision.mode).toBe("text");
+    expect(result.decision.mode).toBe("render_surface");
     expect(result.toolResults?.some((t) => t.toolName === "getPreviousDeployments")).toBe(true);
+    expect(result.surface?.templateId).toBe("deploy_history_table");
+    expect(result.surface?.payload.rows).toEqual(expect.arrayContaining([
+      expect.objectContaining({ service: "payments-api", version: "v2.3.18" }),
+    ]));
     expect(result.message.text.length).toBeGreaterThan(0);
   });
 
-  it("2-2: payments-api 마지막 배포 언제였어? → deploy.history.lookup, text", async () => {
-    const result = await orchestrateChatTurn(makeInput({ input: "payments-api 마지막 배포 언제였어?" }));
+  it("2-2: serviceName이 있으면 해당 서비스 배포 이력을 table로 표시", async () => {
+    const result = await orchestrateChatTurn(makeInput({
+      input: "마지막 배포 언제였어?",
+      facts: {
+        slots: {
+          "deploy.serviceName": { value: "payments-api", source: "user", confidence: 1, updatedAt: "" },
+        },
+      },
+    }));
     // "마지막 배포" → history lookup
     expect(result.intent?.intentKey).toBe("deploy.history.lookup");
-    expect(result.decision.mode).toBe("text");
+    expect(result.decision.mode).toBe("render_surface");
     expect(result.toolResults?.some((t) => t.toolName === "getPreviousDeployments")).toBe(true);
+    expect(result.surface?.templateId).toBe("deploy_history_table");
+    expect(result.surface?.payload.rows).toEqual([
+      expect.objectContaining({ service: "payments-api" }),
+      expect.objectContaining({ service: "payments-api" }),
+    ]);
   });
 
   it("2-3: 지금 어떤 서비스 배포할 수 있어? → deploy.start, getDeployableServices, ask_followup", async () => {
@@ -235,7 +251,8 @@ describe("3. A2UI Surface 렌더링", () => {
     );
 
     expect(result.intent?.intentKey).toBe("deploy.history.lookup");
-    expect(result.decision.mode).toBe("text");
+    expect(result.decision.mode).toBe("render_surface");
+    expect(result.surface?.templateId).toBe("deploy_history_table");
     expect(result.toolResults?.some((t) => t.toolName === "getPreviousDeployments")).toBe(true);
     expect(result.awaiting).toBeNull();
   });
@@ -394,7 +411,8 @@ describe("5. 멀티턴 시나리오", () => {
       }),
     );
     expect(turn3.intent?.intentKey).toBe("deploy.history.lookup");
-    expect(turn3.decision.mode).toBe("text");
+    expect(turn3.decision.mode).toBe("render_surface");
+    expect(turn3.surface?.templateId).toBe("deploy_history_table");
 
     // Turn 4: "다시 배포하고 싶어"
     const turn4 = await orchestrateChatTurn(

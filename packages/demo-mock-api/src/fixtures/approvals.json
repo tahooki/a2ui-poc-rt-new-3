@@ -1,0 +1,14 @@
+{
+  "items": [
+    { "id": "apr-access-101", "type": "temporary_access", "title": "payments-prod read access", "environment": "production", "requestedBy": "mina.cho", "riskSummary": "시간 제한 있음 / 범위 제한됨", "riskTone": "warning", "status": "pending" },
+    { "id": "apr-access-102", "type": "temporary_access", "title": "checkout break-glass diagnostics", "environment": "production", "requestedBy": "d.son", "riskSummary": "범위 넓음 / break-glass", "riskTone": "danger", "status": "held" },
+    { "id": "apr-access-103", "type": "temporary_access", "title": "catalog staging support access", "environment": "staging", "requestedBy": "sora.kim", "riskSummary": "staging only / read-write temp scope", "riskTone": "warning", "status": "pending" },
+    { "id": "apr-config-201", "type": "config_change", "title": "payments timeout tuning", "environment": "production", "requestedBy": "mina.cho", "riskSummary": "1 warn / runtime config only", "riskTone": "warning", "status": "pending" },
+    { "id": "apr-config-202", "type": "config_change", "title": "search feature flag enable", "environment": "staging", "requestedBy": "jin.park", "riskSummary": "0 warn / limited rollout", "riskTone": "success", "status": "approved" },
+    { "id": "apr-config-203", "type": "config_change", "title": "checkout concurrency guard tuning", "environment": "production", "requestedBy": "ops.platform", "riskSummary": "1 warn / capacity-sensitive", "riskTone": "warning", "status": "pending" },
+    { "id": "apr-data-301", "type": "data_operation", "title": "order replay for failed checkout events", "environment": "production", "requestedBy": "ops.bot", "riskSummary": "duplicate processing risk", "riskTone": "danger", "status": "held" },
+    { "id": "apr-data-302", "type": "data_operation", "title": "catalog backfill for missing attributes", "environment": "staging", "requestedBy": "data.ops", "riskSummary": "low blast radius", "riskTone": "success", "status": "approved" },
+    { "id": "apr-data-303", "type": "data_operation", "title": "billing ledger backfill retry", "environment": "production", "requestedBy": "finance.ops", "riskSummary": "duplicate ledger write risk", "riskTone": "danger", "status": "pending" },
+    { "id": "apr-data-304", "type": "data_operation", "title": "inventory dead-letter replay", "environment": "production", "requestedBy": "platform.ops", "riskSummary": "reprocessing spike risk", "riskTone": "warning", "status": "pending" }
+  ]
+}

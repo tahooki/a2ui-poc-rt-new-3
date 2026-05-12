@@ -15,7 +15,7 @@ export function AssistantPage() {
       lastUpdated=""
       onToggleAssistant={() => {}}
       onToggleSidebar={() => setSidebarOpen((value) => !value)}
-      pageScope="a2ui template manager"
+      pageScope="a2ui template admin"
       pageTitle="Template Admin"
       sidebarOpen={sidebarOpen}
     >

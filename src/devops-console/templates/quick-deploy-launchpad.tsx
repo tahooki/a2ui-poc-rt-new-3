@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import styles from "@/devops-console/console-page.module.css";
 import { StatusChip } from "@/devops-console/foundation/status-chip";
 import type { QuickDeployTemplateData, DeployImageDetail, DeployRequestDetail } from "@/devops-chat/types/templates";
@@ -57,7 +57,7 @@ export function QuickDeployLaunchpad({
   }, []);
 
   // Step auto-advance
-  const advanceStep = useCallback((idx: number) => {
+  function advanceStep(idx: number) {
     if (idx >= DEPLOY_STEPS.length) {
       setTimeout(() => setPhase("done"), 500);
       return;
@@ -68,7 +68,7 @@ export function QuickDeployLaunchpad({
       setStepTimes((prev) => ({ ...prev, [idx]: DEPLOY_STEPS[idx].duration }));
       advanceStep(idx + 1);
     }, DEPLOY_STEPS[idx].duration * 1000);
-  }, []);
+  }
 
   function handleStart() {
     setPhase("deploying");
@@ -373,10 +373,37 @@ function CollapsibleRequestDetail({
           <span className={styles.collapsibleTitle}>Request 설정</span>
           <span className={styles.collapsibleBadge}>AI 추천 구성</span>
         </div>
-        <span style={{ fontSize: 10, opacity: 0.45 }}>9개 항목</span>
+        <span style={{ fontSize: 10, opacity: 0.45 }}>17개 항목</span>
       </div>
       <div className={`${styles.collapsibleBody} ${open ? styles.collapsibleBodyOpen : ""}`}>
         <div className={styles.fieldGrid}>
+          <label className={styles.fieldCard}>
+            <span className={styles.metaLabel}>Selected Image ID</span>
+            <input className={styles.textInput} value={data.selectedImageId} onChange={(e) => update("selectedImageId", e.target.value)} />
+          </label>
+          <label className={styles.fieldCard}>
+            <span className={styles.metaLabel}>Selected Image</span>
+            <input className={styles.textInput} value={data.selectedImageUri} onChange={(e) => update("selectedImageUri", e.target.value)} />
+          </label>
+          <label className={styles.fieldCard}>
+            <span className={styles.metaLabel}>Service</span>
+            <input className={styles.textInput} value={data.service} onChange={(e) => update("service", e.target.value)} />
+          </label>
+          <label className={styles.fieldCard}>
+            <span className={styles.metaLabel}>Environment</span>
+            <div className={styles.choiceGrid}>
+              {["production", "staging", "development"].map((opt) => (
+                <button
+                  className={`${styles.choiceButton} ${data.environment === opt ? styles.choiceButtonActive : ""}`}
+                  key={opt}
+                  onClick={(e) => { e.stopPropagation(); update("environment", opt); }}
+                  type="button"
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+          </label>
           <label className={styles.fieldCard}>
             <span className={styles.metaLabel}>Deployment Strategy</span>
             <div className={styles.choiceGrid}>
@@ -425,12 +452,28 @@ function CollapsibleRequestDetail({
             <input className={styles.textInput} value={data.maximumPercent} onChange={(e) => update("maximumPercent", e.target.value)} />
           </label>
           <label className={styles.fieldCard}>
+            <span className={styles.metaLabel}>Health Check Path</span>
+            <input className={styles.textInput} value={data.healthCheckPath} onChange={(e) => update("healthCheckPath", e.target.value)} />
+          </label>
+          <label className={styles.fieldCard}>
+            <span className={styles.metaLabel}>Health Check Grace Period</span>
+            <input className={styles.textInput} value={data.healthCheckGracePeriod} onChange={(e) => update("healthCheckGracePeriod", e.target.value)} />
+          </label>
+          <label className={styles.fieldCard}>
             <span className={styles.metaLabel}>Rollback Baseline</span>
             <input className={styles.textInput} value={data.rollbackBaseline} onChange={(e) => update("rollbackBaseline", e.target.value)} />
           </label>
           <label className={styles.fieldCard}>
             <span className={styles.metaLabel}>Requested By</span>
             <input className={styles.textInput} value={data.requestedBy} onChange={(e) => update("requestedBy", e.target.value)} />
+          </label>
+          <label className={styles.fieldCard}>
+            <span className={styles.metaLabel}>Execution Profile</span>
+            <input className={styles.textInput} value={data.executionProfile} onChange={(e) => update("executionProfile", e.target.value)} />
+          </label>
+          <label className={styles.fieldCard}>
+            <span className={styles.metaLabel}>Operator Note</span>
+            <textarea className={styles.textArea} value={data.operatorNote} onChange={(e) => update("operatorNote", e.target.value)} />
           </label>
         </div>
       </div>

@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>A2UI Admin Console</title>
+<style>
+:root {
+  --bg: #0f1722;
+  --panel: #152130;
+  --panel-2: #1b293a;
+  --border: #2a3a4f;
+  --border-strong: #426087;
+  --text: #e8eef7;
+  --muted: #9cabbd;
+  --soft: #708196;
+  --info: #5b8dee;
+  --success: #34c38f;
+  --warning: #f0b35a;
+  --danger: #e46a6a;
+  --radius: 6px;
+  --mono: "JetBrains Mono", "IBM Plex Mono", Consolas, monospace;
+  --ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--text); font-family: var(--ui); }
+.app { min-height: 100vh; display: grid; grid-template-columns: 270px minmax(0, 1fr); }
+.sidebar { border-right: 1px solid var(--border); padding: 20px 14px; background: rgba(10, 18, 29, .42); }
+.eyebrow { color: var(--soft); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.side-title { margin: 4px 0 14px; font-size: 16px; font-weight: 800; }
+.side-actions { display: grid; gap: 8px; margin-bottom: 14px; }
+.side-action { width: 100%; border: 1px solid var(--border-strong); border-radius: var(--radius); background: rgba(91,141,238,.13); color: var(--text); cursor: pointer; padding: 9px 12px; font: inherit; font-size: 13px; font-weight: 850; text-align: left; }
+.side-action:hover { border-color: var(--info); background: rgba(91,141,238,.2); }
+.template-button { width: 100%; border: 1px solid transparent; border-radius: var(--radius); color: inherit; background: transparent; cursor: pointer; padding: 10px 12px; text-align: left; margin-bottom: 6px; font: inherit; }
+.template-button:hover { background: rgba(91, 141, 238, .08); border-color: rgba(91, 141, 238, .24); }
+.template-button.active { background: rgba(91, 141, 238, .14); border-color: rgba(91, 141, 238, .48); }
+.template-name { display: block; color: var(--text); font-weight: 700; font-size: 13px; }
+.template-meta { display: block; color: var(--soft); font-size: 11px; margin-top: 3px; }
+.main { min-width: 0; padding: 24px 28px 40px; }
+.empty { color: var(--soft); text-align: center; padding: 80px 20px; }
+.summary { border: 1px solid var(--border); border-radius: var(--radius); background: linear-gradient(180deg, rgba(27,41,58,.92), rgba(17,28,42,.92)); padding: 18px; margin-bottom: 16px; }
+.summary-top { display: flex; justify-content: space-between; gap: 18px; align-items: flex-start; }
+.title { font-size: 21px; font-weight: 850; margin: 0 0 6px; }
+.desc { color: var(--muted); font-size: 13px; line-height: 1.5; margin: 0; }
+.badges { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.badge { border: 1px solid var(--border-strong); border-radius: 999px; padding: 4px 9px; font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; }
+.badge.success { border-color: rgba(52,195,143,.35); color: var(--success); }
+.badge.warning { border-color: rgba(240,179,90,.38); color: var(--warning); }
+.badge.danger { border-color: rgba(228,106,106,.38); color: var(--danger); }
+.summary-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 16px; }
+.metric { border: 1px solid rgba(42,58,79,.68); border-radius: var(--radius); background: rgba(15,23,34,.46); padding: 10px 12px; min-height: 58px; }
+.metric-label { color: var(--soft); font-size: 11px; text-transform: uppercase; font-weight: 800; }
+.metric-value { color: var(--text); font-size: 13px; margin-top: 5px; overflow-wrap: anywhere; }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+.tab { border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--muted); cursor: pointer; padding: 10px 12px; font: inherit; font-size: 13px; font-weight: 750; }
+.tab.active { color: var(--text); border-bottom-color: var(--info); }
+.panel { display: grid; gap: 12px; }
+.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.field { display: grid; gap: 6px; }
+.field label { color: var(--soft); font-size: 11px; font-weight: 850; letter-spacing: .05em; text-transform: uppercase; }
+input, select, textarea { width: 100%; border: 1px solid var(--border); border-radius: var(--radius); background: rgba(11,19,30,.82); color: var(--text); padding: 9px 10px; font: inherit; font-size: 13px; }
+textarea { min-height: 88px; resize: vertical; font-family: var(--mono); }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--info); }
+.card { border: 1px solid var(--border); border-radius: var(--radius); background: rgba(21,33,48,.76); }
+.card-head { width: 100%; display: grid; grid-template-columns: 20px 1fr auto; gap: 10px; align-items: center; border: 0; background: transparent; color: inherit; cursor: pointer; padding: 12px 14px; text-align: left; font: inherit; }
+.card-title { font-weight: 800; font-size: 13px; }
+.card-sub { color: var(--soft); font-size: 12px; margin-top: 3px; }
+.card-body { border-top: 1px solid var(--border); padding: 14px; display: grid; gap: 12px; }
+.toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 14px; }
+.btn { border: 1px solid var(--border-strong); border-radius: var(--radius); background: rgba(91,141,238,.12); color: var(--text); cursor: pointer; padding: 8px 13px; font: inherit; font-size: 13px; font-weight: 800; }
+.btn.primary { border-color: var(--info); background: var(--info); color: #fff; }
+.btn.danger { border-color: rgba(228,106,106,.45); color: var(--danger); background: rgba(228,106,106,.1); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.json { min-height: 420px; white-space: pre; overflow: auto; font-family: var(--mono); font-size: 12px; line-height: 1.5; color: #d8e4f2; background: rgba(8,14,22,.82); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; }
+.message { color: var(--muted); font-size: 13px; }
+.message.success { color: var(--success); }
+.message.danger { color: var(--danger); }
+@media (max-width: 900px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar { border-right: 0; border-bottom: 1px solid var(--border); }
+  .summary-top, .summary-grid, .form-grid { grid-template-columns: 1fr; display: grid; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="eyebrow">A2UI Admin</div>
+    <div class="side-title">Templates <span id="count"></span></div>
+    <div class="side-actions">
+      <button class="side-action" id="new-template-btn" type="button">+ New template</button>
+    </div>
+    <div id="template-list"></div>
+  </aside>
+  <main class="main" id="main">
+    <div class="empty">좌측에서 template를 선택하세요.</div>
+  </main>
+</div>
+
+<script>
+const state = {
+  templates: [],
+  selected: null,
+  activeTab: "basic",
+  expandedResolvers: new Set(),
+  expandedActions: new Set(),
+  dirty: false,
+  saveStatus: "idle",
+  saveMessage: "",
+  factsJson: '{\n  "serviceName": "payments-api"\n}',
+  simulation: null,
+};
+
+const tabs = ["basic", "resolvers", "actions", "simulate", "generated"];
+const resolverKinds = ["http_get", "transform_filter", "static_defaults", "llm_summary"];
+const phases = ["blocking", "optional", "actionOnly"];
+const variants = ["primary", "secondary", "danger", "ghost"];
+const actionKinds = ["submit", "select", "refresh", "navigate"];
+const bindingRecipeIds = ["deploy_launchpad", "approval_queue_inbox", "rollback_summary", "component_smoke_test"];
+
+function slugify(value) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9_ -]/g, "")
+    .replace(/[\s-]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
+function node(tag, attrs = {}, children = []) {
+  const el = document.createElement(tag);
+  for (const [key, value] of Object.entries(attrs)) {
+    if (key === "className") el.className = value;
+    else if (key === "text") el.textContent = value ?? "";
+    else if (key === "value") el.value = value ?? "";
+    else if (key.startsWith("on") && typeof value === "function") el.addEventListener(key.slice(2).toLowerCase(), value);
+    else if (value !== undefined && value !== null) el.setAttribute(key, value);
+  }
+  for (const child of Array.isArray(children) ? children : [children]) {
+    if (child === undefined || child === null) continue;
+    el.appendChild(typeof child === "string" ? document.createTextNode(child) : child);
+  }
+  return el;
+}
+
+function csvToArray(value) {
+  return value.split(",").map((item) => item.trim()).filter(Boolean);
+}
+
+function arrayToCsv(value) {
+  return Array.isArray(value) ? value.join(", ") : "";
+}
+
+function setDirty() {
+  state.dirty = true;
+  state.saveStatus = "idle";
+  render();
+}
+
+function update(path, value) {
+  const parts = path.split(".");
+  let current = state.selected;
+  for (const part of parts.slice(0, -1)) current = current[part];
+  current[parts[parts.length - 1]] = value;
+  setDirty();
+}
+
+async function fetchTemplates() {
+  const res = await fetch("/admin/templates");
+  state.templates = await res.json();
+  renderList();
+}
+
+async function selectTemplate(id) {
+  const res = await fetch(`/admin/templates/${encodeURIComponent(id)}`);
+  state.selected = await res.json();
+  state.activeTab = "basic";
+  state.expandedResolvers = new Set();
+  state.expandedActions = new Set();
+  state.dirty = false;
+  state.saveStatus = "idle";
+  state.saveMessage = "";
+  state.simulation = null;
+  renderList();
+  render();
+}
+
+async function fetchTemplateDetail(id) {
+  const res = await fetch(`/admin/templates/${encodeURIComponent(id)}`);
+  if (!res.ok) throw new Error(`Failed to load template: ${id}`);
+  return res.json();
+}
+
+function cloneForCreate(base, templateId, title) {
+  const copy = JSON.parse(JSON.stringify(base));
+  copy.schemaVersion = 2;
+  copy.templateId = templateId;
+  copy.title = title;
+  copy.status = "draft";
+  copy.description = `Draft template copied from ${base.title}`;
+  copy.intents = [
+    {
+      intentKey: `${templateId}.start`,
+      requiredFacts: [],
+      optionalFacts: [],
+    },
+  ];
+  delete copy.generatedValidation;
+  delete copy.contract;
+  delete copy.resolver;
+  return copy;
+}
+
+async function createTemplate() {
+  if (state.dirty && !window.confirm("Unsaved changes will be discarded. Continue?")) return;
+
+  try {
+    const baseSummary = state.selected
+      ? state.selected
+      : state.templates[0]
+        ? await fetchTemplateDetail(state.templates[0].templateId)
+        : null;
+    if (!baseSummary) throw new Error("No base template is available");
+
+    const defaultId = `${slugify(baseSummary.templateId || "template")}_copy`;
+    const templateIdInput = window.prompt("New template ID", defaultId);
+    if (!templateIdInput) return;
+    const templateId = slugify(templateIdInput);
+    if (!templateId) throw new Error("Template ID is required");
+    if (state.templates.some((template) => template.templateId === templateId)) {
+      throw new Error(`Template ${templateId} already exists`);
+    }
+
+    const titleInput = window.prompt("Template title", `${baseSummary.title} Copy`);
+    if (!titleInput) return;
+
+    const draft = cloneForCreate(baseSummary, templateId, titleInput.trim());
+    const res = await fetch("/admin/templates", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(draft),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.details?.join(", ") || data.error || "Create failed");
+
+    await fetchTemplates();
+    await selectTemplate(templateId);
+    state.saveStatus = "success";
+    state.saveMessage = "Created";
+    render();
+  } catch (error) {
+    state.saveStatus = "error";
+    state.saveMessage = error.message;
+    render();
+  }
+}
+
+function renderList() {
+  const list = document.getElementById("template-list");
+  document.getElementById("count").textContent = `(${state.templates.length})`;
+  list.replaceChildren(...state.templates.map((template) => {
+    const button = node("button", {
+      className: `template-button ${state.selected?.templateId === template.templateId ? "active" : ""}`,
+      onclick: () => selectTemplate(template.templateId),
+    }, [
+      node("span", { className: "template-name", text: template.title }),
+      node("span", { className: "template-meta", text: `${template.status} · ${template.version}` }),
+    ]);
+    return button;
+  }));
+}
+
+function badge(text, tone) {
+  return node("span", { className: `badge ${tone ?? ""}`, text });
+}
+
+function metric(label, value) {
+  return node("div", { className: "metric" }, [
+    node("div", { className: "metric-label", text: label }),
+    node("div", { className: "metric-value", text: value }),
+  ]);
+}
+
+function renderSummary() {
+  const selected = state.selected;
+  const simulation = state.simulation;
+  const missing = selected.generatedValidation?.requiredFacts ?? [];
+  return node("section", { className: "summary" }, [
+    node("div", { className: "summary-top" }, [
+      node("div", {}, [
+        node("h1", { className: "title", text: selected.title }),
+        node("p", { className: "desc", text: selected.description }),
+      ]),
+      node("div", { className: "badges" }, [
+        badge(selected.status, selected.status === "published" ? "success" : selected.status === "draft" ? "warning" : ""),
+        badge(state.dirty ? "Unsaved" : "Saved", state.dirty ? "warning" : "success"),
+        badge(simulation?.error ? "Invalid" : "Valid", simulation?.error ? "danger" : "success"),
+      ]),
+    ]),
+    node("div", { className: "summary-grid" }, [
+      metric("Template", selected.templateId),
+      metric("Resolvers", String((selected.resolvers ?? []).length)),
+      metric("Actions", String((selected.actions ?? []).length)),
+      metric("Missing Inputs", missing.length ? missing.join(", ") : "none"),
+    ]),
+  ]);
+}
+
+function field(label, value, onChange, options = {}) {
+  const input = node(options.multiline ? "textarea" : "input", {
+    value: value ?? "",
+    oninput: (event) => onChange(event.target.value),
+  });
+  if (options.mono) input.style.fontFamily = "var(--mono)";
+  return node("div", { className: "field" }, [node("label", { text: label }), input]);
+}
+
+function selectField(label, value, choices, onChange) {
+  const select = node("select", { onchange: (event) => onChange(event.target.value) },
+    choices.map((choice) => node("option", { value: choice, text: choice }))
+  );
+  select.value = value ?? choices[0];
+  return node("div", { className: "field" }, [node("label", { text: label }), select]);
+}
+
+function renderBasic() {
+  const t = state.selected;
+  return node("div", { className: "panel" }, [
+    node("div", { className: "form-grid" }, [
+      field("Title", t.title, (value) => update("title", value)),
+      field("Version", t.version, (value) => update("version", value)),
+      selectField("Status", t.status, ["published", "draft", "disabled"], (value) => update("status", value)),
+      selectField("Binding recipe", t.bindingRecipeId, bindingRecipeIds, (value) => update("bindingRecipeId", value)),
+      field("Intent keys", (t.intents ?? []).map((intent) => intent.intentKey).join(", "), (value) => {
+        t.intents = csvToArray(value).map((intentKey) => ({ intentKey, requiredFacts: [] }));
+        setDirty();
+      }),
+    ]),
+    field("Description", t.description, (value) => update("description", value), { multiline: true }),
+  ]);
+}
+
+function resolverSummary(resolver) {
+  const requires = resolver.requiredFacts?.length ? `requires ${resolver.requiredFacts.join(", ")}` : "optional";
+  return `${resolver.kind} · ${requires} · output ${resolver.outputAlias ?? "-"}`;
+}
+
+function renderResolverCard(resolver, index) {
+  const open = state.expandedResolvers.has(resolver.id);
+  const toggle = () => {
+    if (open) state.expandedResolvers.delete(resolver.id);
+    else state.expandedResolvers.add(resolver.id);
+    render();
+  };
+  const body = open ? node("div", { className: "card-body" }, [
+    node("div", { className: "form-grid" }, [
+      field("ID", resolver.id, (value) => { resolver.id = value; setDirty(); }),
+      field("Label", resolver.label ?? "", (value) => { resolver.label = value; setDirty(); }),
+      selectField("Kind", resolver.kind, resolverKinds, (value) => { resolver.kind = value; setDirty(); }),
+      selectField("Phase", resolver.phase ?? "blocking", phases, (value) => { resolver.phase = value; setDirty(); }),
+      field("Required facts", arrayToCsv(resolver.requiredFacts), (value) => { resolver.requiredFacts = csvToArray(value); setDirty(); }),
+      field("Optional facts", arrayToCsv(resolver.optionalFacts), (value) => { resolver.optionalFacts = csvToArray(value); setDirty(); }),
+      field("Output alias", resolver.outputAlias ?? "", (value) => { resolver.outputAlias = value; setDirty(); }),
+      field("Required outputs", arrayToCsv(resolver.requiredOutputs), (value) => { resolver.requiredOutputs = csvToArray(value); setDirty(); }),
+    ]),
+    renderResolverKindFields(resolver),
+    node("div", { className: "toolbar" }, [
+      node("button", { className: "btn danger", text: "Delete resolver", onclick: () => {
+        state.selected.resolvers.splice(index, 1);
+        setDirty();
+      }}),
+    ]),
+  ]) : null;
+  return node("div", { className: "card" }, [
+    node("button", { className: "card-head", onclick: toggle }, [
+      node("span", { text: open ? "v" : ">" }),
+      node("span", {}, [
+        node("span", { className: "card-title", text: resolver.id || "resolver" }),
+        node("span", { className: "card-sub", text: resolverSummary(resolver) }),
+      ]),
+      badge(resolver.phase ?? "blocking", resolver.phase === "optional" ? "" : "success"),
+    ]),
+    body,
+  ]);
+}
+
+function renderResolverKindFields(resolver) {
+  if (resolver.kind === "http_get") {
+    return node("div", { className: "form-grid" }, [
+      field("Endpoint", resolver.endpoint ?? "", (value) => { resolver.endpoint = value; setDirty(); }),
+      selectField("Method", resolver.method ?? "GET", ["GET", "POST"], (value) => { resolver.method = value; setDirty(); }),
+      field("Assignments JSON", JSON.stringify(resolver.assign ?? {}, null, 2), (value) => {
+        try { resolver.assign = JSON.parse(value || "{}"); setDirty(); } catch {}
+      }, { multiline: true, mono: true }),
+    ]);
+  }
+  if (resolver.kind === "transform_filter") {
+    return node("div", { className: "form-grid" }, [
+      field("Input path", resolver.inputPath ?? "", (value) => { resolver.inputPath = value; setDirty(); }),
+      field("Filter field", resolver.filter?.field ?? "", (value) => { resolver.filter = { ...(resolver.filter ?? {}), field: value }; setDirty(); }),
+      field("Filter fact", resolver.filter?.fact ?? "", (value) => { resolver.filter = { ...(resolver.filter ?? {}), fact: value }; setDirty(); }),
+      field("Assignments JSON", JSON.stringify(resolver.assign ?? {}, null, 2), (value) => {
+        try { resolver.assign = JSON.parse(value || "{}"); setDirty(); } catch {}
+      }, { multiline: true, mono: true }),
+    ]);
+  }
+  if (resolver.kind === "static_defaults") {
+    return field("Values JSON", JSON.stringify(resolver.values ?? {}, null, 2), (value) => {
+      try { resolver.values = JSON.parse(value || "{}"); setDirty(); } catch {}
+    }, { multiline: true, mono: true });
+  }
+  return field("Input aliases", arrayToCsv(resolver.inputAliases), (value) => { resolver.inputAliases = csvToArray(value); setDirty(); });
+}
+
+function renderResolvers() {
+  state.selected.resolvers = state.selected.resolvers ?? [];
+  return node("div", { className: "panel" }, [
+    ...state.selected.resolvers.map(renderResolverCard),
+    node("div", { className: "toolbar" }, [
+      node("button", { className: "btn", text: "+ Add resolver", onclick: () => {
+        const id = `resolver${state.selected.resolvers.length + 1}`;
+        state.selected.resolvers.push({ id, kind: "http_get", phase: "optional", requiredFacts: [], optionalFacts: [], outputAlias: id, requiredOutputs: [] });
+        state.expandedResolvers.add(id);
+        setDirty();
+      }}),
+      state.selected.bindingRecipeId === "component_smoke_test" ? node("button", { className: "btn", text: "Use smoke test data", onclick: () => {
+        state.selected.resolvers = [{
+          id: "smokeData",
+          kind: "static_defaults",
+          label: "Admin-bound smoke test data",
+          phase: "blocking",
+          outputAlias: "smoke",
+          values: {
+            headline: "Admin data binding is live",
+            summary: "This payload was authored in the Admin catalog and resolved through MCP.",
+            metricLabel: "Smoke score",
+            metricValue: "100%",
+            statusTone: "success",
+            rows: [
+              { name: "Admin catalog", value: "template saved", status: "success" },
+              { name: "MCP resolve", value: "payload generated", status: "success" },
+              { name: "React renderer", value: "component mounted", status: "info" },
+            ],
+            footerNote: "Created by the component smoke full test.",
+          },
+        }];
+        state.selected.actions = [
+          { actionId: "smoke.ack", label: "Acknowledge", variant: "primary", kind: "submit", requiredPayloadFields: ["headline"], enableWhen: null },
+          { actionId: "smoke.refresh", label: "Refresh", variant: "ghost", kind: "refresh", requiredPayloadFields: [], enableWhen: null },
+        ];
+        state.expandedResolvers = new Set(["smokeData"]);
+        setDirty();
+      }}) : null,
+    ]),
+  ]);
+}
+
+function renderActionCard(action, index) {
+  const open = state.expandedActions.has(action.actionId);
+  const toggle = () => {
+    if (open) state.expandedActions.delete(action.actionId);
+    else state.expandedActions.add(action.actionId);
+    render();
+  };
+  const body = open ? node("div", { className: "card-body" }, [
+    node("div", { className: "form-grid" }, [
+      field("Action ID", action.actionId, (value) => { action.actionId = value; setDirty(); }),
+      field("Label", action.label, (value) => { action.label = value; setDirty(); }),
+      selectField("Variant", action.variant, variants, (value) => { action.variant = value; setDirty(); }),
+      selectField("Kind", action.kind, actionKinds, (value) => { action.kind = value; setDirty(); }),
+      field("Required payload fields", arrayToCsv(action.requiredPayloadFields), (value) => { action.requiredPayloadFields = csvToArray(value); setDirty(); }),
+      field("Enable when JSON", JSON.stringify(action.enableWhen ?? null, null, 2), (value) => {
+        try { action.enableWhen = JSON.parse(value || "null"); setDirty(); } catch {}
+      }, { multiline: true, mono: true }),
+      field("Params JSON", JSON.stringify(action.params ?? {}, null, 2), (value) => {
+        try { action.params = JSON.parse(value || "{}"); setDirty(); } catch {}
+      }, { multiline: true, mono: true }),
+      field("Confirm JSON", JSON.stringify(action.confirm ?? null, null, 2), (value) => {
+        try { action.confirm = JSON.parse(value || "null"); setDirty(); } catch {}
+      }, { multiline: true, mono: true }),
+    ]),
+    node("div", { className: "toolbar" }, [
+      node("button", { className: "btn danger", text: "Delete action", onclick: () => {
+        state.selected.actions.splice(index, 1);
+        setDirty();
+      }}),
+    ]),
+  ]) : null;
+  return node("div", { className: "card" }, [
+    node("button", { className: "card-head", onclick: toggle }, [
+      node("span", { text: open ? "v" : ">" }),
+      node("span", {}, [
+        node("span", { className: "card-title", text: action.actionId || "action" }),
+        node("span", { className: "card-sub", text: `${action.variant} · ${action.kind} · requires ${arrayToCsv(action.requiredPayloadFields) || "none"}` }),
+      ]),
+      badge(action.variant, action.variant === "danger" ? "danger" : action.variant === "primary" ? "success" : ""),
+    ]),
+    body,
+  ]);
+}
+
+function renderActions() {
+  state.selected.actions = state.selected.actions ?? [];
+  return node("div", { className: "panel" }, [
+    ...state.selected.actions.map(renderActionCard),
+    node("div", { className: "toolbar" }, [
+      node("button", { className: "btn", text: "+ Add action", onclick: () => {
+        const actionId = `action.${state.selected.actions.length + 1}`;
+        state.selected.actions.push({ actionId, label: "New action", variant: "secondary", kind: "submit", requiredPayloadFields: [], enableWhen: null });
+        state.expandedActions.add(actionId);
+        setDirty();
+      }}),
+    ]),
+  ]);
+}
+
+async function runSimulation() {
+  state.simulation = { pending: true };
+  render();
+  try {
+    const facts = JSON.parse(state.factsJson || "{}");
+    const intentKey = state.selected.intents?.[0]?.intentKey ?? state.selected.templateId;
+    const res = await fetch(`/admin/templates/${encodeURIComponent(state.selected.templateId)}/simulate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ intentKey, facts }),
+    });
+    state.simulation = await res.json();
+  } catch (error) {
+    state.simulation = { error: error.message };
+  }
+  render();
+}
+
+function renderSimulate() {
+  return node("div", { className: "panel" }, [
+    field("Facts JSON", state.factsJson, (value) => { state.factsJson = value; render(); }, { multiline: true, mono: true }),
+    node("div", { className: "toolbar" }, [
+      node("button", { className: "btn primary", text: "Run simulation", onclick: runSimulation }),
+    ]),
+    state.simulation ? node("pre", { className: "json", text: JSON.stringify(state.simulation, null, 2) }) : null,
+  ]);
+}
+
+function renderGenerated() {
+  return node("pre", { className: "json", text: JSON.stringify(state.selected, null, 2) });
+}
+
+function renderActiveTab() {
+  if (state.activeTab === "basic") return renderBasic();
+  if (state.activeTab === "resolvers") return renderResolvers();
+  if (state.activeTab === "actions") return renderActions();
+  if (state.activeTab === "simulate") return renderSimulate();
+  return renderGenerated();
+}
+
+async function saveSelected() {
+  state.saveStatus = "saving";
+  render();
+  try {
+    const res = await fetch(`/admin/templates/${encodeURIComponent(state.selected.templateId)}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(state.selected),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.details?.join(", ") || data.error || "Save failed");
+    await selectTemplate(state.selected.templateId);
+    state.saveStatus = "success";
+    state.saveMessage = "Saved";
+  } catch (error) {
+    state.saveStatus = "error";
+    state.saveMessage = error.message;
+  }
+  render();
+}
+
+function render() {
+  const main = document.getElementById("main");
+  if (!state.selected) {
+    main.replaceChildren(node("div", { className: "empty", text: "좌측에서 template를 선택하세요." }));
+    return;
+  }
+  main.replaceChildren(
+    renderSummary(),
+    node("nav", { className: "tabs" }, tabs.map((tab) => node("button", {
+      className: `tab ${state.activeTab === tab ? "active" : ""}`,
+      text: tab === "generated" ? "Generated JSON" : tab[0].toUpperCase() + tab.slice(1),
+      onclick: () => { state.activeTab = tab; render(); },
+    }))),
+    renderActiveTab(),
+    node("div", { className: "toolbar" }, [
+      node("button", { className: "btn primary", text: state.saveStatus === "saving" ? "Saving..." : "Save", disabled: state.saveStatus === "saving" ? "true" : null, onclick: saveSelected }),
+      state.saveMessage ? node("span", { className: `message ${state.saveStatus === "error" ? "danger" : "success"}`, text: state.saveMessage }) : null,
+    ]),
+  );
+}
+
+fetchTemplates();
+document.getElementById("new-template-btn").addEventListener("click", createTemplate);
+</script>
+</body>
+</html>

@@ -117,7 +117,7 @@ export async function orchestrateChatTurn(
             currentWorkflow = null;
             const text = "취소했습니다. 다른 작업을 말씀해 주세요.";
             callbacks.onDelta?.(text);
-            return buildTurnResponse({
+            return await buildTurnResponse({
               requestId, text, intent: null, workflow: null, facts,
               awaiting: null, decisionMode: "text", decisionReason: "사용자 취소 (AI)",
               decisionTrace: null, surfaceIntent: null, toolResults: [], factsPatch: {},
@@ -158,7 +158,7 @@ export async function orchestrateChatTurn(
             currentWorkflow = null;
             const text = "취소했습니다. 다른 작업을 말씀해 주세요.";
             callbacks.onDelta?.(text);
-            return buildTurnResponse({
+            return await buildTurnResponse({
               requestId, text, intent: null, workflow: null, facts,
               awaiting: null, decisionMode: "text", decisionReason: "사용자 취소",
               decisionTrace: null, surfaceIntent: null, toolResults: [], factsPatch: {},
@@ -177,7 +177,7 @@ export async function orchestrateChatTurn(
             const retryAwaiting = awaitResult.awaiting!;
             const text = retryAwaiting.prompt;
             callbacks.onDelta?.(text);
-            return buildTurnResponse({
+            return await buildTurnResponse({
               requestId, text, intent: currentIntent, workflow: currentWorkflow, facts,
               awaiting: retryAwaiting, decisionMode: "ask_followup",
               decisionReason: awaitResult.reason === "ambiguous" ? "모호한 입력" : "일치하는 항목 없음",
@@ -385,7 +385,7 @@ export async function orchestrateChatTurn(
     factsPatch = { ...factsPatch, slots: facts.slots };
   }
 
-  return buildTurnResponse({
+  return await buildTurnResponse({
     requestId,
     text: responseText,
     intent: currentIntent,

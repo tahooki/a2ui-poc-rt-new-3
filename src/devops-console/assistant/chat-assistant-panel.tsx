@@ -21,10 +21,12 @@ import {
   ChatProtocolError,
   type ChatStreamRequest,
 } from "@/devops-chat/lib/chat-api";
+import { executePocA2UISurfaceAction } from "@/devops-chat/integrations/a2ui-surface-action-adapter";
 import { buildContextSnapshot } from "@/devops-chat/lib/context-snapshot";
 import type { ApprovalItem, DeployItem, PageKey, RollbackItem } from "@/devops-chat/types/domain";
-import type { ConversationMessage } from "@/devops-chat/types/conversation";
+import type { ConversationFacts, ConversationMessage, SurfaceEnvelope } from "@/devops-chat/types/conversation";
 import { TemplateSurface } from "@/devops-console/assistant/template-surface";
+import type { A2UISurfaceActionAdapter } from "@a2ui/chat";
 
 type ChatAssistantPanelProps = {
   onClose: () => void;
@@ -49,6 +51,7 @@ export function ChatAssistantPanel({
   const failAssistantTurn = useConversationStore((s) => s.failAssistantTurn);
   const setPendingTool = useConversationStore((s) => s.setPendingTool);
   const mergeFacts = useConversationStore((s) => s.mergeFacts);
+  const setActiveSurface = useConversationStore((s) => s.setActiveSurface);
   const clearError = useConversationStore((s) => s.clearError);
 
   const conversation = useConversationStore((s) => selectConversation(s, conversationId));
@@ -89,6 +92,19 @@ export function ChatAssistantPanel({
     setComposerText(conversationId, "");
     void handleSubmit(value);
   }
+
+  const handleSurfaceAction: A2UISurfaceActionAdapter = async ({ actionId, params, payload }) => {
+    const latestConversation = useConversationStore.getState().conversations[conversationId] ?? conversation;
+    return executePocA2UISurfaceAction({
+      conversationId,
+      activeSurface: latestConversation?.activeSurface ?? null,
+      actionId,
+      params,
+      payload,
+      facts: latestConversation?.facts ?? {},
+      intentKey: latestConversation?.intent?.intentKey ?? latestConversation?.activeSurface?.sourceIntent ?? null,
+    });
+  };
 
   async function handleSubmit(directInput?: string) {
     const input = directInput ?? composerText.trim();
@@ -238,10 +254,9 @@ export function ChatAssistantPanel({
           <div style={{ padding: "8px 0" }}>
             <TemplateSurface
               activeSurface={activeSurface}
-              onAction={(actionId, payload) => {
-                // TODO: wire to action bridge
-                console.log("surface action:", actionId, payload);
-              }}
+              onFactsChange={(facts) => mergeFacts(conversationId, facts as Partial<ConversationFacts>)}
+              onSurfaceAction={handleSurfaceAction}
+              onSurfaceChange={(surface) => setActiveSurface(conversationId, surface as SurfaceEnvelope | null)}
               onDismiss={() => {
                 useConversationStore.getState().dismissSurface(conversationId);
               }}

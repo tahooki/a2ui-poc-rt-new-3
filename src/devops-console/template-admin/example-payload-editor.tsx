@@ -12,6 +12,8 @@ type ExamplePayloadEditorProps = {
   validationErrors: string[];
 };
 
+const ADMIN_API_BASE = process.env.NEXT_PUBLIC_A2UI_ADMIN_URL ?? "http://localhost:3100";
+
 export function ExamplePayloadEditor({
   definition,
   value,
@@ -19,6 +21,33 @@ export function ExamplePayloadEditor({
   parseError,
   validationErrors,
 }: ExamplePayloadEditorProps) {
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "success" | "error">("idle");
+  const [saveMessage, setSaveMessage] = useState("");
+
+  async function handleSave() {
+    setSaveStatus("saving");
+    setSaveMessage("");
+    try {
+      const body = JSON.parse(value);
+      const res = await fetch(`${ADMIN_API_BASE}/admin/templates/${definition.templateId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setSaveStatus("success");
+        setSaveMessage("Saved");
+      } else {
+        setSaveStatus("error");
+        setSaveMessage(data.details?.join(", ") ?? data.error ?? "Save failed");
+      }
+    } catch (e) {
+      setSaveStatus("error");
+      setSaveMessage(e instanceof Error ? e.message : "Save failed");
+    }
+  }
+
   return (
     <div>
       <div className={styles.sectionEyebrow}>Payload Editor</div>
@@ -27,7 +56,10 @@ export function ExamplePayloadEditor({
           <button
             className={styles.chatAwaitingChip}
             key={pc.id}
-            onClick={() => onChange(JSON.stringify(pc.payload, null, 2))}
+            onClick={() => {
+              onChange(JSON.stringify(pc.payload, null, 2));
+              setSaveStatus("idle");
+            }}
             type="button"
           >
             {pc.title}
@@ -36,7 +68,10 @@ export function ExamplePayloadEditor({
       </div>
       <textarea
         className={styles.payloadEditor}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => {
+          onChange(e.target.value);
+          setSaveStatus("idle");
+        }}
         rows={16}
         spellCheck={false}
         value={value}
@@ -51,6 +86,22 @@ export function ExamplePayloadEditor({
           ))}
         </div>
       ) : null}
+      <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 10 }}>
+        <button
+          className={styles.primaryButton}
+          disabled={!!parseError || saveStatus === "saving"}
+          onClick={handleSave}
+          type="button"
+        >
+          {saveStatus === "saving" ? "Saving..." : "Save"}
+        </button>
+        {saveStatus === "success" ? (
+          <span style={{ color: "var(--console-success)", fontSize: 13 }}>{saveMessage}</span>
+        ) : null}
+        {saveStatus === "error" ? (
+          <span style={{ color: "var(--console-danger)", fontSize: 13 }}>{saveMessage}</span>
+        ) : null}
+      </div>
     </div>
   );
 }

@@ -1,8 +1,21 @@
+import {
+  A2UISurfaceHost,
+  normalizeA2UISurface,
+  type A2UIRenderableSurface,
+  type A2UISurfaceActionAdapter,
+} from "@a2ui/chat";
 import styles from "@/devops-console/console-page.module.css";
 import { EmptyState } from "@/devops-console/foundation/empty-state";
 import { TemplateRenderer } from "@/devops-chat/templates/template-renderer";
 import type { TemplateEnvelope } from "@/devops-chat/types/templates";
 import type { SurfaceEnvelope } from "@/devops-chat/types/conversation";
+
+const A2UI_TEMPLATE_IDS = new Set([
+  "deploy_launchpad",
+  "approval_queue_inbox",
+  "rollback_summary",
+  "component_smoke_test",
+]);
 
 type TemplateSurfaceProps = {
   /** Legacy: direct template envelope from view-model (selected item based) */
@@ -11,6 +24,9 @@ type TemplateSurfaceProps = {
   activeSurface?: SurfaceEnvelope | null;
   /** Phase 4: action descriptor callback */
   onAction?: (actionId: string, payload?: Record<string, unknown>) => void;
+  onSurfaceAction?: A2UISurfaceActionAdapter;
+  onSurfaceChange?: (surface: A2UIRenderableSurface | null) => void;
+  onFactsChange?: (facts: Record<string, unknown>) => void;
   /** @deprecated Use onAction */
   onPrimaryAction?: () => void;
   /** @deprecated Use onAction */
@@ -22,13 +38,28 @@ export function TemplateSurface({
   template,
   activeSurface,
   onAction,
+  onSurfaceAction,
+  onSurfaceChange,
+  onFactsChange,
   onPrimaryAction,
   onSecondaryAction,
   onDismiss,
 }: TemplateSurfaceProps) {
+  const shouldRenderA2UI = activeSurface
+    ? Boolean(activeSurface.surfaceConfig) || A2UI_TEMPLATE_IDS.has(activeSurface.templateId)
+    : false;
+
+  const a2uiEnvelope = activeSurface && shouldRenderA2UI ? normalizeA2UISurface(activeSurface) : null;
+  const hostActionAdapter = onSurfaceAction ?? (onAction
+    ? async ({ actionId, params }) => {
+        await onAction(actionId, params);
+        return { message: "Action forwarded" };
+      }
+    : undefined);
+
   // Prefer activeSurface (conversation-driven) over legacy template (selected item)
   const resolvedTemplate: TemplateEnvelope | null =
-    activeSurface
+    activeSurface && !shouldRenderA2UI
       ? (activeSurface.payload as unknown as TemplateEnvelope)
       : template ?? null;
 
@@ -45,7 +76,14 @@ export function TemplateSurface({
           </button>
         ) : null}
       </div>
-      {resolvedTemplate ? (
+      {a2uiEnvelope ? (
+        <A2UISurfaceHost
+          onAction={hostActionAdapter}
+          onFactsChange={onFactsChange}
+          onSurfaceChange={onSurfaceChange}
+          surface={a2uiEnvelope}
+        />
+      ) : resolvedTemplate ? (
         <TemplateRenderer
           onAction={onAction}
           onPrimaryAction={onPrimaryAction}

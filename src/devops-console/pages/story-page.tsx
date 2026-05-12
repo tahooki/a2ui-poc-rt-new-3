@@ -362,7 +362,7 @@ export function StoryPage() {
             <div className={s.storyText}>
               <h3>초반에 A2UI 응답을 먼저 시도</h3>
               <p>발표용 예시에서는 <code>shouldRespond()</code>와 <code>respond()</code>를 따로 보여주기보다, 둘을 하나의 helper로 합친 쪽이 더 자연스럽습니다. 먼저 A2UI 응답을 시도하고, 성공하면 바로 반환하고, 아니면 기존 agent workflow를 그대로 탑니다.</p>
-              <blockquote>핵심은 "판단과 응답을 한 helper로 묶고, 초반에 한 번 시도해본다"는 그림입니다.</blockquote>
+              <blockquote>핵심은 &quot;판단과 응답을 한 helper로 묶고, 초반에 한 번 시도해본다&quot;는 그림입니다.</blockquote>
             </div>
             <div className={s.storyVisual}>
               <div>

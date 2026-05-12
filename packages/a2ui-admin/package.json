@@ -1,0 +1,18 @@
+{
+  "name": "@a2ui/admin",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "tsx src/mcp-server/server.ts",
+    "start": "node dist/mcp-server/server.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "express": "^5.1.0",
+    "ajv": "^8.17.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "tsx": "^4.0.0"
+  }
+}

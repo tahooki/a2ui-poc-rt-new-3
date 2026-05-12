@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import styles from "@/devops-console/console-page.module.css";
 import { StatusChip } from "@/devops-console/foundation/status-chip";
 import type { RollbackTargetListTemplateData, RollbackTargetItem, IncidentAlert } from "@/devops-chat/types/templates";
@@ -76,7 +76,7 @@ function TargetCard({
     return () => { if (stepTimerRef.current) clearTimeout(stepTimerRef.current); };
   }, []);
 
-  const advanceStep = useCallback((idx: number) => {
+  function advanceStep(idx: number) {
     if (idx >= ROLLBACK_STEPS.length) {
       setTimeout(() => setPhase("done"), 400);
       return;
@@ -87,7 +87,7 @@ function TargetCard({
       setStepTimes((prev) => ({ ...prev, [idx]: ROLLBACK_STEPS[idx].duration }));
       advanceStep(idx + 1);
     }, ROLLBACK_STEPS[idx].duration * 1000);
-  }, []);
+  }
 
   function handleRollback() {
     setPhase("rolling_back");

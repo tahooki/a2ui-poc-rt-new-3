@@ -13,6 +13,7 @@ export type ValidationResult =
 
 const REQUIRED_FIELDS: Record<string, string[]> = {
   quick_deploy_launchpad: ["service", "environment", "recommendedVersion", "targetVersion", "state"],
+  deploy_history_table: ["state", "summaryItems", "rows", "columns"],
   approval_queue_inbox: ["items", "summary", "state"],
   rollback_target_list: ["service", "targets", "state"],
   deployment_approval_inbox: ["requestId", "title", "environment", "state"],
