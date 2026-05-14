@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AppFrame } from "@/devops-console/shell/app-frame";
 import s from "./story-page.module.css";
 
@@ -12,14 +12,66 @@ type VisualAssetProps = {
 };
 
 const fallbackImages = {
-  hero: "/images/story-title.jpg",
-  overview: "/images/story-000.jpg",
-  reason: "/images/story-002.jpg",
-  cards: "/images/story-001.jpg",
+  hero: "/images/story-hero-revised.png",
 };
+
+const deployParts = [
+  "DeployTargetSummaryBlock",
+  "DeployArtifactBlock",
+  "DeployRequestConfigBlock",
+  "DeployPreflightChecklistBlock",
+  "DeployRolloutProgressBlock",
+  "DeploymentHistoryBlock",
+];
 
 function openDemo(path: string) {
   window.open(`${window.location.origin}${path}`, "_blank", "noopener");
+}
+
+function Mermaid({ chart }: { chart: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [svg, setSvg] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    import("mermaid")
+      .then((mod) => {
+        const mermaid = mod.default;
+
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: "dark",
+          themeVariables: {
+            primaryColor: "#1e3a5f",
+            primaryTextColor: "#e4e8ef",
+            primaryBorderColor: "#5b8dee",
+            lineColor: "#5b8dee",
+            secondaryColor: "#1a2236",
+            tertiaryColor: "#111827",
+            fontFamily: "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif",
+            fontSize: "13px",
+          },
+          flowchart: { curve: "basis", padding: 16 },
+        });
+
+        const id = `mermaid-${Math.random().toString(36).slice(2, 9)}`;
+
+        return mermaid.render(id, chart);
+      })
+      .then(({ svg: rendered }) => {
+        if (!cancelled) setSvg(rendered);
+      })
+      .catch(() => {
+        if (!cancelled) setSvg("");
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [chart]);
+
+  return <div ref={ref} className={s.mermaidWrap} dangerouslySetInnerHTML={{ __html: svg }} />;
 }
 
 function VisualAsset({ alt, fallbackSrc, src }: VisualAssetProps) {
@@ -41,8 +93,6 @@ function VisualAsset({ alt, fallbackSrc, src }: VisualAssetProps) {
   );
 }
 
-const deployParts = ["요약 Part", "Artifact Part", "검증 Part"];
-
 export function StoryPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -51,7 +101,7 @@ export function StoryPage() {
       activePage="story"
       assistantOpen={false}
       hideAssistantTrigger
-      lastUpdated="2026-04-30"
+      lastUpdated="2026-05-13"
       onToggleAssistant={() => {}}
       onToggleSidebar={() => setSidebarOpen((v) => !v)}
       pageScope="A2UI Story"
@@ -64,18 +114,13 @@ export function StoryPage() {
             <div className={s.heroLabel}>A2UI Platform Story</div>
             <h1 className={s.heroTitle}>Agent가 호출하는<br />검증된 운영 UI</h1>
             <p className={s.heroSub}>
-              A2UI는 AI가 매번 화면을 자유롭게 그리는 방식이 아닙니다. 제품팀이 만든 A2UI 컴포넌트,
-              Admin의 데이터 바인딩, Agent 런타임을 연결해 서비스 운영에 필요한 UI를 안전하게 제공합니다.
+              매일 12개 서비스 × 3개 환경. 이력 확인 3분, 배포 시작 7단계. 김배포 선임의
+              아침부터 보겠습니다.
             </p>
-            <div className={s.badgeRow}>
-              <span className={`${s.badge} ${s.badgeBlue}`}>Component catalog</span>
-              <span className={`${s.badge} ${s.badgePurple}`}>Admin binding</span>
-              <span className={`${s.badge} ${s.badgeGreen}`}>Agent runtime</span>
-            </div>
           </div>
           <div className={s.visualFrame}>
             <VisualAsset
-              alt="A2UI 플랫폼 히어로 이미지"
+              alt="대화에서 검증된 운영 UI를 호출하는 A2UI 흐름"
               fallbackSrc={fallbackImages.hero}
               src={fallbackImages.hero}
             />
@@ -83,177 +128,157 @@ export function StoryPage() {
         </section>
 
         <section className={s.section}>
-          <div className={s.sectionLabel}>Overview</div>
-          <h2 className={s.sectionTitle}>스토리는 Deploy 하나로 압축합니다</h2>
+          <div className={s.sectionLabel} style={{ color: "#5b8dee" }}>Deploy</div>
+          <h2 className={s.sectionTitle}>김배포 선임의 배포 일지</h2>
           <p className={s.sectionDesc}>
-            긴 사례 나열 대신, Deploy 문제 하나로 A2UI가 필요한 이유를 보여준 뒤 실제 제작 구조를 설명합니다.
-            흐름과 비교는 생성 이미지를 중심으로 전달하고, 텍스트는 핵심 판단만 남깁니다.
-          </p>
-          <div className={s.visualFrame}>
-            <VisualAsset
-              alt="A2UI 발표 흐름 로드맵"
-              fallbackSrc={fallbackImages.overview}
-              src={fallbackImages.overview}
-            />
-          </div>
-          <div className={s.overviewStrip} aria-label="수정된 발표 흐름">
-            <span>Deploy 문제</span>
-            <span>Deploy A2UI 해결</span>
-            <span>컴포넌트 카탈로그</span>
-            <span>Admin 바인딩</span>
-            <span>Agent 통합</span>
-          </div>
-        </section>
-
-        <div className={s.chapterDivider}>
-          <h2 className={s.chapterTitle}>Deploy Case</h2>
-        </div>
-
-        <section className={s.section}>
-          <div className={s.sectionLabel} style={{ color: "#5b8dee" }}>Case</div>
-          <h2 className={s.sectionTitle}>배포는 왜 A2UI가 필요한가</h2>
-          <p className={s.sectionDesc}>
-            Docker image 등록, request 생성, deploy 실행이 서로 다른 화면과 폼으로 나뉘어 있습니다.
-            하나의 배포를 시작하려면 이전 이력, 이미지 정보, 배포 설정, 검증 상태를 계속 오가며 확인해야 합니다.
+            Platform Engineer. 도커 이미지 기반 배포 파이프라인을 운영하며, 매번 여러 단계를 거쳐야 하는
+            배포 프로세스를 담당합니다.
           </p>
 
           <div className={s.storyBlock}>
             <div className={s.storyText}>
-              <h3>운영자는 배포 자체보다 준비 작업에 시간을 씁니다</h3>
+              <h3>배포 한 번이 이렇게 복잡합니다</h3>
               <p>
-                이미지 등록과 request 설정은 대부분 이전 배포와 비슷하지만, 서비스명, 환경, 버전, CPU,
-                메모리, rollout 전략 같은 필드는 매번 다시 확인해야 합니다.
+                배포를 하려면 먼저 도커 이미지를 빌드하고, 레지스트리에 push한 뒤, 콘솔에서 이미지를 등록해야
+                합니다. 그 다음 배포 요청(Request)을 만들기 위해 서비스, 환경, CPU, 메모리, 전략 등을
+                하나하나 입력합니다.
               </p>
               <blockquote>
-                필요한 정보는 이미 여러 시스템에 있지만, 운영자는 그 정보를 찾아서 폼에 다시 옮기고 있습니다.
+                이미지 등록하고, 리퀘스트 만들고, 실행까지... 3단계를 각각 다른 탭에서 해야 해. 입력할 게 너무 많아.
               </blockquote>
             </div>
-            <div className={s.visualFrame}>
-              <VisualAsset
-                alt="복잡한 배포 Admin 흐름"
-                fallbackSrc={fallbackImages.cards}
-                src={fallbackImages.cards}
-              />
+            <div className={s.storyVisual}>
+              <div className={s.storyVisualTitle}>Docker image 기반 3단계 배포</div>
+              <div className={s.storyVisualFlow}>Image 등록 &rarr; Request 생성 &rarr; Deploy 실행</div>
             </div>
           </div>
 
-          <div className={s.grid3}>
+          <h3 className={s.flowTitle}>이런 일이 있을 수 있습니다.</h3>
+          <div className={s.grid2}>
             <div className={s.painCard}>
-              <h4>화면이 나뉘어 있음</h4>
-              <p>Image, Request, Run 단계가 분리되어 있어 같은 맥락을 여러 번 다시 확인합니다.</p>
+              <h4>3단계를 각각 따로</h4>
+              <p>이미지 등록, 배포 요청 생성, 실행이 별도의 탭과 폼으로 분리되어 있습니다.</p>
             </div>
             <div className={s.painCard}>
-              <h4>입력값이 많음</h4>
-              <p>서비스, 환경, 리소스, 전략, baseline 등 반복되는 값을 직접 채워야 합니다.</p>
+              <h4>총 21개의 입력 필드</h4>
+              <p>이미지 등록 8개 + 배포 요청 13개. 매번 수동으로 채워야 합니다.</p>
             </div>
             <div className={s.painCard}>
-              <h4>이전 이력 참조가 번거로움</h4>
-              <p>안전한 설정을 확인하려면 최근 배포와 상태 정보를 따로 찾아야 합니다.</p>
+              <h4>이전 배포 참고가 번거로움</h4>
+              <p>같은 서비스를 배포했던 설정을 보려면 이력 페이지로 이동해서 하나하나 찾아야 합니다.</p>
+            </div>
+            <div className={s.painCard}>
+              <h4>실수하면 처음부터</h4>
+              <p>서비스나 환경을 잘못 선택하면 뒤로 가기 후 다시 입력해야 합니다.</p>
             </div>
           </div>
+
+          <h3 className={s.flowTitle}>기존 배포 흐름</h3>
+          <Mermaid chart={`flowchart LR
+    A["1. 도커 이미지\\n빌드 + Push"] --> B["2. Image 탭\\n8개 필드 입력"]
+    B --> C["3. Image\\n등록"]
+    C --> D["4. Request 탭\\n이미지 선택"]
+    D --> E["5. 배포 설정\\n13개 필드 입력"]
+    E --> F["6. Request\\n생성"]
+    F --> G["7. Run 탭\\n배포 실행"]
+    style G stroke:#5b8dee,stroke-width:2px`} />
 
           <button className={s.demoButton} onClick={() => openDemo("/deploy/image")} type="button">
             <span className={s.demoIcon}>Run</span>
             <div>
               <div className={s.demoLabel}>기존 Deploy Admin 시연</div>
-              <div className={s.demoDesc}>이미지 등록, request 생성, deploy 실행 흐름 확인</div>
+              <div className={s.demoDesc}>3단계 탭 전환, 21개 필드 입력의 기존 배포 과정</div>
             </div>
             <span className={s.demoMeta}>새 창에서 열기</span>
           </button>
-        </section>
 
-        <section className={s.section}>
-          <div className={s.sectionLabel} style={{ color: "#34c38f" }}>A2UI Solution</div>
-          <h2 className={s.sectionTitle}>Deploy Launchpad로 한 화면에 모읍니다</h2>
-          <p className={s.sectionDesc}>
-            사용자가 &ldquo;payments-api 배포해줘&rdquo;라고 말하면 Agent는 배포 의도를 파악하고,
-            Admin/MCP runtime은 필요한 payload와 surfaceConfig를 돌려줍니다. Shared renderer는 검증된
-            Deploy A2UI parts로 Launchpad를 렌더링합니다.
-          </p>
-
-          <div className={s.visualFrame}>
-            <VisualAsset
-              alt="Deploy A2UI Launchpad 솔루션"
-              fallbackSrc={fallbackImages.hero}
-              src={fallbackImages.hero}
-            />
+          <div className={s.a2uiSolutionBlock}>
+            <div className={s.chatMock}>
+              <div className={s.chatMsg}>
+                <div className={`${s.chatAvatar} ${s.chatAvatarUser}`}>김</div>
+                <div className={`${s.chatBubble} ${s.chatBubbleUser}`}>payments-api 배포해줘</div>
+              </div>
+              <div className={s.chatMsg}>
+                <div className={`${s.chatAvatar} ${s.chatAvatarAi}`}>AI</div>
+                <div className={`${s.chatBubble} ${s.chatBubbleAi}`}>
+                  payments-api 배포를 준비했습니다.
+                  <div className={s.surfacePreview}>
+                    <div className={s.surfaceTitle}>Deploy Launchpad</div>
+                    payments-api &middot; production &middot; v2.3.18-rc1 &middot; rolling<br />
+                    <span style={{ opacity: 0.6 }}>Image 정보 &middot; Request 설정</span><br />
+                    <span className={s.surfaceBtn}>배포 시작</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className={s.solutionText}>
+              <span className={`${s.badge} ${s.badgeBlue}`}>A2UI Solution</span>
+              <h3 className={s.solutionTitle}>AI가 맥락을 파악해 배포를 준비합니다</h3>
+              <p className={s.solutionDesc}>
+                서비스명을 말하면 AI가 이전 배포 데이터를 기반으로 이미지 정보와 배포 설정을 자동으로 채워,
+                Deploy Launchpad를 렌더링합니다. 수십 개의 필드를 직접 채울 필요가 없습니다.
+              </p>
+              <p className={s.solutionHighlight}>
+                <strong>여러 페이지, 여러 입력을</strong> AI가 정리해서 한 화면에.
+              </p>
+            </div>
           </div>
 
-          <div className={s.grid3}>
-            <div className={s.valueCard}>
-              <h4>Agent</h4>
-              <p>사용자의 요청에서 의도와 서비스명을 파악하고 A2UI가 필요한 턴인지 판단합니다.</p>
-            </div>
-            <div className={s.valueCard}>
-              <h4>Admin/MCP</h4>
-              <p>publish된 resolver와 binding recipe를 실행해 검증된 payload를 만듭니다.</p>
-            </div>
-            <div className={s.valueCard}>
-              <h4>Renderer</h4>
-              <p>surfaceConfig에 선언된 A2UI parts를 같은 컴포넌트로 렌더링합니다.</p>
-            </div>
-          </div>
+          <h3 className={s.flowTitle}>A2UI 배포 흐름</h3>
+          <Mermaid chart={`flowchart LR
+    A["1. 자연어 입력\\n배포해줘"] --> B["2. AI 컨텍스트\\n자동 조회"]
+    B --> C["3. Launchpad\\n렌더링 + 배포"]
+    style A stroke:#5b8dee,stroke-width:2px
+    style B stroke:#34c38f,stroke-width:2px
+    style C stroke:#34c38f,stroke-width:2px`} />
 
           <button className={`${s.demoButton} ${s.demoButtonAccent}`} onClick={() => openDemo("/deploy/image")} type="button">
             <span className={s.demoIcon}>Run</span>
             <div>
               <div className={s.demoLabel} style={{ color: "#93b4ff" }}>A2UI Deploy 시연</div>
-              <div className={s.demoDesc}>Deploy Launchpad에서 확인하고 실행</div>
+              <div className={s.demoDesc}>흩어진 정보를 한 화면에서 배포</div>
             </div>
             <span className={s.demoMeta}>새 창에서 열기</span>
           </button>
+
         </section>
 
-        <div className={s.chapterDivider}>
-          <h2 className={s.chapterTitle}>A2UI Creation Flow</h2>
-        </div>
-
         <section className={s.section}>
-          <div className={s.sectionLabel}>Creation Flow</div>
-          <h2 className={s.sectionTitle}>A2UI는 이렇게 만들어집니다</h2>
+          <div className={s.sectionLabel} style={{ color: "#a78bfa" }}>Question</div>
+          <h2 className={s.sectionTitle}>AI가 모든 걸 그리게 하지 않는 이유</h2>
           <p className={s.sectionDesc}>
-            제품팀의 부품, 서비스 Surface, Admin 바인딩, Agent 호출이 순서대로 이어집니다.
+            매번 새로운 UI는 매번 다른 action ID, 다른 권한 처리, 다른 fallback을 의미합니다. 운영 화면에서
+            이것은 안전이 무너진다는 뜻입니다.
           </p>
 
           <div className={s.visualFrame}>
             <VisualAsset
-              alt="A2UI 제작 흐름"
-              fallbackSrc={fallbackImages.overview}
-              src="/images/story-revision-creation-flow.png"
+              alt="AI 자유 생성 UI와 컴포넌트 기반 A2UI 비교"
+              fallbackSrc={fallbackImages.hero}
+              src="/images/story-revision-ai-vs-component.png"
             />
           </div>
 
-          <div className={s.sequenceGrid}>
-            <div>
-              <strong>1. 컴포넌트/파트를 만든다</strong>
-              <span>검증된 운영 UI 부품을 준비합니다.</span>
+          <div className={s.grid2}>
+            <div className={s.decisionCard}>
+              <h3>매번 다름</h3>
+              <p>버튼 위치, action ID, 데이터 매핑이 호출마다 달라집니다. 권한·감사·롤백 흐름이 끊깁니다.</p>
             </div>
-            <div>
-              <strong>2. 서비스 Surface를 구성한다</strong>
-              <span>서비스 업무에 맞게 묶습니다.</span>
-            </div>
-            <div>
-              <strong>3. Admin에서 바인딩한다</strong>
-              <span>데이터가 들어갈 자리를 정합니다.</span>
-            </div>
-            <div>
-              <strong>4. Agent에 연결한다</strong>
-              <span>필요한 순간 Surface를 호출합니다.</span>
+            <div className={s.decisionCard}>
+              <h3>매번 같음</h3>
+              <p>검증된 Part가 같은 action contract와 fallback을 유지합니다. 한 번 검토하면 계속 안전합니다.</p>
             </div>
           </div>
-        </section>
 
-        <section className={s.section}>
-          <div className={s.sectionLabel} style={{ color: "#5b8dee" }}>Component Catalog</div>
-          <h2 className={s.sectionTitle}>A2UI 컴포넌트는 raw UI가 아닙니다</h2>
-          <p className={s.sectionDesc}>
-            버튼과 테이블을 즉석 조합하는 것이 아니라, 운영 의미가 담긴 Part를 제공합니다.
-          </p>
+          <div className={s.catalogIntro}>
+            <h3>검증된 Part는 무엇입니까?</h3>
+            <p>각 Part는 UX 검증, 권한, action 라우팅, fallback을 내장합니다.</p>
+          </div>
 
           <div className={s.visualFrame}>
             <VisualAsset
               alt="A2UI 컴포넌트 카탈로그"
-              fallbackSrc={fallbackImages.cards}
+              fallbackSrc={fallbackImages.hero}
               src="/images/story-revision-component-catalog.png"
             />
           </div>
@@ -265,75 +290,22 @@ export function StoryPage() {
           </div>
         </section>
 
-        <section className={s.section}>
-          <div className={s.sectionLabel} style={{ color: "#fb923c" }}>Admin Binding</div>
-          <h2 className={s.sectionTitle}>Admin은 데이터 연결을 관리합니다</h2>
-          <p className={s.sectionDesc}>
-            Admin은 UI를 그리지 않습니다. 데이터가 어떤 Part로 들어갈지 연결합니다.
-          </p>
-
-          <div className={s.visualFrame}>
-            <VisualAsset
-              alt="Admin 데이터 바인딩 흐름"
-              fallbackSrc={fallbackImages.overview}
-              src="/images/story-revision-admin-binding.png"
-            />
-          </div>
-
-          <div className={s.grid3}>
-            <div className={s.archBox}>
-              <h4>데이터 수집</h4>
-              <p>필요한 값을 가져옵니다.</p>
-            </div>
-            <div className={s.archBox}>
-              <h4>위치 지정</h4>
-              <p>Part의 필드에 연결합니다.</p>
-            </div>
-            <div className={s.archBox}>
-              <h4>검증 후 배포</h4>
-              <p>확인된 설정만 publish합니다.</p>
-            </div>
-          </div>
-        </section>
-
-        <section className={s.section}>
-          <div className={s.sectionLabel} style={{ color: "#a78bfa" }}>Guardrails</div>
-          <h2 className={s.sectionTitle}>왜 AI가 A2UI를 모두 직접 그리게 하지 않을까요?</h2>
-          <p className={s.sectionDesc}>
-            운영 UI는 매번 새로움보다 반복 가능한 규칙과 안전한 액션 연결이 중요합니다.
-          </p>
-
-          <div className={s.visualFrame}>
-            <VisualAsset
-              alt="AI 자유 생성 UI와 컴포넌트 기반 A2UI 비교"
-              fallbackSrc={fallbackImages.reason}
-              src="/images/story-revision-ai-vs-component.png"
-            />
-          </div>
-
-          <div className={s.grid2}>
-            <div className={s.decisionCard}>
-              <h3>자유 생성</h3>
-              <p>레이아웃, 액션, 데이터 연결이 매번 달라질 수 있습니다.</p>
-            </div>
-            <div className={s.decisionCard}>
-              <h3>컴포넌트 기반</h3>
-              <p>UX 품질, 권한, fallback, action routing을 유지합니다.</p>
-            </div>
-          </div>
-        </section>
+        <div className={s.actIntro}>
+          방금 그 화면은 누가 만들었습니까? 끝에서부터 한 겹씩 벗겨 보겠습니다.
+        </div>
 
         <section className={s.section}>
           <div className={s.sectionLabel} style={{ color: "#22d3ee" }}>Runtime</div>
-          <h2 className={s.sectionTitle}>런타임에서는 payload와 surfaceConfig가 만납니다</h2>
+          <h2 className={s.sectionTitle}>화면 = renderer + surfaceConfig + payload</h2>
           <p className={s.sectionDesc}>
-            런타임의 핵심은 데이터와 화면 구성이 renderer에서 합쳐지는 것입니다.
+            청중이 본 Launchpad는 세 가지 입력의 결합입니다. renderer는 항상 같고, payload와
+            surfaceConfig만 호출마다 새로 들어옵니다.
           </p>
 
           <div className={s.visualFrame}>
             <VisualAsset
               alt="A2UI 런타임 아키텍처"
-              fallbackSrc={fallbackImages.overview}
+              fallbackSrc={fallbackImages.hero}
               src="/images/story-revision-runtime-architecture.png"
             />
           </div>
@@ -355,54 +327,101 @@ export function StoryPage() {
         </section>
 
         <section className={s.section}>
-          <div className={s.sectionLabel} style={{ color: "#22d3ee" }}>Agent Integration</div>
-          <h2 className={s.sectionTitle}>기존 Agent에는 A2UI step만 추가합니다</h2>
+          <div className={s.sectionLabel} style={{ color: "#fb923c" }}>Admin Binding</div>
+          <h2 className={s.sectionTitle}>payload는 어디서 옵니까</h2>
           <p className={s.sectionDesc}>
-            기존 Agent 흐름을 유지하고, 응답 직전 A2UI step을 하나 더합니다.
+            Admin은 UI를 그리는 곳이 아니라, 어떤 데이터를 어떤 Part 필드에 연결할지 정하는 곳입니다.
           </p>
 
           <div className={s.visualFrame}>
             <VisualAsset
-              alt="기존 Agent에 A2UI step을 추가하는 흐름"
-              fallbackSrc={fallbackImages.cards}
-              src="/images/story-revision-agent-integration.png"
+              alt="Admin 데이터 바인딩 흐름"
+              fallbackSrc={fallbackImages.hero}
+              src="/images/story-revision-admin-binding.png"
             />
           </div>
 
           <div className={s.grid3}>
-            <div className={s.overviewCard} style={{ borderTopColor: "#22d3ee" }}>
-              <h4>응답 직전</h4>
-              <p>필요할 때 Surface를 만듭니다.</p>
+            <div className={s.archBox}>
+              <h4>Resolver 등록</h4>
+              <p>API/LLM/Auth/Transform resolver를 등록해 payload 소스를 정의합니다.</p>
             </div>
-            <div className={s.overviewCard} style={{ borderTopColor: "#5b8dee" }}>
-              <h4>Tool 실행 후</h4>
-              <p>구조화 결과를 A2UI로 보여줍니다.</p>
+            <div className={s.archBox}>
+              <h4>Binding path</h4>
+              <p>payload의 어느 필드가 Part의 어느 자리에 들어갈지 매핑합니다.</p>
             </div>
-            <div className={s.overviewCard} style={{ borderTopColor: "#34c38f" }}>
-              <h4>Action loop</h4>
-              <p>클릭을 Agent 흐름으로 돌려보냅니다.</p>
+            <div className={s.archBox}>
+              <h4>Preview & Publish</h4>
+              <p>미리보기로 검증한 뒤에만 publish하여 런타임에 노출됩니다.</p>
             </div>
           </div>
         </section>
 
         <section className={s.section}>
-          <div className={s.sectionLabel}>Closing</div>
-          <h2 className={s.sectionTitle}>A2UI의 역할은 표현 계층을 안전하게 넓히는 것입니다</h2>
+          <div className={s.sectionLabel}>Creation Flow</div>
+          <h2 className={s.sectionTitle}>Part는 어디서 옵니까</h2>
           <p className={s.sectionDesc}>
-            제품팀, Admin, Agent가 나뉘어 맡고 사용자는 바로 실행 가능한 운영 UI를 봅니다.
+            Part는 제품팀이 만들고 publish합니다. Admin이 raw UI atoms를 조합하는 게 아니라, 검증된 Part
+            중에서 고릅니다.
           </p>
 
           <div className={s.visualFrame}>
             <VisualAsset
-              alt="A2UI 플랫폼 클로징 이미지"
+              alt="A2UI 제작 흐름"
               fallbackSrc={fallbackImages.hero}
-              src="/images/story-revision-closing.png"
+              src="/images/story-revision-creation-flow.png"
             />
           </div>
 
-          <div className={s.closingCard}>
-            <h3>검증된 A2UI를 필요한 순간에 호출합니다.</h3>
-            <p>품질, 안전성, 재사용성이 이 구조에서 나옵니다.</p>
+          <div className={s.sequenceGrid}>
+            <div>
+              <strong>컴포넌트/파트를 만든다</strong>
+              <span>제품팀이 UX, action contract, fallback을 검증해 publish합니다.</span>
+            </div>
+            <div>
+              <strong>서비스 Surface를 구성한다</strong>
+              <span>Deploy 업무에 맞는 Part 묶음을 선택합니다.</span>
+            </div>
+            <div>
+              <strong>Admin에서 바인딩한다</strong>
+              <span>payload 소스와 binding path를 등록합니다.</span>
+            </div>
+            <div>
+              <strong>Agent에 연결한다</strong>
+              <span>Agent 파이프라인에 호출 step 하나를 추가합니다.</span>
+            </div>
+          </div>
+        </section>
+
+        <section className={s.section}>
+          <div className={s.sectionLabel} style={{ color: "#22d3ee" }}>Agent Integration</div>
+          <h2 className={s.sectionTitle}>Agent에 step 한 줄. 그게 전부입니다.</h2>
+          <p className={s.sectionDesc}>
+            기존 planner, tool, memory는 그대로 둡니다. 응답 직전에 A2UI step 하나를 끼우고, 실패하면
+            텍스트 응답으로 돌아갑니다.
+          </p>
+
+          <div className={s.visualFrame}>
+            <VisualAsset
+              alt="기존 Agent에 A2UI step을 추가하는 흐름"
+              fallbackSrc={fallbackImages.hero}
+              src="/images/story-revision-agent-integration.png"
+            />
+          </div>
+
+          <div className={s.grid3}>
+            <div className={s.valueCard}>
+              <h4>응답 직전</h4>
+              <p>필요할 때 Surface를 만듭니다.</p>
+            </div>
+            <div className={s.valueCard}>
+              <h4>Tool 실행 후</h4>
+              <p>구조화 결과를 A2UI로 보여줍니다.</p>
+            </div>
+            <div className={s.valueCard}>
+              <h4>Action loop</h4>
+              <p>클릭을 Agent 흐름으로 돌려보냅니다.</p>
+            </div>
           </div>
         </section>
       </div>
