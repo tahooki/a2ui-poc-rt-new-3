@@ -3,10 +3,11 @@ import styles from "@/devops-console/console-page.module.css";
 import { Icon, type IconName } from "@/devops-console/foundation/icon-registry";
 import type { PageKey } from "@/devops-chat/types/domain";
 
-export type NavKey = PageKey | "assistant" | "story" | "a2ui";
+export type NavKey = PageKey | "assistant" | "story" | "a2ui" | "codeGuide";
 
 const navItems: Array<{ href: string; key: NavKey; label: string; icon: IconName }> = [
   { href: "/story", key: "story", label: "Story", icon: "story" },
+  { href: "/code-guide", key: "codeGuide", label: "기능별 코드 설명", icon: "terminal" },
   { href: "/deploy/image", key: "deploy", label: "Deploy", icon: "deploy" },
   { href: "/approve", key: "approve", label: "Approve", icon: "approve" },
   { href: "/rollback", key: "rollback", label: "Rollback", icon: "rollback" },
