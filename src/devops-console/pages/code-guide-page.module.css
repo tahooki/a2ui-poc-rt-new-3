@@ -181,7 +181,7 @@
 
 .featureChapter {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(320px, .88fr);
+  grid-template-columns: minmax(0, .76fr) minmax(420px, 1.24fr);
   gap: 22px;
   align-items: start;
   padding: 22px;
@@ -242,6 +242,75 @@
   font-family: var(--console-font-mono);
   font-size: 12px;
   line-height: 1.65;
+}
+
+.codeView {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid rgba(50, 70, 94, .72);
+  border-radius: 8px;
+  background: #0b1220;
+}
+
+.codeViewHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(50, 70, 94, .66);
+  background: rgba(17, 26, 38, .9);
+}
+
+.codeViewTitle {
+  flex: 0 0 auto;
+  color: var(--console-text);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.codeViewHeader code {
+  min-width: 0;
+  color: var(--console-text-muted);
+  font-family: var(--console-font-mono);
+  font-size: 11px;
+  line-height: 1.45;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.codeViewBody {
+  max-height: 520px;
+  overflow: auto;
+  padding: 10px 0;
+}
+
+.codeViewLine {
+  min-width: max-content;
+  display: grid;
+  grid-template-columns: 44px minmax(0, max-content);
+  gap: 12px;
+  padding: 0 16px 0 0;
+  color: #dce7f7;
+  font-family: var(--console-font-mono);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.codeViewLine:hover {
+  background: rgba(76, 141, 255, .06);
+}
+
+.lineNumber {
+  user-select: none;
+  color: rgba(125, 139, 159, .62);
+  text-align: right;
+}
+
+.codeViewLine code {
+  white-space: pre;
 }
 
 .fileList {

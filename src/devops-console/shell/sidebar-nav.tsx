@@ -7,11 +7,10 @@ export type NavKey = PageKey | "assistant" | "story" | "a2ui" | "codeGuide";
 
 const navItems: Array<{ href: string; key: NavKey; label: string; icon: IconName }> = [
   { href: "/story", key: "story", label: "Story", icon: "story" },
-  { href: "/code-guide", key: "codeGuide", label: "기능별 코드 설명", icon: "terminal" },
   { href: "/deploy/image", key: "deploy", label: "Deploy", icon: "deploy" },
   { href: "/approve", key: "approve", label: "Approve", icon: "approve" },
   { href: "/rollback", key: "rollback", label: "Rollback", icon: "rollback" },
-  { href: "/a2ui-components", key: "a2ui", label: "A2UI", icon: "dashboard" },
+  { href: "/code-guide", key: "codeGuide", label: "Code Guide", icon: "terminal" },
 ];
 
 export function SidebarNav({

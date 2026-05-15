@@ -46,10 +46,39 @@ const featureStories = [
       "packages/demo-agent-server/app/orchestrate.py",
       "packages/demo-agent-server/app/config.py",
     ],
-    snippet: `result = await render_or_fallback(
-    intent_key="deploy.start",
-    facts={"serviceName": "payments-api"},
-)`,
+    snippet: `async def render_or_fallback(intent_key: str, facts: dict, mcp_url: str | None = None):
+    client = A2UIMcpClient(server_url=mcp_url)
+
+    decision = await client.call_tool(
+        "a2ui.recommendTemplate",
+        {"intentKey": intent_key, "facts": facts},
+    )
+
+    if decision.get("mode") == "ask_followup":
+        return A2UIResponse(
+            type="followup",
+            missing_facts=decision.get("missingFacts", []),
+            reason=decision.get("reason"),
+        )
+
+    if decision.get("mode") != "render_surface":
+        return A2UIResponse(type="text_fallback", text=decision.get("reason"))
+
+    envelope = await client.call_tool(
+        "a2ui.resolveTemplateData",
+        {
+            "templateId": decision["templateId"],
+            "context": {**facts, "intentKey": intent_key},
+        },
+    )
+
+    if "error" in envelope:
+        return A2UIResponse(
+            type="text_fallback",
+            text=f"템플릿 렌더링 실패: {envelope['error']}",
+        )
+
+    return A2UIResponse(type="surface", surface=envelope)`,
   },
   {
     eyebrow: "Component UI",
@@ -65,10 +94,60 @@ const featureStories = [
       "packages/a2ui-ui/src/dynamic/DynamicA2UICardRenderer.tsx",
       "packages/a2ui-chat/src/A2UISurfaceHost.tsx",
     ],
-    snippet: `<SurfaceRenderer
-  envelope={surfaceEnvelope}
-  onAction={handleAction}
-/>`,
+    snippet: `export function SurfaceRenderer({ envelope, onAction }: SurfaceRendererProps) {
+  if ((envelope as DynamicA2UIEnvelope).surfaceConfig) {
+    const dynamicEnvelope = envelope as DynamicA2UIEnvelope;
+    return (
+      <DynamicA2UICardRenderer
+        envelope={dynamicEnvelope}
+        surfaceConfig={dynamicEnvelope.surfaceConfig!}
+        onAction={onAction}
+      />
+    );
+  }
+
+  const def = getTemplate(envelope.templateId);
+  if (!def) {
+    return (
+      <div>
+        <strong>Template not found: {envelope.templateId}</strong>
+        <pre>{JSON.stringify(envelope.payload, null, 2)}</pre>
+      </div>
+    );
+  }
+
+  const Component = def.component;
+  return (
+    <Component
+      payload={envelope.payload}
+      actions={envelope.actions as TemplateAction[] | undefined}
+      onAction={onAction}
+    />
+  );
+}
+
+export function DynamicA2UICardRenderer({ envelope, surfaceConfig, onAction }) {
+  const draftPayload = envelope.payload;
+  const bindingContext = {
+    payload: draftPayload,
+    actions: envelope.actions,
+    meta: envelope.meta,
+  };
+  const title = resolveBindingValue(surfaceConfig.card.title, bindingContext);
+  const actions = surfaceConfig.card.actions?.source === "templateActions"
+    ? envelope.actions
+    : undefined;
+
+  return (
+    <A2UICardShell title={title} actions={actions} payload={draftPayload} onAction={onAction}>
+      {surfaceConfig.parts.map((part) => {
+        const Part = getA2UIPart(part.type);
+        const props = resolveProps(part.props, bindingContext);
+        return Part ? <Part key={part.id} {...props} /> : <UnknownPartFallback id={part.id} type={part.type} />;
+      })}
+    </A2UICardShell>
+  );
+}`,
   },
   {
     eyebrow: "Admin MCP Server",
@@ -84,10 +163,55 @@ const featureStories = [
       "packages/a2ui-admin/src/mcp-server/tools/register-tools.ts",
       "packages/a2ui-admin/src/mcp-server/runtime/resolve-template.ts",
     ],
-    snippet: `server.tool("a2ui.resolveTemplateData", schema, async ({ templateId, context }) => {
-  const result = await resolveTemplateById(templateId, context, { checkAuth: true });
-  return surfaceEnvelope(result);
-});`,
+    snippet: `server.tool(
+  "a2ui.resolveTemplateData",
+  "resolver chain을 실행하여 SurfaceEnvelope을 반환합니다.",
+  { templateId: z.string(), context: z.record(z.string(), z.unknown()) },
+  async ({ templateId, context }) => {
+    const result = await resolveTemplateById(templateId, context, { checkAuth: true });
+
+    if (result.error || !result.envelope) {
+      return {
+        content: [{ type: "text", text: JSON.stringify({ error: result.error }) }],
+        isError: true,
+      };
+    }
+
+    return { content: [{ type: "text", text: JSON.stringify(result.envelope) }] };
+  },
+);
+
+export async function resolveTemplateRegistration(registration, context) {
+  const resolverData = { ...context };
+  const trace = [];
+
+  for (const resolver of registration.resolvers) {
+    const result = await runResolver(registration, resolver, resolverData);
+    trace.push(result);
+    if (result.status === "failed" && result.phase === "blocking") {
+      return { trace, resolverData, error: result.error };
+    }
+  }
+
+  applyBuiltInDerivedFields(registration, resolverData);
+  const payload = applyBinding(registration.bindingRecipe, resolverData);
+  const validation = validatePayload(
+    registration.bindingRecipeId,
+    payload,
+    registration.generatedValidation,
+  );
+  const actions = registration.actions.map((action) => actionAvailability(action, payload));
+
+  return {
+    envelope: {
+      templateId: registration.bindingRecipeId,
+      payload,
+      actions,
+      surfaceConfig: registration.surfaceConfig,
+      meta: { resolverTraceDetail: trace },
+    },
+  };
+}`,
   },
 ];
 
@@ -160,6 +284,35 @@ function CodeBlock({ children }: { children: string }) {
     <pre className={s.codeBlock}>
       <code>{children}</code>
     </pre>
+  );
+}
+
+function CodeView({
+  children,
+  file,
+  title,
+}: {
+  children: string;
+  file: string;
+  title: string;
+}) {
+  const lines = children.trim().split("\n");
+
+  return (
+    <div className={s.codeView}>
+      <div className={s.codeViewHeader}>
+        <span className={s.codeViewTitle}>{title}</span>
+        <code>{file}</code>
+      </div>
+      <div className={s.codeViewBody}>
+        {lines.map((line, index) => (
+          <div className={s.codeViewLine} key={`${index}-${line}`}>
+            <span className={s.lineNumber}>{index + 1}</span>
+            <code>{line || " "}</code>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -237,9 +390,9 @@ export function CodeGuidePage() {
 
         <section className={s.section}>
           <div className={s.eyebrow}>Feature Chapters</div>
-          <h2>기능별 책임과 코드 위치</h2>
+          <h2>기능별 코드 위치와 핵심 로직</h2>
           <p className={s.sectionLead}>
-            각 기능은 서로 깊게 얽히지 않고 JSON 계약으로 만납니다. 그래서 Agent, MCP, UI를 따로 설명하고 따로 교체할 수 있습니다.
+            각 기능은 서로 깊게 얽히지 않고 JSON 계약으로 만납니다. 아래 코드뷰는 실제 코드에서 따라봐야 하는 핵심 분기와 호출 순서만 추려 놓은 것입니다.
           </p>
           <div className={s.featureStack}>
             {featureStories.map((feature) => (
@@ -255,7 +408,9 @@ export function CodeGuidePage() {
                   </ul>
                 </div>
                 <div className={s.chapterAside}>
-                  <CodeBlock>{feature.snippet}</CodeBlock>
+                  <CodeView file={feature.files[0]} title="핵심 로직 코드뷰">
+                    {feature.snippet}
+                  </CodeView>
                   <div className={s.fileList}>
                     {feature.files.map((file) => (
                       <code key={file}>{file}</code>
