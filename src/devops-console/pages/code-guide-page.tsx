@@ -4,6 +4,20 @@ import { useEffect, useState } from "react";
 import { AppFrame } from "@/devops-console/shell/app-frame";
 import s from "./code-guide-page.module.css";
 
+type CodeExample = {
+  title: string;
+  file: string;
+  snippet: string;
+};
+
+type FeatureStory = {
+  eyebrow: string;
+  title: string;
+  body: string;
+  bullets: string[];
+  codeExamples: CodeExample[];
+};
+
 const journeySteps = [
   {
     label: "1",
@@ -31,7 +45,7 @@ const journeySteps = [
   },
 ];
 
-const featureStories = [
+const featureStories: FeatureStory[] = [
   {
     eyebrow: "Python Agent Wrapper",
     title: "Python 쪽은 얇은 MCP client처럼 붙입니다",
@@ -41,44 +55,99 @@ const featureStories = [
       "render_or_fallback(): recommendTemplate 후 resolveTemplateData 호출",
       "handle_action(): 버튼 action을 a2ui.executeAction으로 전달",
     ],
-    files: [
-      "packages/demo-agent-server/app/a2ui_agent.py",
-      "packages/demo-agent-server/app/orchestrate.py",
-      "packages/demo-agent-server/app/config.py",
-    ],
-    snippet: `async def render_or_fallback(intent_key: str, facts: dict, mcp_url: str | None = None):
-    client = A2UIMcpClient(server_url=mcp_url)
+    codeExamples: [
+      {
+        title: "MCP wrapper",
+        file: "packages/demo-agent-server/app/a2ui_agent.py",
+        snippet: `async def render_or_fallback(
+    intent_key: str,
+    facts: dict,
+    mcp_url: Optional[str] = None,
+) -> A2UIResponse:
+    try:
+        client = A2UIMcpClient(server_url=mcp_url)
 
-    decision = await client.call_tool(
-        "a2ui.recommendTemplate",
-        {"intentKey": intent_key, "facts": facts},
-    )
-
-    if decision.get("mode") == "ask_followup":
-        return A2UIResponse(
-            type="followup",
-            missing_facts=decision.get("missingFacts", []),
-            reason=decision.get("reason"),
+        decision = await client.call_tool(
+            "a2ui.recommendTemplate",
+            {"intentKey": intent_key, "facts": facts},
         )
 
-    if decision.get("mode") != "render_surface":
-        return A2UIResponse(type="text_fallback", text=decision.get("reason"))
+        mode = decision.get("mode", "")
+        if mode == "ask_followup":
+            return A2UIResponse(
+                type="followup",
+                missing_facts=decision.get("missingFacts", []),
+                reason=decision.get("reason", "추가 정보가 필요합니다."),
+            )
 
-    envelope = await client.call_tool(
-        "a2ui.resolveTemplateData",
-        {
-            "templateId": decision["templateId"],
-            "context": {**facts, "intentKey": intent_key},
-        },
-    )
+        if mode != "render_surface" or not decision.get("templateId"):
+            return A2UIResponse(
+                type="text_fallback",
+                text=decision.get("reason") or decision.get("error"),
+            )
 
-    if "error" in envelope:
+        envelope = await client.call_tool(
+            "a2ui.resolveTemplateData",
+            {
+                "templateId": decision["templateId"],
+                "context": {**facts, "intentKey": intent_key},
+            },
+        )
+
+        if "error" in envelope:
+            return A2UIResponse(
+                type="text_fallback",
+                text=f"템플릿 렌더링 실패: {envelope['error']}",
+            )
+
+        return A2UIResponse(type="surface", surface=envelope)
+    except Exception as e:
         return A2UIResponse(
             type="text_fallback",
-            text=f"템플릿 렌더링 실패: {envelope['error']}",
-        )
+            text=f"A2UI 연결 실패. 텍스트로 응답합니다. ({e})",
+        )`,
+      },
+      {
+        title: "Orchestration hook",
+        file: "packages/demo-agent-server/app/orchestrate.py",
+        snippet: `decision = evaluate_decision(intent_result.intent_key, facts)
+tool_summary = "\\n".join(t["summary"] for t in tool_results) if tool_results else None
+text = ""
 
-    return A2UIResponse(type="surface", surface=envelope)`,
+surface = None
+if decision.mode == "render_surface":
+    a2ui_result = await render_or_fallback(
+        intent_key=intent_result.intent_key,
+        facts=facts,
+    )
+    if a2ui_result.type == "surface":
+        surface = a2ui_result.surface
+        text = _surface_ready_text(intent_result.intent_key, facts)
+    elif a2ui_result.type == "followup":
+        text = a2ui_result.reason or "추가 정보가 필요합니다."
+    else:
+        text = a2ui_result.text or await generate_response(
+            request.input,
+            request.context,
+            tool_summary,
+        )`,
+      },
+      {
+        title: "Runtime config",
+        file: "packages/demo-agent-server/app/config.py",
+        snippet: `class Settings(BaseModel):
+    """Application settings."""
+
+    host: str = "0.0.0.0"
+    port: int = 8000
+    mcp_server_url: str = "http://localhost:3100/mcp"
+    mock_api_url: str = "http://localhost:3200"
+    debug: bool = True
+    openai_api_key: str = _env("OPENAI_API_KEY")
+    openai_model: str = _env("OPENAI_MODEL", "gpt-4.1-mini")
+    openai_base_url: str = _env("OPENAI_BASE_URL", "https://api.openai.com/v1")`,
+      },
+    ],
   },
   {
     eyebrow: "Component UI",
@@ -89,19 +158,18 @@ const featureStories = [
       "DynamicA2UICardRenderer: parts 배열을 component registry로 변환",
       "A2UISurfaceHost: action 상태, surface/facts 갱신, read-only 처리를 담당",
     ],
-    files: [
-      "packages/a2ui-ui/src/renderer/SurfaceRenderer.tsx",
-      "packages/a2ui-ui/src/dynamic/DynamicA2UICardRenderer.tsx",
-      "packages/a2ui-chat/src/A2UISurfaceHost.tsx",
-    ],
-    snippet: `export function SurfaceRenderer({ envelope, onAction }: SurfaceRendererProps) {
+    codeExamples: [
+      {
+        title: "Renderer switch",
+        file: "packages/a2ui-ui/src/renderer/SurfaceRenderer.tsx",
+        snippet: `export function SurfaceRenderer({ envelope, onAction }: SurfaceRendererProps) {
   if ((envelope as DynamicA2UIEnvelope).surfaceConfig) {
     const dynamicEnvelope = envelope as DynamicA2UIEnvelope;
     return (
       <DynamicA2UICardRenderer
         envelope={dynamicEnvelope}
-        surfaceConfig={dynamicEnvelope.surfaceConfig!}
         onAction={onAction}
+        surfaceConfig={dynamicEnvelope.surfaceConfig!}
       />
     );
   }
@@ -109,8 +177,8 @@ const featureStories = [
   const def = getTemplate(envelope.templateId);
   if (!def) {
     return (
-      <div>
-        <strong>Template not found: {envelope.templateId}</strong>
+      <div style={{ padding: 16, background: "#1a1a2e" }}>
+        <div>Template not found: {envelope.templateId}</div>
         <pre>{JSON.stringify(envelope.payload, null, 2)}</pre>
       </div>
     );
@@ -124,30 +192,106 @@ const featureStories = [
       onAction={onAction}
     />
   );
-}
+}`,
+      },
+      {
+        title: "Dynamic parts",
+        file: "packages/a2ui-ui/src/dynamic/DynamicA2UICardRenderer.tsx",
+        snippet: `export function DynamicA2UICardRenderer({
+  envelope,
+  surfaceConfig,
+  onAction,
+}: DynamicA2UICardRendererProps) {
+  const payloadKey = \`\${envelope.templateId}:\${envelope.freshnessKey ?? envelope.updatedAt}\`;
+  const [draftState, setDraftState] = useState({
+    key: payloadKey,
+    payload: envelope.payload,
+  });
+  const draftPayload = draftState.key === payloadKey ? draftState.payload : envelope.payload;
 
-export function DynamicA2UICardRenderer({ envelope, surfaceConfig, onAction }) {
-  const draftPayload = envelope.payload;
-  const bindingContext = {
+  const updateDraftPayload = useCallback((payload: Record<string, unknown>) => {
+    setDraftState({ key: payloadKey, payload });
+  }, [payloadKey]);
+
+  const bindingContext: BindingContext = {
     payload: draftPayload,
     actions: envelope.actions,
     meta: envelope.meta,
   };
-  const title = resolveBindingValue(surfaceConfig.card.title, bindingContext);
-  const actions = surfaceConfig.card.actions?.source === "templateActions"
-    ? envelope.actions
+
+  const card = surfaceConfig.card ?? {};
+  const title = card.title
+    ? textValue(resolveBindingValue(card.title, bindingContext), envelope.templateId)
+    : envelope.templateId;
+  const actions = card.actions?.source === "templateActions"
+    ? envelope.actions as TemplateAction[] | undefined
     : undefined;
 
   return (
-    <A2UICardShell title={title} actions={actions} payload={draftPayload} onAction={onAction}>
+    <A2UICardShell actions={actions} onAction={onAction} payload={draftPayload} title={title}>
       {surfaceConfig.parts.map((part) => {
         const Part = getA2UIPart(part.type);
+        if (!Part) {
+          return <UnknownPartFallback id={part.id} key={part.id} type={part.type} />;
+        }
         const props = resolveProps(part.props, bindingContext);
-        return Part ? <Part key={part.id} {...props} /> : <UnknownPartFallback id={part.id} type={part.type} />;
+        return (
+          <Part
+            key={part.id}
+            {...props}
+            __a2uiPayload={draftPayload}
+            __a2uiSetPayload={updateDraftPayload}
+          />
+        );
       })}
     </A2UICardShell>
   );
 }`,
+      },
+      {
+        title: "Action bridge",
+        file: "packages/a2ui-chat/src/A2UISurfaceHost.tsx",
+        snippet: `const handleAction = useCallback(
+  async (event: Parameters<NonNullable<ComponentProps<typeof SurfaceRenderer>["onAction"]>>[0]) => {
+    if (!normalizedSurface || disabled || readOnly || !onAction) return;
+
+    setStatus((current) => reduceA2UISurfaceStatus(current, {
+      type: "start",
+      actionId: event.actionId,
+    }));
+
+    try {
+      const result = await onAction({
+        actionId: event.actionId,
+        kind: event.kind,
+        params: event.params,
+        payload: event.params,
+        surface: normalizedSurface,
+      });
+      const nextSurface = normalizeA2UISurface(result.surface);
+      if (nextSurface || result.surface === null) {
+        onSurfaceChange?.(nextSurface);
+      }
+      if (result.facts) {
+        onFactsChange?.(result.facts);
+      }
+      setStatus((current) => reduceA2UISurfaceStatus(current, {
+        type: "done",
+        actionId: event.actionId,
+        message: result.message,
+      }));
+    } catch (error) {
+      setStatus((current) => reduceA2UISurfaceStatus(current, {
+        type: "error",
+        actionId: event.actionId,
+        error: error instanceof Error ? error.message : String(error),
+      }));
+    }
+  },
+  [disabled, normalizedSurface, onAction, onFactsChange, onSurfaceChange, readOnly],
+);`,
+      },
+    ],
   },
   {
     eyebrow: "Admin MCP Server",
@@ -158,60 +302,118 @@ export function DynamicA2UICardRenderer({ envelope, surfaceConfig, onAction }) {
       "register-tools.ts: 6개 MCP tool 등록",
       "resolve-template.ts: auth, resolver, binding, validation, envelope 생성",
     ],
-    files: [
-      "packages/a2ui-admin/src/mcp-server/server.ts",
-      "packages/a2ui-admin/src/mcp-server/tools/register-tools.ts",
-      "packages/a2ui-admin/src/mcp-server/runtime/resolve-template.ts",
-    ],
-    snippet: `server.tool(
-  "a2ui.resolveTemplateData",
-  "resolver chain을 실행하여 SurfaceEnvelope을 반환합니다.",
-  { templateId: z.string(), context: z.record(z.string(), z.unknown()) },
-  async ({ templateId, context }) => {
-    const result = await resolveTemplateById(templateId, context, { checkAuth: true });
+    codeExamples: [
+      {
+        title: "MCP transport",
+        file: "packages/a2ui-admin/src/mcp-server/server.ts",
+        snippet: `function createMcpServer(): McpServer {
+  const server = new McpServer(
+    { name: "a2ui-mcp-server", version: "0.1.0" },
+    { capabilities: { tools: {} } },
+  );
+  registerTools(server);
+  return server;
+}
 
-    if (result.error || !result.envelope) {
-      return {
-        content: [{ type: "text", text: JSON.stringify({ error: result.error }) }],
-        isError: true,
-      };
-    }
+const transports = new Map<string, StreamableHTTPServerTransport>();
 
-    return { content: [{ type: "text", text: JSON.stringify(result.envelope) }] };
+app.post("/mcp", async (req, res) => {
+  const sessionId = req.headers["mcp-session-id"] as string | undefined;
+  if (sessionId && transports.has(sessionId)) {
+    const transport = transports.get(sessionId)!;
+    await transport.handleRequest(req, res, req.body);
+    return;
+  }
+
+  const transport = new StreamableHTTPServerTransport({
+    sessionIdGenerator: () => randomUUID(),
+  });
+  const server = createMcpServer();
+  await server.connect(transport);
+  await transport.handleRequest(req, res, req.body);
+});`,
+      },
+      {
+        title: "MCP tools",
+        file: "packages/a2ui-admin/src/mcp-server/tools/register-tools.ts",
+        snippet: `server.tool(
+  "a2ui.recommendTemplate",
+  "context 기반 템플릿 추천. intent와 facts로 적절한 템플릿을 판단합니다.",
+  {
+    intentKey: z.string().describe("Intent key (e.g. deploy.start)"),
+    facts: z.record(z.string(), z.unknown()).describe("Collected facts from agent"),
+  },
+  async ({ intentKey, facts }) => {
+    const decision = evaluateDecision(intentKey, facts as Record<string, unknown>);
+    return {
+      content: [{ type: "text" as const, text: JSON.stringify(decision) }],
+    };
   },
 );
 
-export async function resolveTemplateRegistration(registration, context) {
-  const resolverData = { ...context };
-  const trace = [];
+server.tool(
+  "a2ui.resolveTemplateData",
+  "resolver chain을 실행하여 template payload를 생성합니다. SurfaceEnvelope을 반환합니다.",
+  { templateId: z.string(), context: z.record(z.string(), z.unknown()) },
+  async ({ templateId, context }) => {
+    const result = await resolveTemplateById(templateId, context, { checkAuth: true });
+    if (result.error || !result.envelope) {
+      return {
+        content: [{ type: "text" as const, text: JSON.stringify({ error: result.error }) }],
+        isError: true,
+      };
+    }
+    return { content: [{ type: "text" as const, text: JSON.stringify(result.envelope) }] };
+  },
+);`,
+      },
+      {
+        title: "Resolver pipeline",
+        file: "packages/a2ui-admin/src/mcp-server/runtime/resolve-template.ts",
+        snippet: `export async function resolveTemplateRegistration(
+  registration: TemplateRegistration,
+  context: Record<string, unknown>,
+): Promise<ResolveTemplateResult> {
+  const resolverData: Record<string, unknown> = { ...context };
+  const trace: ResolverTrace[] = [];
 
   for (const resolver of registration.resolvers) {
+    if (resolver.enabled === false) continue;
     const result = await runResolver(registration, resolver, resolverData);
     trace.push(result);
     if (result.status === "failed" && result.phase === "blocking") {
-      return { trace, resolverData, error: result.error };
+      return { trace, resolverData, error: result.error ?? \`Resolver failed: \${resolver.id}\` };
     }
   }
 
   applyBuiltInDerivedFields(registration, resolverData);
-  const payload = applyBinding(registration.bindingRecipe, resolverData);
-  const validation = validatePayload(
-    registration.bindingRecipeId,
-    payload,
-    registration.generatedValidation,
-  );
-  const actions = registration.actions.map((action) => actionAvailability(action, payload));
 
+  const payload = applyBinding(registration.bindingRecipe, resolverData);
+  const validation = validatePayload(registration.bindingRecipeId, payload, registration.generatedValidation);
+  if (!validation.valid) {
+    return { trace, resolverData, validation, error: "Payload validation failed" };
+  }
+
+  const actions = registration.actions.map((action) => actionAvailability(action, payload));
+  const generatedAt = new Date().toISOString();
   return {
+    trace,
+    resolverData,
+    validation,
     envelope: {
       templateId: registration.bindingRecipeId,
+      version: registration.version,
+      sourceIntent: (context.intentKey as string) ?? registration.templateId,
+      updatedAt: generatedAt,
       payload,
       actions,
       surfaceConfig: registration.surfaceConfig,
-      meta: { resolverTraceDetail: trace },
+      meta: { generatedAt, catalogTemplateId: registration.templateId, resolverTraceDetail: trace },
     },
   };
 }`,
+      },
+    ],
   },
 ];
 
@@ -324,7 +526,7 @@ export function CodeGuidePage() {
       activePage="codeGuide"
       assistantOpen={false}
       hideAssistantTrigger
-      lastUpdated="2026-05-14"
+      lastUpdated="2026-05-15"
       onToggleAssistant={() => {}}
       onToggleSidebar={() => setSidebarOpen((value) => !value)}
       pageScope="A2UI Code Guide"
@@ -408,14 +610,11 @@ export function CodeGuidePage() {
                   </ul>
                 </div>
                 <div className={s.chapterAside}>
-                  <CodeView file={feature.files[0]} title="핵심 로직 코드뷰">
-                    {feature.snippet}
-                  </CodeView>
-                  <div className={s.fileList}>
-                    {feature.files.map((file) => (
-                      <code key={file}>{file}</code>
-                    ))}
-                  </div>
+                  {feature.codeExamples.map((example) => (
+                    <CodeView file={example.file} key={example.file} title={example.title}>
+                      {example.snippet}
+                    </CodeView>
+                  ))}
                 </div>
               </article>
             ))}
