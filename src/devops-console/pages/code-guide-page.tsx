@@ -65,8 +65,10 @@ const featureStories: FeatureStory[] = [
     mcp_url: Optional[str] = None,
 ) -> A2UIResponse:
     try:
+        # MCP 서버 주소를 주입받으면 그 주소를 쓰고, 없으면 기본 설정값으로 연결합니다.
         client = A2UIMcpClient(server_url=mcp_url)
 
+        # 먼저 intent와 facts만 넘겨서 어떤 응답 모드가 맞는지 추천받습니다.
         decision = await client.call_tool(
             "a2ui.recommendTemplate",
             {"intentKey": intent_key, "facts": facts},
@@ -74,6 +76,7 @@ const featureStories: FeatureStory[] = [
 
         mode = decision.get("mode", "")
         if mode == "ask_followup":
+            # 필수 fact가 부족하면 UI를 그리지 않고 agent가 추가 질문을 하도록 돌려줍니다.
             return A2UIResponse(
                 type="followup",
                 missing_facts=decision.get("missingFacts", []),
@@ -81,11 +84,13 @@ const featureStories: FeatureStory[] = [
             )
 
         if mode != "render_surface" or not decision.get("templateId"):
+            # 렌더링 가능한 template이 없으면 기존 텍스트 답변 경로로 fallback합니다.
             return A2UIResponse(
                 type="text_fallback",
                 text=decision.get("reason") or decision.get("error"),
             )
 
+        # 추천된 templateId와 facts를 resolver에 넘겨 SurfaceEnvelope를 생성합니다.
         envelope = await client.call_tool(
             "a2ui.resolveTemplateData",
             {
@@ -95,13 +100,16 @@ const featureStories: FeatureStory[] = [
         )
 
         if "error" in envelope:
+            # resolver 실패는 UI 대신 텍스트 오류로 감싸서 agent 응답이 끊기지 않게 합니다.
             return A2UIResponse(
                 type="text_fallback",
                 text=f"템플릿 렌더링 실패: {envelope['error']}",
             )
 
+        # 성공하면 host가 그대로 렌더링할 수 있는 envelope를 surface 타입으로 반환합니다.
         return A2UIResponse(type="surface", surface=envelope)
     except Exception as e:
+        # MCP 서버가 내려갔거나 네트워크 문제가 나도 chat 응답은 텍스트로 계속 진행됩니다.
         return A2UIResponse(
             type="text_fallback",
             text=f"A2UI 연결 실패. 텍스트로 응답합니다. ({e})",
@@ -111,21 +119,26 @@ const featureStories: FeatureStory[] = [
         title: "Orchestration hook",
         file: "packages/demo-agent-server/app/orchestrate.py",
         snippet: `decision = evaluate_decision(intent_result.intent_key, facts)
+# tool_results가 있으면 LLM 텍스트 fallback에 넣을 짧은 실행 요약으로 합칩니다.
 tool_summary = "\\n".join(t["summary"] for t in tool_results) if tool_results else None
 text = ""
 
 surface = None
 if decision.mode == "render_surface":
+    # decision engine이 UI 렌더링을 선택한 경우에만 A2UI wrapper를 호출합니다.
     a2ui_result = await render_or_fallback(
         intent_key=intent_result.intent_key,
         facts=facts,
     )
     if a2ui_result.type == "surface":
+        # SurfaceEnvelope는 응답의 surface 필드에 싣고, 텍스트는 준비 완료 문구만 둡니다.
         surface = a2ui_result.surface
         text = _surface_ready_text(intent_result.intent_key, facts)
     elif a2ui_result.type == "followup":
+        # template 추천 단계에서 missing fact가 잡히면 사용자에게 추가 질문을 돌려줍니다.
         text = a2ui_result.reason or "추가 정보가 필요합니다."
     else:
+        # A2UI가 실패하거나 template이 없으면 기존 자연어 응답 생성으로 내려갑니다.
         text = a2ui_result.text or await generate_response(
             request.input,
             request.context,
@@ -138,11 +151,16 @@ if decision.mode == "render_surface":
         snippet: `class Settings(BaseModel):
     """Application settings."""
 
+    # 각 데모 서버가 고정 포트로 맞물리도록 기본값을 한 곳에서 관리합니다.
     host: str = "0.0.0.0"
     port: int = 8000
+
+    # Python agent는 MCP/Admin 서버와 Mock API를 HTTP로 호출합니다.
     mcp_server_url: str = "http://localhost:3100/mcp"
     mock_api_url: str = "http://localhost:3200"
     debug: bool = True
+
+    # LLM 설정은 환경변수 우선, 없으면 데모용 기본값을 사용합니다.
     openai_api_key: str = _env("OPENAI_API_KEY")
     openai_model: str = _env("OPENAI_MODEL", "gpt-4.1-mini")
     openai_base_url: str = _env("OPENAI_BASE_URL", "https://api.openai.com/v1")`,
@@ -163,6 +181,7 @@ if decision.mode == "render_surface":
         title: "Renderer switch",
         file: "packages/a2ui-ui/src/renderer/SurfaceRenderer.tsx",
         snippet: `export function SurfaceRenderer({ envelope, onAction }: SurfaceRendererProps) {
+  // surfaceConfig가 있으면 catalog에서 내려온 dynamic parts 기반 화면입니다.
   if ((envelope as DynamicA2UIEnvelope).surfaceConfig) {
     const dynamicEnvelope = envelope as DynamicA2UIEnvelope;
     return (
@@ -174,8 +193,10 @@ if decision.mode == "render_surface":
     );
   }
 
+  // surfaceConfig가 없으면 미리 등록된 고정 React template을 templateId로 찾습니다.
   const def = getTemplate(envelope.templateId);
   if (!def) {
+    // 등록되지 않은 template은 payload를 같이 보여줘서 catalog 문제를 디버깅하기 쉽게 합니다.
     return (
       <div style={{ padding: 16, background: "#1a1a2e" }}>
         <div>Template not found: {envelope.templateId}</div>
@@ -185,6 +206,7 @@ if decision.mode == "render_surface":
   }
 
   const Component = def.component;
+  // template component는 payload, action 계약, action callback만 알면 됩니다.
   return (
     <Component
       payload={envelope.payload}
@@ -202,6 +224,7 @@ if decision.mode == "render_surface":
   surfaceConfig,
   onAction,
 }: DynamicA2UICardRendererProps) {
+  // envelope가 새로 내려오면 local draft도 새 payload 기준으로 리셋되도록 key를 만듭니다.
   const payloadKey = \`\${envelope.templateId}:\${envelope.freshnessKey ?? envelope.updatedAt}\`;
   const [draftState, setDraftState] = useState({
     key: payloadKey,
@@ -209,10 +232,12 @@ if decision.mode == "render_surface":
   });
   const draftPayload = draftState.key === payloadKey ? draftState.payload : envelope.payload;
 
+  // 입력형 part가 값을 바꾸면 서버 payload가 아니라 화면의 draft payload만 갱신합니다.
   const updateDraftPayload = useCallback((payload: Record<string, unknown>) => {
     setDraftState({ key: payloadKey, payload });
   }, [payloadKey]);
 
+  // binding resolver는 payload/actions/meta를 같은 context에서 참조합니다.
   const bindingContext: BindingContext = {
     payload: draftPayload,
     actions: envelope.actions,
@@ -220,6 +245,7 @@ if decision.mode == "render_surface":
   };
 
   const card = surfaceConfig.card ?? {};
+  // card.title 같은 값은 정적 문자열이거나 binding 표현식일 수 있어 먼저 resolve합니다.
   const title = card.title
     ? textValue(resolveBindingValue(card.title, bindingContext), envelope.templateId)
     : envelope.templateId;
@@ -230,10 +256,12 @@ if decision.mode == "render_surface":
   return (
     <A2UICardShell actions={actions} onAction={onAction} payload={draftPayload} title={title}>
       {surfaceConfig.parts.map((part) => {
+        // part.type은 component registry의 key입니다. 없는 type은 fallback으로 표시합니다.
         const Part = getA2UIPart(part.type);
         if (!Part) {
           return <UnknownPartFallback id={part.id} key={part.id} type={part.type} />;
         }
+        // part props 안의 binding을 현재 payload 기준 실제 prop 값으로 바꿉니다.
         const props = resolveProps(part.props, bindingContext);
         return (
           <Part
@@ -253,14 +281,17 @@ if decision.mode == "render_surface":
         file: "packages/a2ui-chat/src/A2UISurfaceHost.tsx",
         snippet: `const handleAction = useCallback(
   async (event: Parameters<NonNullable<ComponentProps<typeof SurfaceRenderer>["onAction"]>>[0]) => {
+    // surface가 없거나 action이 잠긴 상태면 버튼 클릭을 서버로 보내지 않습니다.
     if (!normalizedSurface || disabled || readOnly || !onAction) return;
 
+    // 즉시 optimistic 상태를 start로 바꿔 버튼/상태 UI가 반응하게 합니다.
     setStatus((current) => reduceA2UISurfaceStatus(current, {
       type: "start",
       actionId: event.actionId,
     }));
 
     try {
+      // host가 받은 action 이벤트에 현재 surface를 붙여 외부 action handler로 전달합니다.
       const result = await onAction({
         actionId: event.actionId,
         kind: event.kind,
@@ -270,9 +301,11 @@ if decision.mode == "render_surface":
       });
       const nextSurface = normalizeA2UISurface(result.surface);
       if (nextSurface || result.surface === null) {
+        // action 결과가 새 surface를 주면 화면을 교체하고, null이면 surface를 비웁니다.
         onSurfaceChange?.(nextSurface);
       }
       if (result.facts) {
+        // 서버가 갱신한 facts는 다음 turn의 context로 이어질 수 있게 올려줍니다.
         onFactsChange?.(result.facts);
       }
       setStatus((current) => reduceA2UISurfaceStatus(current, {
@@ -281,6 +314,7 @@ if decision.mode == "render_surface":
         message: result.message,
       }));
     } catch (error) {
+      // action 실패도 status reducer로 모아 표시하면 renderer 쪽 코드는 단순해집니다.
       setStatus((current) => reduceA2UISurfaceStatus(current, {
         type: "error",
         actionId: event.actionId,
@@ -307,6 +341,7 @@ if decision.mode == "render_surface":
         title: "MCP transport",
         file: "packages/a2ui-admin/src/mcp-server/server.ts",
         snippet: `function createMcpServer(): McpServer {
+  // MCP 서버 인스턴스에 A2UI tool들을 등록해서 client가 tools/call로 부를 수 있게 합니다.
   const server = new McpServer(
     { name: "a2ui-mcp-server", version: "0.1.0" },
     { capabilities: { tools: {} } },
@@ -315,16 +350,19 @@ if decision.mode == "render_surface":
   return server;
 }
 
+// Streamable HTTP는 session별 transport를 유지해야 이후 요청을 같은 연결로 이어갈 수 있습니다.
 const transports = new Map<string, StreamableHTTPServerTransport>();
 
 app.post("/mcp", async (req, res) => {
   const sessionId = req.headers["mcp-session-id"] as string | undefined;
   if (sessionId && transports.has(sessionId)) {
+    // 기존 session이면 만들어 둔 transport가 요청 body를 그대로 처리합니다.
     const transport = transports.get(sessionId)!;
     await transport.handleRequest(req, res, req.body);
     return;
   }
 
+  // 첫 요청이면 새 transport와 MCP server를 만들고 연결한 뒤 initialize 요청을 처리합니다.
   const transport = new StreamableHTTPServerTransport({
     sessionIdGenerator: () => randomUUID(),
   });
@@ -337,6 +375,7 @@ app.post("/mcp", async (req, res) => {
         title: "MCP tools",
         file: "packages/a2ui-admin/src/mcp-server/tools/register-tools.ts",
         snippet: `server.tool(
+  // Agent가 가진 intent/facts로 렌더링 모드와 templateId를 결정합니다.
   "a2ui.recommendTemplate",
   "context 기반 템플릿 추천. intent와 facts로 적절한 템플릿을 판단합니다.",
   {
@@ -344,6 +383,7 @@ app.post("/mcp", async (req, res) => {
     facts: z.record(z.string(), z.unknown()).describe("Collected facts from agent"),
   },
   async ({ intentKey, facts }) => {
+    // decision-engine은 catalog rule을 보고 render_surface, ask_followup 등을 반환합니다.
     const decision = evaluateDecision(intentKey, facts as Record<string, unknown>);
     return {
       content: [{ type: "text" as const, text: JSON.stringify(decision) }],
@@ -352,17 +392,21 @@ app.post("/mcp", async (req, res) => {
 );
 
 server.tool(
+  // 추천된 template을 실제 화면 데이터인 SurfaceEnvelope로 확정합니다.
   "a2ui.resolveTemplateData",
   "resolver chain을 실행하여 template payload를 생성합니다. SurfaceEnvelope을 반환합니다.",
   { templateId: z.string(), context: z.record(z.string(), z.unknown()) },
   async ({ templateId, context }) => {
+    // 권한 확인까지 포함해서 resolver chain, binding, validation을 실행합니다.
     const result = await resolveTemplateById(templateId, context, { checkAuth: true });
     if (result.error || !result.envelope) {
+      // MCP tool error로 표시하되, client가 읽을 수 있도록 JSON text에도 error를 담습니다.
       return {
         content: [{ type: "text" as const, text: JSON.stringify({ error: result.error }) }],
         isError: true,
       };
     }
+    // 성공 시 renderer가 바로 사용할 SurfaceEnvelope를 JSON 문자열로 반환합니다.
     return { content: [{ type: "text" as const, text: JSON.stringify(result.envelope) }] };
   },
 );`,
@@ -374,26 +418,33 @@ server.tool(
   registration: TemplateRegistration,
   context: Record<string, unknown>,
 ): Promise<ResolveTemplateResult> {
+  // resolverData는 context에서 시작해 각 resolver 결과가 누적되는 작업 공간입니다.
   const resolverData: Record<string, unknown> = { ...context };
   const trace: ResolverTrace[] = [];
 
   for (const resolver of registration.resolvers) {
     if (resolver.enabled === false) continue;
+    // API/static/transform 같은 resolver를 순서대로 실행하고 결과를 trace에 남깁니다.
     const result = await runResolver(registration, resolver, resolverData);
     trace.push(result);
     if (result.status === "failed" && result.phase === "blocking") {
+      // blocking resolver 실패는 payload를 만들 수 없으므로 즉시 중단합니다.
       return { trace, resolverData, error: result.error ?? \`Resolver failed: \${resolver.id}\` };
     }
   }
 
+  // resolver 이후 계산 가능한 공통 필드는 binding 전에 보강합니다.
   applyBuiltInDerivedFields(registration, resolverData);
 
+  // binding recipe가 resolverData를 template payload 형태로 매핑합니다.
   const payload = applyBinding(registration.bindingRecipe, resolverData);
   const validation = validatePayload(registration.bindingRecipeId, payload, registration.generatedValidation);
   if (!validation.valid) {
+    // payload 계약을 통과하지 못하면 잘못된 UI를 렌더링하지 않고 error로 돌려줍니다.
     return { trace, resolverData, validation, error: "Payload validation failed" };
   }
 
+  // action도 payload 상태를 보고 enabled/disabled 여부를 계산합니다.
   const actions = registration.actions.map((action) => actionAvailability(action, payload));
   const generatedAt = new Date().toISOString();
   return {
@@ -408,6 +459,7 @@ server.tool(
       payload,
       actions,
       surfaceConfig: registration.surfaceConfig,
+      // meta에는 Admin/디버깅 화면에서 추적할 실행 정보를 함께 싣습니다.
       meta: { generatedAt, catalogTemplateId: registration.templateId, resolverTraceDetail: trace },
     },
   };
@@ -526,7 +578,7 @@ export function CodeGuidePage() {
       activePage="codeGuide"
       assistantOpen={false}
       hideAssistantTrigger
-      lastUpdated="2026-05-15"
+      lastUpdated="2026-05-18"
       onToggleAssistant={() => {}}
       onToggleSidebar={() => setSidebarOpen((value) => !value)}
       pageScope="A2UI Code Guide"
